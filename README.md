@@ -78,25 +78,25 @@ cd ios && pod install && cd ..
 
 ## DarkMode
 
-<img src="image.png" width="320" alt="Login Page" />
+<img src="screenshots/image.png" width="320" alt="Login Page" />
 
-<img src="image-1.png" width="320" alt="Wrong Username/Password" />
+<img src="screenshots/image-1.png" width="320" alt="Wrong Username/Password" />
 
-<img src="image-2.png" width="320" alt="Dashboard" />
+<img src="screenshots/image-2.png" width="320" alt="Dashboard" />
 
-<img src="image-3.png" width="320" alt="Profile" />
+<img src="screenshots/image-3.png" width="320" alt="Profile" />
 
-<img src="image-4.png" width="320" alt="AI Companion" />
+<img src="screenshots/image-4.png" width="320" alt="AI Companion" />
 
-<img src="image-5.png" width="320" alt="AI ChatBot" />
+<img src="screenshots/image-5.png" width="320" alt="AI ChatBot" />
 
-<img src="image-6.png" width="320" alt="Movies List" />
+<img src="screenshots/image-6.png" width="320" alt="Movies List" />
 
-<img src="image-7.png" width="320" alt="Movies Detail" />
+<img src="screenshots/image-7.png" width="320" alt="Movies Detail" />
 
-<img src="image-8.png" width="320" alt="Movies List Favs" />
+<img src="screenshots/image-8.png" width="320" alt="Movies List Favs" />
 
-<img src="image-9.png" width="320" alt="Dashboard Favorites" />
+<img src="screenshots/image-9.png" width="320" alt="Dashboard Favorites" />
 
 ## LightMode
 

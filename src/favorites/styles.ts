@@ -49,5 +49,23 @@ export default StyleSheet.create({
     fontWeight: '700',
     lineHeight: 16,
   },
-
+  reminderBadge: {
+    position: 'absolute',
+    bottom: 30,
+    left: 4,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    shadowOffset: {width: 0, height: 2},
+    elevation: 4,
+    zIndex: 10,
+  },
+  reminderBadgeText: {
+    fontSize: 14,
+  },
 });

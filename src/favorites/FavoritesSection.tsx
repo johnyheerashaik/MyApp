@@ -46,6 +46,14 @@ export default function FavoritesSection({favorites, onPressMovie, onRemoveFavor
                     style={styles.favoritePoster}
                   />
                 )}
+                
+                {/* Reminder indicator badge */}
+                {item.reminderEnabled && (
+                  <View style={[styles.reminderBadge, {backgroundColor: theme.colors.primary}]}>
+                    <Text style={styles.reminderBadgeText}>🔔</Text>
+                  </View>
+                )}
+                
                 <Text
                   numberOfLines={1}
                   style={[

@@ -126,4 +126,27 @@ export default StyleSheet.create({
     fontSize: 32,
     fontWeight: FONT_WEIGHT.BOLD,
   },
+
+  reminderSection: {
+    paddingHorizontal: SPACING.BASE,
+    paddingTop: SPACING.BASE,
+    paddingBottom: SPACING.SM,
+  },
+  reminderButton: {
+    paddingVertical: SPACING.MD,
+    paddingHorizontal: SPACING.LG,
+    borderRadius: BORDER_RADIUS.MD,
+    borderWidth: 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  reminderButtonText: {
+    fontSize: FONT_SIZE.BASE,
+    fontWeight: FONT_WEIGHT.SEMI_BOLD,
+  },
+  reminderSubtext: {
+    fontSize: FONT_SIZE.XS,
+    textAlign: 'center',
+    marginTop: SPACING.XS,
+  },
 });

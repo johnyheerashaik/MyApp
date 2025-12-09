@@ -6,6 +6,7 @@ import {
   Text,
   View,
   TouchableOpacity,
+  Alert,
 } from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {useTheme} from '../theme/ThemeContext';
@@ -14,6 +15,7 @@ import {APP_STRINGS} from '../constants';
 import styles from './styles';
 import type {NativeStackScreenProps} from '@react-navigation/native-stack';
 import type {RootStackParamList} from '../navigation/types';
+import {useFavorites} from '../favorites/FavoritesContext';
 
 type MovieDetailsScreenProps = NativeStackScreenProps<
   RootStackParamList,
@@ -155,10 +157,15 @@ function renderCastSection(movie: MovieDetails, colors: ThemeColors) {
 export default function MovieDetailsScreen({route, navigation}: MovieDetailsScreenProps) {
   const {movieId} = route.params;
   const theme = useTheme();
+  const {isFavorite, isReminderEnabled, toggleReminder} = useFavorites();
 
   const [movie, setMovie] = useState<MovieDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [togglingReminder, setTogglingReminder] = useState(false);
+
+  const favorited = isFavorite(movieId);
+  const reminderOn = isReminderEnabled(movieId);
 
   useEffect(() => {
     const load = async () => {
@@ -174,6 +181,98 @@ export default function MovieDetailsScreen({route, navigation}: MovieDetailsScre
 
     load();
   }, [movieId]);
+
+  const handleToggleReminder = async () => {
+    if (!favorited) {
+      Alert.alert(
+        'Not in Favorites',
+        'Please add this movie to your favorites first to enable reminders.',
+        [{text: 'OK'}]
+      );
+      return;
+    }
+
+    if (!movie?.releaseDate) {
+      Alert.alert(
+        'No Release Date',
+        'This movie does not have a release date available.',
+        [{text: 'OK'}]
+      );
+      return;
+    }
+
+    const newState = !reminderOn;
+    
+    if (newState) {
+      Alert.alert(
+        'Enable Reminder?',
+        `Get notified one day before ${movie.title} releases on ${movie.releaseDate}`,
+        [
+          {text: 'Cancel', style: 'cancel'},
+          {
+            text: 'Enable',
+            onPress: async () => {
+              setTogglingReminder(true);
+              try {
+                await toggleReminder(movieId, true);
+              } catch (error) {
+                Alert.alert('Error', 'Failed to enable reminder');
+              } finally {
+                setTogglingReminder(false);
+              }
+            },
+          },
+        ]
+      );
+    } else {
+      setTogglingReminder(true);
+      try {
+        await toggleReminder(movieId, false);
+      } catch (error) {
+        Alert.alert('Error', 'Failed to disable reminder');
+      } finally {
+        setTogglingReminder(false);
+      }
+    }
+  };
+
+  const renderReminderButton = () => {
+    if (!favorited || !movie?.releaseDate) {
+      return null;
+    }
+
+    return (
+      <View style={styles.reminderSection}>
+        <TouchableOpacity
+          style={[
+            styles.reminderButton,
+            {
+              backgroundColor: reminderOn ? theme.colors.primary : theme.colors.card,
+              borderColor: theme.colors.primary,
+            },
+          ]}
+          onPress={handleToggleReminder}
+          disabled={togglingReminder}>
+          <Text
+            style={[
+              styles.reminderButtonText,
+              {color: reminderOn ? '#fff' : theme.colors.primary},
+            ]}>
+            {togglingReminder
+              ? '...'
+              : reminderOn
+              ? '🔔 Reminder Enabled'
+              : '🔕 Remind Me'}
+          </Text>
+        </TouchableOpacity>
+        {reminderOn && (
+          <Text style={[styles.reminderSubtext, {color: theme.colors.mutedText}]}>
+            You'll be notified one day before release
+          </Text>
+        )}
+      </View>
+    );
+  };
 
   if (loading) {
     return renderLoadingState(theme.colors);
@@ -191,6 +290,7 @@ export default function MovieDetailsScreen({route, navigation}: MovieDetailsScre
 
       <ScrollView showsVerticalScrollIndicator={false}>
         {renderTopRow(movie, theme.colors)}
+        {renderReminderButton()}
         {renderOverviewSection(movie, theme.colors)}
         {renderCastSection(movie, theme.colors)}
       </ScrollView>

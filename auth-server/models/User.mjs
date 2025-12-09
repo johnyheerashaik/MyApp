@@ -28,6 +28,21 @@ const userSchema = new mongoose.Schema({
     minlength: [6, 'Password must be at least 6 characters'],
     select: false // Don't return password by default
   },
+  pushToken: {
+    type: String,
+    default: null
+  },
+  notificationPreferences: {
+    releaseReminders: {
+      type: Boolean,
+      default: true
+    },
+    reminderTime: {
+      type: String,
+      default: '09:00', // Default to 9 AM
+      enum: ['09:00', '12:00', '18:00', '21:00']
+    }
+  },
   createdAt: {
     type: Date,
     default: Date.now

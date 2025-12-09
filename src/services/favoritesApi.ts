@@ -20,9 +20,12 @@ export const getFavorites = async (token: string): Promise<Movie[]> => {
         id: fav.id,
         title: fav.title,
         poster: fav.poster_path,
-        year: fav.release_date,
+        year: fav.release_date?.split('-')[0] || fav.release_date || 'N/A',
+        releaseDate: fav.release_date,
         rating: fav.vote_average,
         overview: fav.overview,
+        reminderEnabled: fav.reminderEnabled || false,
+        reminderSent: fav.reminderSent || false,
       }));
     }
     
@@ -51,7 +54,7 @@ export const addFavorite = async (token: string, movie: Movie): Promise<void> =>
         movieId: movie.id,
         title: movie.title,
         posterPath: movie.poster,
-        releaseDate: movie.year,
+        releaseDate: movie.releaseDate || movie.year,
         voteAverage: movie.rating,
         overview: movie.overview || '',
       }),

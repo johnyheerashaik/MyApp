@@ -11,6 +11,7 @@ import {
   toggleFavorite as toggleFavoriteAction,
 } from '../store/favorites/actions';
 import * as favoritesApi from '../services/favoritesApi';
+import * as reminderApi from '../services/reminderApi';
 
 type FavoritesContextValue = {
   favorites: Movie[];
@@ -19,6 +20,8 @@ type FavoritesContextValue = {
   toggleFavorite: (movie: Movie) => void;
   addFavorite: (movie: Movie) => void;
   removeFavorite: (id: number) => void;
+  toggleReminder: (movieId: number, enabled: boolean) => Promise<void>;
+  isReminderEnabled: (id: number) => boolean;
 };
 
 const FavoritesContext = createContext<FavoritesContextValue | undefined>(
@@ -123,6 +126,33 @@ export const FavoritesProvider = ({children}: {children: React.ReactNode}) => {
     }
   };
 
+  const toggleReminder = async (movieId: number, enabled: boolean) => {
+    if (!user?.token) {
+      console.warn('Cannot toggle reminder: user not logged in');
+      return;
+    }
+
+    try {
+      await reminderApi.toggleReminder(user.token, movieId, enabled);
+      
+      // Update the local state
+      const updatedFavorites = favoritesState.favorites.map(fav =>
+        fav.id === movieId ? {...fav, reminderEnabled: enabled} : fav,
+      );
+      dispatch(initFavoritesAction(updatedFavorites));
+      
+      console.log(`✅ Reminder ${enabled ? 'enabled' : 'disabled'} for movie ${movieId}`);
+    } catch (error) {
+      console.error('Failed to toggle reminder:', error);
+      throw error;
+    }
+  };
+
+  const isReminderEnabled = (id: number) => {
+    const movie = favoritesState.favorites.find(m => m.id === id);
+    return movie?.reminderEnabled || false;
+  };
+
   return (
     <FavoritesContext.Provider
       value={{
@@ -132,6 +162,8 @@ export const FavoritesProvider = ({children}: {children: React.ReactNode}) => {
         toggleFavorite,
         addFavorite,
         removeFavorite,
+        toggleReminder,
+        isReminderEnabled,
       }}>
       {children}
     </FavoritesContext.Provider>

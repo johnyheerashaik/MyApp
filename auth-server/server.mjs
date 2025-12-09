@@ -6,6 +6,7 @@ import jwt from 'jsonwebtoken';
 import { body, validationResult } from 'express-validator';
 import User from './models/User.mjs';
 import Favorite from './models/Favorite.mjs';
+import { startNotificationScheduler, sendPushNotification, checkAndSendReminders } from './services/notificationScheduler.mjs';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -243,7 +244,9 @@ app.get('/api/favorites', authenticateToken, async (req, res) => {
         poster_path: fav.posterPath,
         release_date: fav.releaseDate,
         vote_average: fav.voteAverage,
-        overview: fav.overview
+        overview: fav.overview,
+        reminderEnabled: fav.reminderEnabled || false,
+        reminderSent: fav.reminderSent || false
       }))
     });
   } catch (error) {
@@ -335,11 +338,238 @@ app.delete('/api/favorites/:movieId', authenticateToken, async (req, res) => {
   }
 });
 
+// PATCH /api/favorites/:movieId/reminder - Toggle reminder for a movie
+app.patch('/api/favorites/:movieId/reminder', authenticateToken, async (req, res) => {
+  try {
+    const { movieId } = req.params;
+    const { reminderEnabled } = req.body;
+
+    if (typeof reminderEnabled !== 'boolean') {
+      return res.status(400).json({
+        success: false,
+        message: 'reminderEnabled must be a boolean'
+      });
+    }
+
+    const favorite = await Favorite.findOneAndUpdate(
+      { userId: req.userId, movieId: parseInt(movieId) },
+      { 
+        reminderEnabled,
+        reminderSent: false // Reset reminderSent when toggling
+      },
+      { new: true }
+    );
+
+    if (!favorite) {
+      return res.status(404).json({
+        success: false,
+        message: 'Favorite not found'
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: reminderEnabled ? 'Reminder enabled' : 'Reminder disabled',
+      favorite: {
+        id: favorite.movieId,
+        reminderEnabled: favorite.reminderEnabled
+      }
+    });
+  } catch (error) {
+    console.error('Toggle reminder error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error',
+      error: error.message
+    });
+  }
+});
+
+// GET /api/favorites/reminders - Get all favorites with reminders enabled
+app.get('/api/favorites/reminders', authenticateToken, async (req, res) => {
+  try {
+    const favorites = await Favorite.find({ 
+      userId: req.userId, 
+      reminderEnabled: true 
+    }).sort({ releaseDate: 1 });
+    
+    res.status(200).json({
+      success: true,
+      reminders: favorites.map(fav => ({
+        id: fav.movieId,
+        title: fav.title,
+        poster_path: fav.posterPath,
+        release_date: fav.releaseDate,
+        vote_average: fav.voteAverage,
+        overview: fav.overview,
+        reminderEnabled: fav.reminderEnabled,
+        reminderSent: fav.reminderSent
+      }))
+    });
+  } catch (error) {
+    console.error('Get reminders error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error',
+      error: error.message
+    });
+  }
+});
+
+// PUT /api/users/push-token - Store/update user's push notification token
+app.put('/api/users/push-token', authenticateToken, async (req, res) => {
+  try {
+    const { pushToken } = req.body;
+
+    if (!pushToken || typeof pushToken !== 'string') {
+      return res.status(400).json({
+        success: false,
+        message: 'Valid push token is required'
+      });
+    }
+
+    const user = await User.findByIdAndUpdate(
+      req.userId,
+      { pushToken },
+      { new: true }
+    );
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Push token updated successfully'
+    });
+  } catch (error) {
+    console.error('Update push token error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error',
+      error: error.message
+    });
+  }
+});
+
+// PUT /api/users/notification-preferences - Update notification preferences
+app.put('/api/users/notification-preferences', authenticateToken, async (req, res) => {
+  try {
+    const { releaseReminders, reminderTime } = req.body;
+
+    const updateData = {};
+    if (typeof releaseReminders === 'boolean') {
+      updateData['notificationPreferences.releaseReminders'] = releaseReminders;
+    }
+    if (reminderTime && ['09:00', '12:00', '18:00', '21:00'].includes(reminderTime)) {
+      updateData['notificationPreferences.reminderTime'] = reminderTime;
+    }
+
+    if (Object.keys(updateData).length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'No valid preferences provided'
+      });
+    }
+
+    const user = await User.findByIdAndUpdate(
+      req.userId,
+      updateData,
+      { new: true }
+    );
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Notification preferences updated',
+      preferences: user.notificationPreferences
+    });
+  } catch (error) {
+    console.error('Update preferences error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error',
+      error: error.message
+    });
+  }
+});
+
 // Health check
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', message: 'Auth server is running' });
 });
 
+// Test notification endpoint
+app.post('/api/test/send-notification', authenticateToken, async (req, res) => {
+  try {
+    const user = await User.findById(req.userId);
+    
+    if (!user || !user.pushToken) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'No push token found for user' 
+      });
+    }
+
+    const result = await sendPushNotification(
+      user.pushToken,
+      '🎬 Test Notification',
+      'This is a test push notification from your Movie App!',
+      { test: 'true', timestamp: new Date().toISOString() }
+    );
+
+    if (result) {
+      res.json({ 
+        success: true, 
+        message: 'Test notification sent successfully',
+        messageId: result
+      });
+    } else {
+      res.status(500).json({ 
+        success: false, 
+        message: 'Failed to send notification' 
+      });
+    }
+  } catch (error) {
+    console.error('Error sending test notification:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Server error',
+      error: error.message 
+    });
+  }
+});
+
+// Manual reminder check endpoint (for testing)
+app.post('/api/test/check-reminders', authenticateToken, async (req, res) => {
+  try {
+    await checkAndSendReminders();
+    res.json({ 
+      success: true, 
+      message: 'Reminder check completed. Check server logs for details.' 
+    });
+  } catch (error) {
+    console.error('Error checking reminders:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Server error',
+      error: error.message 
+    });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`🚀 Auth server running on http://localhost:${PORT}`);
+  
+  // Start the notification scheduler
+  startNotificationScheduler();
 });

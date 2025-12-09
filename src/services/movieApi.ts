@@ -5,10 +5,13 @@ export type Movie = {
   id: number;
   title: string;
   year: string;
+  releaseDate?: string; // Full date YYYY-MM-DD for reminders
   rating: number;
   poster: string | null;
   genres?: string[]; // Add genres to Movie type
   overview?: string;
+  reminderEnabled?: boolean;
+  reminderSent?: boolean;
 };
 
 export const fetchMoviesFromEndpoint = async (
@@ -21,6 +24,7 @@ export const fetchMoviesFromEndpoint = async (
     id: m.id,
     title: m.title,
     year: m.release_date?.split('-')[0] ?? 'N/A',
+    releaseDate: m.release_date || null,
     rating: m.vote_average ?? 0,
     poster: m.poster_path
       ? `https://image.tmdb.org/t/p/w500${m.poster_path}`
@@ -52,6 +56,7 @@ export const searchMovies = async (query: string): Promise<Movie[]> => {
     id: m.id,
     title: m.title,
     year: m.release_date?.split('-')[0] ?? 'N/A',
+    releaseDate: m.release_date || null,
     rating: m.vote_average ?? 0,
     poster: m.poster_path
       ? `https://image.tmdb.org/t/p/w500${m.poster_path}`
@@ -90,6 +95,7 @@ export type MovieDetails = {
   title: string;
   overview: string;
   year: string;
+  releaseDate?: string; // Full date YYYY-MM-DD
   rating: number;
   runtime: number | null;
   genres: string[];
@@ -110,6 +116,7 @@ export const getMovieDetails = async (
     title: data.title,
     overview: data.overview,
     year: data.release_date?.split('-')[0] ?? 'N/A',
+    releaseDate: data.release_date || null,
     rating: data.vote_average,
     runtime: data.runtime ?? null,
     genres: (data.genres || []).map((g: any) => g.name),

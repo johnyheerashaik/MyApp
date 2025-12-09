@@ -27,6 +27,14 @@ const favoriteSchema = new mongoose.Schema({
   overview: {
     type: String
   },
+  reminderEnabled: {
+    type: Boolean,
+    default: false
+  },
+  reminderSent: {
+    type: Boolean,
+    default: false
+  },
   addedAt: {
     type: Date,
     default: Date.now

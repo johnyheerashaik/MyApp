@@ -63,7 +63,6 @@ async function getGenreMap() {
     const response = await fetch(`${TMDB_BASE_URL}/genre/movie/list?api_key=${TMDB_API_KEY}&language=en-US`);
     const data = await response.json();
     
-    // Convert to map: { 28: "Action", 12: "Adventure", ... }
     const genreMap = {};
     (data.genres || []).forEach(g => {
       genreMap[g.id] = g.name;
@@ -107,7 +106,7 @@ setInterval(() => {
       userSessions.delete(userId);
     }
   }
-}, 60 * 60 * 1000); // Check every hour
+}, 60 * 60 * 1000); 
 
 // Endpoint to get all movie data for frontend
 app.get('/movies/all', async (req, res) => {
@@ -399,6 +398,83 @@ app.get('/analytics/:userId', (req, res) => {
     preferences: session.preferences,
     conversationCount: session.conversationHistory.length
   });
+});
+
+// 🎬 Nearby theaters endpoint
+app.get('/theaters/nearby', async (req, res) => {
+  try {
+    const { latitude, longitude, radius = 32186.9 } = req.query;
+    
+    if (!latitude || !longitude) {
+      return res.status(400).json({ error: 'Latitude and longitude are required' });
+    }
+
+    const apiKey = process.env.GOOGLE_PLACES_API_KEY;
+    if (!apiKey) {
+      return res.status(500).json({ error: 'Google Places API key not configured' });
+    }
+
+    const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${latitude},${longitude}&radius=${radius}&type=movie_theater&key=${apiKey}`;
+    
+    const response = await fetch(url);
+    const data = await response.json();
+
+    console.log('Google Places API status:', data.status);
+    
+    if (data.status === 'REQUEST_DENIED') {
+      console.error('API Error:', data.error_message);
+      return res.status(403).json({ 
+        error: 'API request denied', 
+        message: data.error_message 
+      });
+    }
+
+    res.json(data);
+  } catch (error) {
+    console.error('Theater search error:', error);
+    res.status(500).json({ error: 'Failed to fetch nearby theaters' });
+  }
+});
+
+// 📍 Geocode zip code endpoint
+app.get('/geocode/zipcode', async (req, res) => {
+  try {
+    const { zip } = req.query;
+    
+    if (!zip) {
+      return res.status(400).json({ error: 'Zip code is required' });
+    }
+
+    const apiKey = process.env.GOOGLE_PLACES_API_KEY;
+    if (!apiKey) {
+      return res.status(500).json({ error: 'Google Places API key not configured' });
+    }
+
+    const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${zip}&key=${apiKey}`;
+    
+    const response = await fetch(url);
+    const data = await response.json();
+
+    console.log('Geocoding API status:', data.status);
+    
+    if (data.status === 'ZERO_RESULTS') {
+      return res.status(404).json({ error: 'Zip code not found' });
+    }
+
+    if (data.status !== 'OK') {
+      console.error('Geocoding Error:', data.error_message);
+      return res.status(400).json({ 
+        error: 'Failed to geocode zip code', 
+        message: data.error_message 
+      });
+    }
+
+    const location = data.results[0].geometry.location;
+    res.json({ location });
+  } catch (error) {
+    console.error('Geocoding error:', error);
+    res.status(500).json({ error: 'Failed to geocode zip code' });
+  }
 });
 
 app.listen(port, () => {

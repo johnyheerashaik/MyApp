@@ -61,19 +61,6 @@ export default function HomeScreen({ navigation }: Props) {
         onRemoveFavorite={removeFavorite}
       />
 
-      {!showCompanion && (
-        <View style={styles.bottomButtonContainer}>
-          <TouchableOpacity
-            style={[
-              styles.primaryButton,
-              { backgroundColor: theme.colors.primary },
-            ]}
-            onPress={() => navigation.navigate('Movies')}>
-            <Text style={styles.primaryButtonText}>View Movies</Text>
-          </TouchableOpacity>
-        </View>
-      )}
-
       <FloatingCompanion
         visible={showCompanion}
         onOpen={() => setShowCompanion(true)}

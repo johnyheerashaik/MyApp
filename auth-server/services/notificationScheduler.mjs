@@ -135,17 +135,12 @@ async function checkAndSendReminders() {
  */
 export function startNotificationScheduler() {
   // Run every day at 9:00 AM
-  // Cron format: '0 9 * * *' = minute hour day month weekday
   cron.schedule('0 9 * * *', () => {
     console.log('⏰ Running scheduled reminder check at 9:00 AM');
     checkAndSendReminders();
   });
 
   console.log('✅ Notification scheduler started (runs daily at 9:00 AM)');
-
-  // Optional: Run once on startup for testing
-  // Uncomment the line below to test immediately
-  // checkAndSendReminders();
 }
 
 // Export for manual testing

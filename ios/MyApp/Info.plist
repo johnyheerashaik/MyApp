@@ -34,7 +34,11 @@
 		<true/>
 	</dict>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string></string>
+	<string>This app needs your location to find nearby theaters and show location-based recommendations.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>This app needs your location to provide personalized movie recommendations based on your area.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>This app needs your location to provide personalized movie recommendations based on your area.</string>
 	<key>RCTNewArchEnabled</key>
 	<true/>
 	<key>UIBackgroundModes</key>

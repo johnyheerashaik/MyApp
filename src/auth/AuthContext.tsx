@@ -1,6 +1,13 @@
 import React, {createContext, useContext, useEffect, ReactNode} from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import {loginApi} from '../services/authApi';
+import {
+  storeAuthToken,
+  storeUserData,
+  getUserData,
+  getAuthToken,
+  clearAuthData,
+} from '../utils/secureStorage';
+import {sanitizeEmail, sanitizeString} from '../utils/sanitization';
 
 import {useSelector, useDispatch} from 'react-redux';
 import type {RootState} from '../store';
@@ -28,18 +35,25 @@ export const AuthProvider = ({children}: {children: ReactNode}) => {
   useEffect(() => {
     const bootstrap = async () => {
       try {
-        const storedUser = await AsyncStorage.getItem('auth_user');
-        console.log('🔐 Bootstrap: Stored user data:', storedUser);
-        const parsed = storedUser ? (JSON.parse(storedUser) as AuthUser) : null;
-        console.log('🔐 Bootstrap: Parsed user:', parsed);
-        console.log('🔐 Bootstrap: Has token?', !!parsed?.token);
+        const userData = await getUserData();
+        const token = await getAuthToken();
         
-        if (parsed && !parsed.token) {
-          console.log('⚠️ Bootstrap: User data missing token, clearing old data');
-          await AsyncStorage.removeItem('auth_user');
+        console.log('🔐 Bootstrap: Has user data?', !!userData);
+        console.log('🔐 Bootstrap: Has token?', !!token);
+        
+        if (userData && token) {
+          const userWithToken: AuthUser = {
+            ...userData,
+            token,
+          };
+          dispatch(initAuth(userWithToken));
+        } else if (userData || token) {
+          // Inconsistent state, clear everything
+          console.log('⚠️ Bootstrap: Inconsistent auth state, clearing');
+          await clearAuthData();
           dispatch(initAuth(null));
         } else {
-          dispatch(initAuth(parsed));
+          dispatch(initAuth(null));
         }
       } finally {
         dispatch(setInitializing(false));
@@ -50,26 +64,29 @@ export const AuthProvider = ({children}: {children: ReactNode}) => {
   }, [dispatch]);
 
   const signIn = async (email: string, password: string) => {
-    const {user: apiUser, token} = await loginApi(email, password);
+    const sanitizedEmail = sanitizeEmail(email);
+    const sanitizedPassword = sanitizeString(password);
+    
+    const {user: apiUser, token} = await loginApi(sanitizedEmail, sanitizedPassword);
     console.log('🔐 SignIn: API response user:', apiUser);
-    console.log('🔐 SignIn: API response token:', token);
+    console.log('🔐 SignIn: Token received:', !!token);
 
     const userWithToken: AuthUser = {
       ...apiUser,
       token,
     };
 
-    console.log('🔐 SignIn: User with token:', userWithToken);
-
-    await AsyncStorage.setItem('auth_user', JSON.stringify(userWithToken));
-    console.log('🔐 SignIn: Saved to AsyncStorage');
+    // Store token and user data separately in secure storage
+    await storeAuthToken(token);
+    await storeUserData(apiUser);
+    console.log('🔐 SignIn: Saved to secure storage');
 
     dispatch(signInAction(userWithToken));
     console.log('🔐 SignIn: Dispatched to Redux');
   };
 
   const signOut = async () => {
-    await AsyncStorage.removeItem('auth_user');
+    await clearAuthData();
     dispatch(signOutAction());
   };
 

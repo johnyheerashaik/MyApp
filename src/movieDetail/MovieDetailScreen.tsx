@@ -10,12 +10,13 @@ import {
 } from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {useTheme} from '../theme/ThemeContext';
-import {getMovieDetails, MovieDetails} from '../services/movieApi';
+import {getMovieDetails, getMovieTrailer, MovieDetails} from '../services/movieApi';
 import {APP_STRINGS} from '../constants';
 import styles from './styles';
 import type {NativeStackScreenProps} from '@react-navigation/native-stack';
 import type {RootStackParamList} from '../navigation/types';
 import {useFavorites} from '../favorites/FavoritesContext';
+import TrailerPlayer from './TrailerPlayer';
 
 type MovieDetailsScreenProps = NativeStackScreenProps<
   RootStackParamList,
@@ -163,6 +164,7 @@ export default function MovieDetailsScreen({route, navigation}: MovieDetailsScre
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [togglingReminder, setTogglingReminder] = useState(false);
+  const [trailerKey, setTrailerKey] = useState<string | null>(null);
 
   const favorited = isFavorite(movieId);
   const reminderOn = isReminderEnabled(movieId);
@@ -170,8 +172,12 @@ export default function MovieDetailsScreen({route, navigation}: MovieDetailsScre
   useEffect(() => {
     const load = async () => {
       try {
-        const details = await getMovieDetails(movieId);
+        const [details, trailer] = await Promise.all([
+          getMovieDetails(movieId),
+          getMovieTrailer(movieId),
+        ]);
         setMovie(details);
+        setTrailerKey(trailer);
       } catch (e: any) {
         setError(e?.message || 'Failed to load movie');
       } finally {
@@ -236,6 +242,8 @@ export default function MovieDetailsScreen({route, navigation}: MovieDetailsScre
     }
   };
 
+
+
   const renderReminderButton = () => {
     if (!favorited || !movie?.releaseDate) {
       return null;
@@ -291,6 +299,7 @@ export default function MovieDetailsScreen({route, navigation}: MovieDetailsScre
       <ScrollView showsVerticalScrollIndicator={false}>
         {renderTopRow(movie, theme.colors)}
         {renderReminderButton()}
+        {trailerKey && <TrailerPlayer trailerKey={trailerKey} textColor={theme.colors.text} />}
         {renderOverviewSection(movie, theme.colors)}
         {renderCastSection(movie, theme.colors)}
       </ScrollView>

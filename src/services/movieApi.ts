@@ -136,3 +136,23 @@ export const getMovieDetails = async (
     })),
   };
 };
+
+export const getMovieTrailer = async (movieId: number): Promise<string | null> => {
+  try {
+    const data = await tmdbFetch(`/movie/${movieId}/videos?language=en-US`);
+    const videos = data.results || [];
+    
+    const trailer = videos.find((v: any) => 
+      v.type === 'Trailer' && v.site === 'YouTube'
+    );
+    
+    if (trailer) {
+      return trailer.key;
+    }
+    
+    return null;
+  } catch (error) {
+    console.error('Failed to fetch trailer:', error);
+    return null;
+  }
+};

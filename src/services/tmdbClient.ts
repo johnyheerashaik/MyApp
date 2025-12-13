@@ -1,7 +1,11 @@
-const BASE_URL = 'https://api.themoviedb.org/3';
+import Config from 'react-native-config';
 
-const TMDB_TOKEN =
-  'eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI3OTExM2VmOTk3MzIwMWQyNjE0NzBhY2RhNTViOWRjNCIsIm5iZiI6MTYzMzk3MDYyOC43NjYsInN1YiI6IjYxNjQ2OWM0ODQ1OTFjMDA4ZmJlNjlkNSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.VE-aAIeebCtBKdwSpGcstiA100HDkr4wyLbO716HXxY';
+const BASE_URL = 'https://api.themoviedb.org/3';
+const TMDB_TOKEN = Config.TMDB_API_TOKEN || '';
+
+if (!TMDB_TOKEN) {
+  console.warn('⚠️ TMDB_API_TOKEN not configured. Check your .env file.');
+}
 
 export const tmdbFetch = async (endpoint: string) => {
   const res = await fetch(`${BASE_URL}${endpoint}`, {

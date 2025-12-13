@@ -19,7 +19,6 @@ function AppContent() {
 
   useEffect(() => {
     if (user?.token) {
-      // Initialize push notifications when user is logged in
       initializePushNotifications(async (fcmToken) => {
         try {
           await reminderApi.updatePushToken(user.token, fcmToken);

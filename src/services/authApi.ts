@@ -1,5 +1,7 @@
+import Config from 'react-native-config';
+import {sanitizeEmail} from '../utils/sanitization';
 
-const API_URL = 'http://localhost:5001/api/auth';
+const API_URL = Config.AUTH_API_URL || 'http://localhost:5001/api/auth';
 
 export interface RegisterData {
   firstName: string;
@@ -29,12 +31,17 @@ export interface AuthResponse {
 
 export const registerApi = async (data: RegisterData): Promise<AuthResponse> => {
   try {
+    const sanitizedData = {
+      ...data,
+      email: sanitizeEmail(data.email),
+    };
+    
     const response = await fetch(`${API_URL}/register`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(data),
+      body: JSON.stringify(sanitizedData),
     });
 
     const result = await response.json();

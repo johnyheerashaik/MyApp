@@ -12,6 +12,7 @@ import TheatresScreen from '../theatres/TheatresScreen';
 import {useAuth} from '../store/hooks';
 import {useTheme} from '../theme/ThemeContext';
 import MovieDetailsScreen from '../movieDetail/MovieDetailScreen';
+import {FeatureToggles} from '../config/featureToggles';
 
 const AuthStack = createNativeStackNavigator<AuthStackParamList>();
 const AppStack = createNativeStackNavigator<AppStackParamList>();
@@ -60,16 +61,18 @@ function TabNavigator() {
           ),
         }}
       />
-      <Tab.Screen
-        name="TheatresTab"
-        component={TheatresScreen}
-        options={{
-          tabBarLabel: 'Theaters',
-          tabBarIcon: ({color}) => (
-            <Text style={{fontSize: 24, color}}>🎬</Text>
-          ),
-        }}
-      />
+      {FeatureToggles.ENABLE_THEATERS && (
+        <Tab.Screen
+          name="TheatresTab"
+          component={TheatresScreen}
+          options={{
+            tabBarLabel: 'Theaters',
+            tabBarIcon: ({color}) => (
+              <Text style={{fontSize: 24, color}}>🎬</Text>
+            ),
+          }}
+        />
+      )}
     </Tab.Navigator>
   );
 }

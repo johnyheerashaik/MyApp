@@ -16,10 +16,28 @@ import {SafeAreaView} from 'react-native-safe-area-context';
 import Geolocation from '@react-native-community/geolocation';
 import {useTheme} from '../theme/ThemeContext';
 import {fetchNearbyTheaters, geocodeZipCode, Theater} from '../services/theatersApi';
+import {FeatureToggles} from '../config/featureToggles';
 import styles from './styles';
 
 export default function TheatresScreen() {
   const theme = useTheme();
+
+  if (!FeatureToggles.ENABLE_THEATERS) {
+    return (
+      <SafeAreaView
+        edges={['top', 'left', 'right']}
+        style={[styles.container, {backgroundColor: theme.colors.background}]}>
+        <View style={styles.header}>
+          <Text style={[styles.title, {color: theme.colors.text}]}>Theaters</Text>
+        </View>
+        <View style={styles.center}>
+          <Text style={[styles.emptyText, {color: theme.colors.mutedText}]}>
+            This feature is currently disabled.
+          </Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
   const [theaters, setTheaters] = useState<Theater[]>([]);
   const [loading, setLoading] = useState(false);
   const [zipCode, setZipCode] = useState('');

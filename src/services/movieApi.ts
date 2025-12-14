@@ -65,6 +65,54 @@ export const searchMovies = async (query: string): Promise<Movie[]> => {
   }));
 };
 
+export const getMoviesByCollection = async (collectionId: number): Promise<Movie[]> => {
+  try {
+    const data = await tmdbFetch(
+      `/collection/${collectionId}?language=en-US`,
+    );
+
+    return (data.parts || []).map((m: any) => ({
+      id: m.id,
+      title: m.title,
+      year: m.release_date?.split('-')[0] ?? 'N/A',
+      releaseDate: m.release_date || null,
+      rating: m.vote_average ?? 0,
+      poster: m.poster_path
+        ? `https://image.tmdb.org/t/p/w500${m.poster_path}`
+        : null,
+      genres: m.genre_ids || [],
+      overview: m.overview || '',
+    }));
+  } catch (error) {
+    console.error('Failed to fetch collection:', error);
+    return [];
+  }
+};
+
+export const getMoviesByKeyword = async (keywordId: number): Promise<Movie[]> => {
+  try {
+    const data = await tmdbFetch(
+      `/discover/movie?with_keywords=${keywordId}&sort_by=popularity.desc&language=en-US&page=1`,
+    );
+
+    return (data.results || []).map((m: any) => ({
+      id: m.id,
+      title: m.title,
+      year: m.release_date?.split('-')[0] ?? 'N/A',
+      releaseDate: m.release_date || null,
+      rating: m.vote_average ?? 0,
+      poster: m.poster_path
+        ? `https://image.tmdb.org/t/p/w500${m.poster_path}`
+        : null,
+      genres: m.genre_ids || [],
+      overview: m.overview || '',
+    }));
+  } catch (error) {
+    console.error('Failed to fetch movies by keyword:', error);
+    return [];
+  }
+};
+
 
 export const getAllMoviesData = async (): Promise<{
   popular: Movie[];

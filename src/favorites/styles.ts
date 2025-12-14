@@ -5,10 +5,34 @@ export default StyleSheet.create({
     marginTop: 12,
     paddingHorizontal: 24,
   },
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+    gap: 8,
+  },
   sectionTitle: {
     fontSize: 20,
     fontWeight: '700',
-    marginBottom: 8,
+  },
+  countBadge: {
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  sortButtons: {
+    flexDirection: 'row',
+    gap: 8,
+    marginBottom: 12,
+    paddingRight: 24,
+  },
+  sortButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+  },
+  sortButtonText: {
+    fontSize: 13,
+    fontWeight: '600',
   },
   emptyText: {
     fontSize: 14,

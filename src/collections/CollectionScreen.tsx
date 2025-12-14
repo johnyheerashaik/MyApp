@@ -21,20 +21,27 @@ type Props = {
 export default function CollectionScreen({navigation, route}: Props) {
   const theme = useTheme();
   const {isFavorite, toggleFavorite} = useFavorites();
-  const {title, keyword} = route.params;
+  const {title, collectionId, keywordId} = route.params;
 
   const [movies, setMovies] = useState<Movie[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadCollection();
-  }, [keyword]);
+  }, [collectionId, keywordId]);
 
   const loadCollection = async () => {
     setLoading(true);
     try {
-      const results = await searchMovies(keyword);
-      setMovies(results);
+      if (collectionId) {
+        const {getMoviesByCollection} = await import('../services/movieApi');
+        const results = await getMoviesByCollection(collectionId);
+        setMovies(results);
+      } else if (keywordId) {
+        const {getMoviesByKeyword} = await import('../services/movieApi');
+        const results = await getMoviesByKeyword(keywordId);
+        setMovies(results);
+      }
     } catch (error) {
       console.error('Failed to load collection:', error);
     } finally {

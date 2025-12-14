@@ -18,11 +18,11 @@ import {APP_STRINGS, MOVIE_ENDPOINTS} from '../constants';
 import styles from './styles';
 
 const COLLECTIONS = [
-  {id: 'marvel', title: '🦸 Marvel Universe', keyword: 'marvel'},
-  {id: 'dc', title: '🦇 DC Comics', keyword: 'batman|superman|wonder woman|aquaman|flash'},
-  {id: 'harry_potter', title: '⚡ Harry Potter', keyword: 'harry potter'},
-  {id: 'star_wars', title: '🌌 Star Wars', keyword: 'star wars'},
-  {id: 'lord_rings', title: '💍 Lord of the Rings', keyword: 'lord of the rings|hobbit'},
+  {id: 'marvel', title: '🦸 Marvel Universe', keywordId: 180547, type: 'keyword'},
+  {id: 'dc', title: '🦇 DC Comics', keywordId: 312528, type: 'keyword'},
+  {id: 'harry_potter', title: '⚡ Harry Potter', collectionId: 1241, type: 'collection'},
+  {id: 'star_wars', title: '🌌 Star Wars', collectionId: 10, type: 'collection'},
+  {id: 'lord_rings', title: '💍 Lord of the Rings', collectionId: 119, type: 'collection'},
 ];
 
 const SECTIONS = [
@@ -232,7 +232,8 @@ export default function MoviesScreen({navigation}: ScreenProps) {
                 style={[styles.collectionCard, {backgroundColor: theme.colors.card}]}
                 onPress={() => navigation.navigate('Collection', {
                   title: collection.title,
-                  keyword: collection.keyword,
+                  collectionId: collection.type === 'collection' ? collection.collectionId : undefined,
+                  keywordId: collection.type === 'keyword' ? collection.keywordId : undefined,
                 })}>
                 <Text style={[styles.collectionTitle, {color: theme.colors.text}]}>
                   {collection.title}

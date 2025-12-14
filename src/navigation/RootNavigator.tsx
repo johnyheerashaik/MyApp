@@ -9,6 +9,7 @@ import SignUpScreen from '../signup/SignUpScreen';
 import HomeScreen from '../home/HomeScreen';
 import MoviesScreen from '../movies/MoviesScreen';
 import TheatresScreen from '../theatres/TheatresScreen';
+import CollectionScreen from '../collections/CollectionScreen';
 import {useAuth} from '../store/hooks';
 import {useTheme} from '../theme/ThemeContext';
 import MovieDetailsScreen from '../movieDetail/MovieDetailScreen';
@@ -51,16 +52,18 @@ function TabNavigator() {
           ),
         }}
       />
-      <Tab.Screen
-        name="MoviesTab"
-        component={MoviesScreen}
-        options={{
-          tabBarLabel: 'Movies',
-          tabBarIcon: ({color}) => (
-            <Text style={{fontSize: 24, color}}>🎥</Text>
-          ),
-        }}
-      />
+      {FeatureToggles.ENABLE_MOVIES && (
+        <Tab.Screen
+          name="MoviesTab"
+          component={MoviesScreen}
+          options={{
+            tabBarLabel: 'Movies',
+            tabBarIcon: ({color}) => (
+              <Text style={{fontSize: 24, color}}>🎥</Text>
+            ),
+          }}
+        />
+      )}
       {FeatureToggles.ENABLE_THEATERS && (
         <Tab.Screen
           name="TheatresTab"
@@ -82,6 +85,7 @@ function AppNavigator() {
     <AppStack.Navigator screenOptions={{headerShown: false}}>
       <AppStack.Screen name="Home" component={TabNavigator} />
       <AppStack.Screen name="MovieDetails" component={MovieDetailsScreen} />
+      <AppStack.Screen name="Collection" component={CollectionScreen} />
     </AppStack.Navigator>
   );
 }

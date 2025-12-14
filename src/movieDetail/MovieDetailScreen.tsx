@@ -17,6 +17,7 @@ import type {NativeStackScreenProps} from '@react-navigation/native-stack';
 import type {RootStackParamList} from '../navigation/types';
 import {useFavorites} from '../favorites/FavoritesContext';
 import TrailerPlayer from './TrailerPlayer';
+import StreamingProviders from '../streaming/StreamingProviders';
 
 type MovieDetailsScreenProps = NativeStackScreenProps<
   RootStackParamList,
@@ -299,6 +300,7 @@ export default function MovieDetailsScreen({route, navigation}: MovieDetailsScre
       <ScrollView showsVerticalScrollIndicator={false}>
         {renderTopRow(movie, theme.colors)}
         {renderReminderButton()}
+        <StreamingProviders movieId={movieId} />
         {trailerKey && <TrailerPlayer trailerKey={trailerKey} textColor={theme.colors.text} />}
         {renderOverviewSection(movie, theme.colors)}
         {renderCastSection(movie, theme.colors)}

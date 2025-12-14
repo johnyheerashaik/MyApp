@@ -59,8 +59,8 @@ export default StyleSheet.create({
   },
 
   posterWrapper: {
-    width: 180,
-    marginRight: SPACING.BASE,
+    width: 130,
+    marginRight: SPACING.SM,
   },
   posterTouchable: {
     borderRadius: BORDER_RADIUS.XXXXL,
@@ -92,5 +92,27 @@ export default StyleSheet.create({
   },
   movieMeta: {
     fontSize: FONT_SIZE.XS,
+  },
+  collectionCard: {
+    width: 200,
+    height: 100,
+    marginRight: SPACING.SM,
+    borderRadius: BORDER_RADIUS.LG,
+    padding: SPACING.BASE,
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  collectionTitle: {
+    fontSize: FONT_SIZE.LG,
+    fontWeight: FONT_WEIGHT.BOLD,
+    marginBottom: SPACING.XS,
+  },
+  collectionSubtitle: {
+    fontSize: FONT_SIZE.XS,
+    fontWeight: FONT_WEIGHT.MEDIUM,
   },
 });

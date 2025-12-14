@@ -156,3 +156,39 @@ export const getMovieTrailer = async (movieId: number): Promise<string | null> =
     return null;
   }
 };
+
+export type WatchProvider = {
+  provider_id: number;
+  provider_name: string;
+  logo_path: string;
+  display_priority: number;
+};
+
+export type WatchProviderData = {
+  flatrate?: WatchProvider[];
+  rent?: WatchProvider[];
+  buy?: WatchProvider[];
+  link?: string;
+};
+
+export const getMovieWatchProviders = async (movieId: number): Promise<WatchProviderData | null> => {
+  try {
+    const data = await tmdbFetch(`/movie/${movieId}/watch/providers`);
+    
+    const usProviders = data.results?.US;
+    
+    if (!usProviders) {
+      return null;
+    }
+    
+    return {
+      flatrate: usProviders.flatrate || [],
+      rent: usProviders.rent || [],
+      buy: usProviders.buy || [],
+      link: usProviders.link || null,
+    };
+  } catch (error) {
+    console.error('Failed to fetch watch providers:', error);
+    return null;
+  }
+};

@@ -17,6 +17,14 @@ import {useFavorites} from '../favorites/FavoritesContext';
 import {APP_STRINGS, MOVIE_ENDPOINTS} from '../constants';
 import styles from './styles';
 
+const COLLECTIONS = [
+  {id: 'marvel', title: '🦸 Marvel Universe', keyword: 'marvel'},
+  {id: 'dc', title: '🦇 DC Comics', keyword: 'batman|superman|wonder woman|aquaman|flash'},
+  {id: 'harry_potter', title: '⚡ Harry Potter', keyword: 'harry potter'},
+  {id: 'star_wars', title: '🌌 Star Wars', keyword: 'star wars'},
+  {id: 'lord_rings', title: '💍 Lord of the Rings', keyword: 'lord of the rings|hobbit'},
+];
+
 const SECTIONS = [
   {key: 'popular', title: APP_STRINGS.POPULAR, endpoint: MOVIE_ENDPOINTS.POPULAR},
   {key: 'now_playing', title: APP_STRINGS.NOW_PLAYING, endpoint: MOVIE_ENDPOINTS.NOW_PLAYING},
@@ -210,6 +218,33 @@ export default function MoviesScreen({navigation}: ScreenProps) {
 
       {/* LIST SECTIONS */}
       <ScrollView showsVerticalScrollIndicator={false}>
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, {color: theme.colors.text}]}>
+            🎬 Collections
+          </Text>
+          <ScrollView 
+            horizontal 
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.rowContent}>
+            {COLLECTIONS.map(collection => (
+              <TouchableOpacity
+                key={collection.id}
+                style={[styles.collectionCard, {backgroundColor: theme.colors.card}]}
+                onPress={() => navigation.navigate('Collection', {
+                  title: collection.title,
+                  keyword: collection.keyword,
+                })}>
+                <Text style={[styles.collectionTitle, {color: theme.colors.text}]}>
+                  {collection.title}
+                </Text>
+                <Text style={[styles.collectionSubtitle, {color: theme.colors.mutedText}]}>
+                  Tap to explore →
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </View>
+
         {SECTIONS.map(section => (
           <MovieRow
             key={section.key}

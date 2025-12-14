@@ -2,8 +2,7 @@ import Config from 'react-native-config';
 
 export const FeatureToggles = {
   ENABLE_THEATERS: Config.ENABLE_THEATERS === 'true',
-  ENABLE_TRAILERS: Config.ENABLE_TRAILERS === 'true',
-  ENABLE_COMPANION: Config.ENABLE_COMPANION === 'true',
+  ENABLE_MOVIES: Config.ENABLE_MOVIES === 'true',
 };
 
 export const isFeatureEnabled = (feature: keyof typeof FeatureToggles): boolean => {

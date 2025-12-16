@@ -16,13 +16,13 @@ import {SafeAreaView} from 'react-native-safe-area-context';
 import Geolocation from '@react-native-community/geolocation';
 import {useTheme} from '../theme/ThemeContext';
 import {fetchNearbyTheaters, geocodeZipCode, Theater} from '../services/theatersApi';
-import {FeatureToggles} from '../config/featureToggles';
+import {isFeatureEnabled} from '../config/featureToggles';
 import styles from './styles';
 
 export default function TheatresScreen() {
   const theme = useTheme();
 
-  if (!FeatureToggles.ENABLE_THEATERS) {
+  if (!isFeatureEnabled('ENABLE_THEATERS')) {
     return (
       <SafeAreaView
         edges={['top', 'left', 'right']}
@@ -78,6 +78,8 @@ export default function TheatresScreen() {
         try {
           const results = await fetchNearbyTheaters(latitude, longitude);
           setTheaters(results);
+          const {logTheaterSearch} = await import('../services/analyticsEvents');
+          logTheaterSearch('gps', results.length);
         } catch (error: any) {
           Alert.alert('Error', error.message || 'Failed to fetch theaters');
         } finally {
@@ -105,6 +107,8 @@ export default function TheatresScreen() {
       console.log('Zip code location:', {lat, lng});
       const results = await fetchNearbyTheaters(lat, lng);
       setTheaters(results);
+      const {logTheaterSearch} = await import('../services/analyticsEvents');
+      logTheaterSearch('zipcode', results.length);
     } catch (error: any) {
       Alert.alert('Error', error.message || 'Failed to find theaters');
     } finally {
@@ -120,7 +124,9 @@ export default function TheatresScreen() {
     }
   };
 
-  const openInMaps = (theater: Theater) => {
+  const openInMaps = async (theater: Theater) => {
+    const {logTheaterDirections} = await import('../services/analyticsEvents');
+    logTheaterDirections(theater.name);
     const url = Platform.select({
       ios: `maps://app?daddr=${theater.latitude},${theater.longitude}`,
       android: `google.navigation:q=${theater.latitude},${theater.longitude}`,

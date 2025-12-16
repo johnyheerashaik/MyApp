@@ -8,10 +8,11 @@ import {
   Platform,
 } from 'react-native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {useAuthActions} from '../store/hooks';
+import {useAuth} from '../auth/AuthContext';
 import {useTheme} from '../theme/ThemeContext';
 import {APP_STRINGS} from '../constants';
 import {AuthStackParamList} from '../navigation/types';
+import {logUserLogin} from '../services/analyticsEvents';
 import styles from './styles';
 
 type RenderInputProps = {
@@ -106,7 +107,7 @@ interface LoginScreenProps {
 }
 
 export default function LoginScreen({navigation}: LoginScreenProps) {
-  const {signIn} = useAuthActions();
+  const {signIn} = useAuth();
   const theme = useTheme();
 
   const [email, setEmail] = useState('');
@@ -123,6 +124,7 @@ export default function LoginScreen({navigation}: LoginScreenProps) {
 
     try {
       await signIn(email.trim(), password);
+      logUserLogin('email');
     } catch (e: any) {
       setError(e?.message || 'Login failed');
     } finally {

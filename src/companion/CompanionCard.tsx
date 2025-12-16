@@ -93,14 +93,9 @@ export default function CompanionCard({
   ];
 
   const extractAndSearchMovies = async (responseText: string): Promise<Movie[]> => {
-    console.log('\n\n═══════════════════════════════════════════');
-    console.log('🎬 MOVIE EXTRACTION STARTING');
-    console.log('═══════════════════════════════════════════');
-    console.log('📝 Full Response Text:', responseText);
-    console.log('═══════════════════════════════════════════\n');
+    console.log('extractAndSearchMovies called');
     
     const cleanedText = responseText.replace(/^\d+\.\s+/gm, '');
-    console.log('🧹 Cleaned Text:', cleanedText);
     
     const patterns = [
       /\*\*([^*]+)\*\*/g,       // **Title**
@@ -113,7 +108,6 @@ export default function CompanionCard({
     
     patterns.forEach((pattern, index) => {
       const matches = [...cleanedText.matchAll(pattern)];
-      console.log(`🔍 Pattern ${index + 1} (${pattern.source}): Found ${matches.length} matches`);
       matches.forEach(match => {
         const title = match[1] || match[2];
         if (title && title.length > 2 && title.length < 100 && !title.includes('\n')) {
@@ -122,33 +116,21 @@ export default function CompanionCard({
           cleanTitle = cleanTitle.replace(/[.,!?;:]+$/, '').trim();
           
           if (cleanTitle.split(' ').length > 0 && cleanTitle.length > 3) {
-            console.log(`  ✅ Adding title: "${cleanTitle}"`);
             potentialTitles.add(cleanTitle);
           }
         }
       });
     });
 
-    console.log('\n📋 Final Potential Titles:', Array.from(potentialTitles));
-
     if (potentialTitles.size === 0) {
-      console.log('❌ No titles found - returning empty array\n');
       return [];
     }
 
-    console.log('\n🔎 Starting TMDB searches...');
     const moviePromises = Array.from(potentialTitles).map(async title => {
       try {
-        console.log(`  🔍 Searching TMDB for: "${title}"`);
         const results = await searchMovies(title);
-        if (results.length > 0) {
-          console.log(`    ✅ Found ${results.length} results. Top match: "${results[0].title}" (${results[0].year})`);
-        } else {
-          console.log(`    ❌ No results for "${title}"`);
-        }
         return results.length > 0 ? results[0] : null;
       } catch (error) {
-        console.error(`    ❌ Error searching for "${title}":`, error);
         return null;
       }
     });
@@ -161,16 +143,8 @@ export default function CompanionCard({
     
     const filteredMovies = validMovies.filter(movie => {
       const isInFavorites = favoriteIds.has(movie.id) || favoriteTitles.has(movie.title.toLowerCase());
-      if (isInFavorites) {
-        console.log(`  🚫 Filtering out "${movie.title}" (already in favorites)`);
-      }
       return !isInFavorites;
     });
-    
-    console.log('\n✨ Final Valid Movies (after filtering favorites):', filteredMovies.map(m => `${m.title} (${m.year})`));
-    console.log('═══════════════════════════════════════════');
-    console.log(`🎯 EXTRACTION COMPLETE: ${filteredMovies.length} movies found`);
-    console.log('═══════════════════════════════════════════\n\n');
     
     return shuffleArray(filteredMovies);
   };
@@ -219,6 +193,12 @@ export default function CompanionCard({
       };
 
       setMessages(prev => [...prev, botMessage]);
+      
+      const {logAIChat, logAIRecommendation} = await import('../services/analyticsEvents');
+      logAIChat('user_message');
+      if (suggestedMovies.length > 0) {
+        logAIRecommendation(suggestedMovies.length);
+      }
     } catch (err) {
       const errorMessage: Message = {
         id: 'error-' + Date.now().toString(),

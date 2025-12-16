@@ -9,9 +9,9 @@ import {
 } from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {useTheme} from '../theme/ThemeContext';
-import {searchMovies, Movie} from '../services/movieApi';
+import { Movie} from '../services/movieApi';
 import {useFavorites} from '../favorites/FavoritesContext';
-import styles from './collectionStyles';
+import styles from './styles';
 
 type Props = {
   navigation: any;
@@ -28,6 +28,9 @@ export default function CollectionScreen({navigation, route}: Props) {
 
   useEffect(() => {
     loadCollection();
+    import('../services/analyticsEvents').then(({logCollectionView}) => {
+      logCollectionView(title || 'unknown');
+    });
   }, [collectionId, keywordId]);
 
   const loadCollection = async () => {

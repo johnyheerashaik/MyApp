@@ -14,6 +14,20 @@
       android:theme="@style/AppTheme"
       android:usesCleartextTraffic="${usesCleartextTraffic}"
       android:supportsRtl="true">
+      
+      <!-- Firebase Analytics Configuration -->
+      <meta-data
+        android:name="google_analytics_automatic_screen_reporting_enabled"
+        android:value="true" />
+      <meta-data
+        android:name="firebase_analytics_collection_enabled"
+        android:value="true" />
+      
+      <!-- Firebase Performance Monitoring Configuration -->
+      <meta-data
+        android:name="firebase_performance_logcat_enabled"
+        android:value="true" />
+      
       <activity
         android:name=".MainActivity"
         android:label="@string/app_name"

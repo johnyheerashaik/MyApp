@@ -69,5 +69,9 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	<key>firebase_analytics_collection_enabled</key>
+	<true/>
+	<key>firebase_performance_collection_enabled</key>
+	<true/>
 </dict>
 </plist>

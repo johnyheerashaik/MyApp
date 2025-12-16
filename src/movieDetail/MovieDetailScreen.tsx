@@ -18,6 +18,7 @@ import type {RootStackParamList} from '../navigation/types';
 import {useFavorites} from '../favorites/FavoritesContext';
 import TrailerPlayer from './TrailerPlayer';
 import StreamingProviders from '../streaming/StreamingProviders';
+import {logMovieView} from '../services/analyticsEvents';
 
 type MovieDetailsScreenProps = NativeStackScreenProps<
   RootStackParamList,
@@ -172,13 +173,17 @@ export default function MovieDetailsScreen({route, navigation}: MovieDetailsScre
 
   useEffect(() => {
     const load = async () => {
+      const {trackOperation} = await import('../services/performance');
       try {
-        const [details, trailer] = await Promise.all([
-          getMovieDetails(movieId),
-          getMovieTrailer(movieId),
-        ]);
+        const [details, trailer] = await trackOperation('load_movie_details_screen', async () => {
+          return Promise.all([
+            getMovieDetails(movieId),
+            getMovieTrailer(movieId),
+          ]);
+        });
         setMovie(details);
         setTrailerKey(trailer);
+        logMovieView(movieId.toString(), details.title);
       } catch (e: any) {
         setError(e?.message || 'Failed to load movie');
       } finally {

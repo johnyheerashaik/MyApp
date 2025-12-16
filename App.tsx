@@ -11,6 +11,8 @@ import {ThemeProvider} from './src/theme/ThemeContext';
 import {FavoritesProvider} from './src/favorites/FavoritesContext';
 import {initializePushNotifications} from './src/services/pushNotifications';
 import * as reminderApi from './src/services/reminderApi';
+import {initializeFirebaseServices, setUserId, logScreenView} from './src/services/analytics';
+import {initializePerformanceMonitoring} from './src/services/performance';
 
 const store = configureAppStore();
 
@@ -18,20 +20,51 @@ function AppContent() {
   const {user} = useAuth();
 
   useEffect(() => {
+    Promise.all([
+      initializeFirebaseServices(),
+      initializePerformanceMonitoring()
+    ])
+      .catch((error) => {
+        console.error('Firebase initialization failed:', error);
+      });
+  }, []);
+
+  useEffect(() => {
     if (user?.token) {
+      if (user.id) {
+        setUserId(user.id);
+      }
+
+      // Initialize push notifications
       initializePushNotifications(async (fcmToken) => {
         try {
           await reminderApi.updatePushToken(user.token, fcmToken);
-          console.log('✅ Push token registered with backend');
         } catch (error) {
-          console.error('❌ Failed to register push token:', error);
+          console.error('Failed to register push token:', error);
         }
       });
     }
   }, [user?.token]);
 
+  const routeNameRef = React.useRef<string | undefined>(undefined);
+  const navigationRef = React.useRef<any>(null);
   return (
-    <NavigationContainer>
+    <NavigationContainer
+      ref={navigationRef}
+      onReady={() => {
+        routeNameRef.current = navigationRef.current?.getCurrentRoute()?.name;
+      }}
+      onStateChange={async () => {
+        const previousRouteName = routeNameRef.current;
+        const currentRouteName = navigationRef.current?.getCurrentRoute()?.name;
+
+        if (previousRouteName !== currentRouteName && currentRouteName) {
+          await logScreenView(currentRouteName);
+        }
+
+        routeNameRef.current = currentRouteName;
+      }}
+    >
       <RootNavigator />
     </NavigationContainer>
   );

@@ -50,7 +50,25 @@ AI Features:
 - ✅ Quick suggestion buttons
 
 ---
+## 🎭 Theatre Finder
 
+Find nearby movie theaters with ease:
+- 📍 Location-based search using GPS
+- 🔢 Zip code search option
+- 🗺️ Integration with Google Places API
+- 📏 Distance calculation from your location
+- 🧭 One-tap directions via Google Maps/Apple Maps
+- ↻ Pull to refresh functionality
+- 🎯 Filters theaters within 20-mile radius
+
+Features:
+- Automatic location permission handling
+- Real-time theater information
+- Sorted by distance (nearest first)
+- Direct navigation integration
+- Cross-platform map support (iOS/Android)
+
+---
 ## 🛠 Tech Stack
 
 Frontend:
@@ -74,41 +92,39 @@ Install:
 ```bash
 yarn install
 cd ios && pod install && cd ..
+```
+
+---
+
+## 📸 Screenshots
+
+### Authentication & Dashboard
+<img src="screenshots/image.png" width="250" alt="Location Access Dialog">  <img src="screenshots/image-1.png" width="250" alt="Login Page"> <img src="screenshots/image-4.png" width="250" alt="Favs Dashboard">
+
+### AI Movie Companion
+<img src="screenshots/image-5.png" width="250" alt="Movie Companion Helper">  <img src="screenshots/image-6.png" width="250" alt="Movie Companion Prompt"> <img src="screenshots/image-7.png" width="250" alt="Movie Comp Recommendations">  
+
+<img src="screenshots/image-8.png" width="250" alt="Movie Companion Fav">  <img src="screenshots/image-9.png" width="250" alt="Movie Companion Fav Added">  <img src="screenshots/image-10.png" width="250" alt="Movie List">
+
+### Movie Details & Trailers
+<img src="screenshots/image-11.png" width="250" alt="Movie Detail Screen">  <img src="screenshots/image-12.png" width="250" alt="Trailer Linking">  <img src="screenshots/image-13.png" width="250" alt="Linking YT">
+
+### Theatre Finder
+<img src="screenshots/image-14.png" width="250" alt="Theatres Tab Menu">  <img src="screenshots/image-15.png" width="250" alt="Zip Modal">  <img src="screenshots/image-16.png" width="250" alt="Nearest Theatres">
+
+### Additional Features
+<img src="screenshots/image-17.png" width="250" alt="Directions Matrix"> <img src="screenshots/image-18.png" width="250" alt="Fav Sorted By Year">  <img src="screenshots/image-19.png" width="250" alt="Favs Sorted By Title">
+
+### Dark Mode & User Management
+<img src="image.png" width="250" alt="Dark Mode / Light Mode Toggle">  <img src="image-1.png" width="250" alt="Sign Up">  
 
 
-## DarkMode
+### Backend (MongoDB)
+![alt text](image-5.png)
+<img src="image-3.png" width="750" alt="Users">
+<img src="screenshots/image-2.png" width="750" alt="Favorites">
 
-<img src="screenshots/image.png" width="320" alt="Login Page" />
 
-<img src="screenshots/image-1.png" width="320" alt="Wrong Username/Password" />
-
-<img src="screenshots/image-2.png" width="320" alt="Dashboard" />
-
-<img src="screenshots/image-3.png" width="320" alt="Profile" />
-
-<img src="screenshots/image-4.png" width="320" alt="AI Companion" />
-
-<img src="screenshots/image-5.png" width="320" alt="AI ChatBot" />
-
-<img src="screenshots/image-6.png" width="320" alt="Movies List" />
-
-<img src="screenshots/image-7.png" width="320" alt="Movies Detail" />
-
-<img src="screenshots/image-8.png" width="320" alt="Movies List Favs" />
-
-<img src="screenshots/image-9.png" width="320" alt="Dashboard Favorites" />
-
-## LightMode
-
-<img src="image-10.png" width="320" alt="Dashboard Favorites" />
-
-<img src="image-11.png" width="320" alt="AI Companion" />
-
-<img src="image-12.png" width="320" alt="AI ChatBot" />
-
-<img src="image-13.png" width="320" alt="Movies List" />
-
-<img src="image-14.png" width="320" alt="Movie Details" />
 
 
 

@@ -33,13 +33,16 @@ export const AuthProvider = ({children}: {children: ReactNode}) => {
   const auth = useSelector((s: RootState) => s.auth);
 
   useEffect(() => {
+    let mounted = true;
+    
     const bootstrap = async () => {
       try {
-        const userData = await getUserData();
-        const token = await getAuthToken();
+        const [userData, token] = await Promise.all([
+          getUserData(),
+          getAuthToken()
+        ]);
         
-        console.log('🔐 Bootstrap: Has user data?', !!userData);
-        console.log('🔐 Bootstrap: Has token?', !!token);
+        if (!mounted) return;
         
         if (userData && token) {
           const userWithToken: AuthUser = {
@@ -49,18 +52,33 @@ export const AuthProvider = ({children}: {children: ReactNode}) => {
           dispatch(initAuth(userWithToken));
         } else if (userData || token) {
           // Inconsistent state, clear everything
-          console.log('⚠️ Bootstrap: Inconsistent auth state, clearing');
           await clearAuthData();
           dispatch(initAuth(null));
         } else {
           dispatch(initAuth(null));
         }
+      } catch (error) {
+        console.error('Error restoring auth state:', error);
+        try {
+          await clearAuthData();
+        } catch (clearError) {
+          console.error('Error clearing auth data:', clearError);
+        }
+        if (mounted) {
+          dispatch(initAuth(null));
+        }
       } finally {
-        dispatch(setInitializing(false));
+        if (mounted) {
+          dispatch(setInitializing(false));
+        }
       }
     };
 
     bootstrap();
+    
+    return () => {
+      mounted = false;
+    };
   }, [dispatch]);
 
   const signIn = async (email: string, password: string) => {
@@ -68,8 +86,6 @@ export const AuthProvider = ({children}: {children: ReactNode}) => {
     const sanitizedPassword = sanitizeString(password);
     
     const {user: apiUser, token} = await loginApi(sanitizedEmail, sanitizedPassword);
-    console.log('🔐 SignIn: API response user:', apiUser);
-    console.log('🔐 SignIn: Token received:', !!token);
 
     const userWithToken: AuthUser = {
       ...apiUser,
@@ -77,17 +93,21 @@ export const AuthProvider = ({children}: {children: ReactNode}) => {
     };
 
     // Store token and user data separately in secure storage
-    await storeAuthToken(token);
-    await storeUserData(apiUser);
-    console.log('🔐 SignIn: Saved to secure storage');
+    const tokenStored = await storeAuthToken(token);
+    const userStored = await storeUserData(apiUser);
+    
+    if (!tokenStored || !userStored) {
+      throw new Error('Failed to save authentication data');
+    }
 
     dispatch(signInAction(userWithToken));
-    console.log('🔐 SignIn: Dispatched to Redux');
   };
 
   const signOut = async () => {
     await clearAuthData();
     dispatch(signOutAction());
+    const {logUserLogout} = await import('../services/analyticsEvents');
+    logUserLogout();
   };
 
   return (

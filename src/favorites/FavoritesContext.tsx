@@ -12,6 +12,7 @@ import {
 } from '../store/favorites/actions';
 import * as favoritesApi from '../services/favoritesApi';
 import * as reminderApi from '../services/reminderApi';
+import { logMovieFavorited, logMovieUnfavorited } from '../services/analyticsEvents';
 
 type FavoritesContextValue = {
   favorites: Movie[];
@@ -76,16 +77,14 @@ export const FavoritesProvider = ({children}: {children: React.ReactNode}) => {
 
     try {
       if (isCurrentlyFavorite) {
-        console.log('🗑️ Removing favorite from server...');
         await favoritesApi.removeFavorite(user.token, movie.id);
-        console.log('✅ Successfully removed from server');
+        logMovieUnfavorited(movie.id.toString(), movie.title);
       } else {
-        console.log('➕ Adding favorite to server...');
         await favoritesApi.addFavorite(user.token, movie);
-        console.log('✅ Successfully added to server');
+        logMovieFavorited(movie.id.toString(), movie.title);
       }
     } catch (error) {
-      console.error('❌ Failed to toggle favorite:', error);
+      console.error('Failed to toggle favorite:', error);
       if (isCurrentlyFavorite) {
         dispatch(addFavoriteAction(movie));
       } else {
@@ -104,6 +103,7 @@ export const FavoritesProvider = ({children}: {children: React.ReactNode}) => {
 
     try {
       await favoritesApi.addFavorite(user.token, movie);
+      logMovieFavorited(movie.id.toString(), movie.title);
     } catch (error) {
       console.error('Failed to add favorite:', error);
       dispatch(removeFavoriteAction(movie.id));

@@ -10,10 +10,10 @@ import HomeScreen from '../home/HomeScreen';
 import MoviesScreen from '../movies/MoviesScreen';
 import TheatresScreen from '../theatres/TheatresScreen';
 import CollectionScreen from '../collections/CollectionScreen';
-import {useAuth} from '../store/hooks';
+import {useAuth} from '../auth/AuthContext';
 import {useTheme} from '../theme/ThemeContext';
 import MovieDetailsScreen from '../movieDetail/MovieDetailScreen';
-import {FeatureToggles} from '../config/featureToggles';
+import {isFeatureEnabled} from '../config/featureToggles';
 
 const AuthStack = createNativeStackNavigator<AuthStackParamList>();
 const AppStack = createNativeStackNavigator<AppStackParamList>();
@@ -52,7 +52,7 @@ function TabNavigator() {
           ),
         }}
       />
-      {FeatureToggles.ENABLE_MOVIES && (
+      {isFeatureEnabled('ENABLE_MOVIES') && (
         <Tab.Screen
           name="MoviesTab"
           component={MoviesScreen}
@@ -64,7 +64,7 @@ function TabNavigator() {
           }}
         />
       )}
-      {FeatureToggles.ENABLE_THEATERS && (
+      {isFeatureEnabled('ENABLE_THEATERS') && (
         <Tab.Screen
           name="TheatresTab"
           component={TheatresScreen}

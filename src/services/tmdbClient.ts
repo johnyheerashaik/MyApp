@@ -1,4 +1,5 @@
 import Config from 'react-native-config';
+import {trackOperation} from './performance';
 
 const BASE_URL = 'https://api.themoviedb.org/3';
 const TMDB_TOKEN = Config.TMDB_API_TOKEN || '';
@@ -8,18 +9,20 @@ if (!TMDB_TOKEN) {
 }
 
 export const tmdbFetch = async (endpoint: string) => {
-  const res = await fetch(`${BASE_URL}${endpoint}`, {
-    method: 'GET',
-    headers: {
-      Authorization: `Bearer ${TMDB_TOKEN}`,
-      'Content-Type': 'application/json;charset=utf-8',
-    },
+  return trackOperation(`tmdb_api${endpoint}`, async () => {
+    const res = await fetch(`${BASE_URL}${endpoint}`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${TMDB_TOKEN}`,
+        'Content-Type': 'application/json;charset=utf-8',
+      },
+    });
+
+    if (!res.ok) {
+      const error = await res.text();
+      throw new Error(error || 'TMDB API failed');
+    }
+
+    return res.json();
   });
-
-  if (!res.ok) {
-    const error = await res.text();
-    throw new Error(error || 'TMDB API failed');
-  }
-
-  return res.json();
 };

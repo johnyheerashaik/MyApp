@@ -38,8 +38,6 @@ export const useAuthActions = () => {
         token,
       };
       
-      console.log('🔐 hooks.ts signIn: User with token:', userWithToken);
-      
       await AsyncStorage.setItem('auth_user', JSON.stringify(userWithToken));
       dispatch(signInAction(userWithToken));
     },

@@ -11,7 +11,9 @@ interface TrailerPlayerProps {
 }
 
 export default function TrailerPlayer({trailerKey, textColor}: TrailerPlayerProps) {
-  const handleOpenYouTube = () => {
+  const handleOpenYouTube = async () => {
+    const {logTrailerPlay} = await import('../services/analyticsEvents');
+    logTrailerPlay(trailerKey, 'YouTube Trailer');
     Linking.openURL(`https://www.youtube.com/watch?v=${trailerKey}`);
   };
 

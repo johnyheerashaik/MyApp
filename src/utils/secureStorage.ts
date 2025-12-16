@@ -9,7 +9,7 @@ export const secureStore = async (key: string, value: string): Promise<boolean> 
   try {
     await Keychain.setGenericPassword(key, value, {
       service: key,
-      accessible: Keychain.ACCESSIBLE.WHEN_UNLOCKED,
+      accessible: Keychain.ACCESSIBLE.AFTER_FIRST_UNLOCK,
     });
     return true;
   } catch (error) {

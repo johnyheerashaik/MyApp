@@ -14,6 +14,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { AuthStackParamList } from '../navigation/types';
 import { useTheme } from '../theme/ThemeContext';
 import { APP_STRINGS } from '../constants';
+import { logUserSignup } from '../services/analyticsEvents';
 import styles from '../login/styles';
 
 type SignUpScreenNavigationProp = NativeStackNavigationProp<
@@ -91,6 +92,7 @@ export default function SignUpScreen({ navigation }: Props) {
       const data = await response.json();
 
       if (data.success) {
+        logUserSignup('email');
         Alert.alert(
           'Success!',
           'Account created successfully. Please login.',
@@ -134,7 +136,7 @@ export default function SignUpScreen({ navigation }: Props) {
           {/* First Name */}
           <View style={{ marginBottom: 12 }}>
             <TextInput
-              style={[styles.input, { borderColor: theme.colors.mutedText, color: theme.colors.text }]}
+              style={[styles.input, { borderColor: theme.colors.mutedText, color: theme.colors.text, backgroundColor: theme.colors.card }]}
               placeholder="First name"
               placeholderTextColor={theme.colors.mutedText}
               value={firstName}
@@ -155,7 +157,7 @@ export default function SignUpScreen({ navigation }: Props) {
           {/* Last Name */}
           <View style={{ marginBottom: 12 }}>
             <TextInput
-              style={[styles.input, { borderColor: theme.colors.mutedText, color: theme.colors.text }]}
+              style={[styles.input, { borderColor: theme.colors.mutedText, color: theme.colors.text, backgroundColor: theme.colors.card }]}
               placeholder="Last name"
               placeholderTextColor={theme.colors.mutedText}
               value={lastName}
@@ -176,7 +178,7 @@ export default function SignUpScreen({ navigation }: Props) {
           {/* Email */}
           <View style={{ marginBottom: 12 }}>
             <TextInput
-              style={[styles.input, { borderColor: theme.colors.mutedText, color: theme.colors.text }]}
+              style={[styles.input, { borderColor: theme.colors.mutedText, color: theme.colors.text, backgroundColor: theme.colors.card }]}
               placeholder={APP_STRINGS.EMAIL}
               placeholderTextColor={theme.colors.mutedText}
               value={email}
@@ -199,7 +201,7 @@ export default function SignUpScreen({ navigation }: Props) {
           {/* Password */}
           <View style={{ marginBottom: 12 }}>
             <TextInput
-              style={[styles.input, { borderColor: theme.colors.mutedText, color: theme.colors.text }]}
+              style={[styles.input, { borderColor: theme.colors.mutedText, color: theme.colors.text, backgroundColor: theme.colors.card }]}
               placeholder={APP_STRINGS.PASSWORD}
               placeholderTextColor={theme.colors.mutedText}
               value={password}
@@ -223,7 +225,7 @@ export default function SignUpScreen({ navigation }: Props) {
           {/* Confirm Password */}
           <View style={{ marginBottom: 12 }}>
             <TextInput
-              style={[styles.input, { borderColor: theme.colors.mutedText, color: theme.colors.text }]}
+              style={[styles.input, { borderColor: theme.colors.mutedText, color: theme.colors.text, backgroundColor: theme.colors.card }]}
               placeholder="Confirm password"
               placeholderTextColor={theme.colors.mutedText}
               value={confirmPassword}

@@ -1,5 +1,6 @@
 import Config from 'react-native-config';
 import {sanitizeEmail} from '../utils/sanitization';
+import {trackOperation} from './performance';
 
 const API_URL = Config.AUTH_API_URL || 'http://localhost:5001/api/auth';
 
@@ -53,34 +54,36 @@ export const registerApi = async (data: RegisterData): Promise<AuthResponse> => 
 };
 
 export const loginApi = async (email: string, password: string) => {
-  try {
-    const response = await fetch(`${API_URL}/login`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email, password }),
-    });
+  return trackOperation('user_login_api', async () => {
+    try {
+      const response = await fetch(`${API_URL}/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
 
-    const result: AuthResponse = await response.json();
+      const result: AuthResponse = await response.json();
 
-    if (!result.success) {
-      throw new Error(result.message || 'Invalid email or password');
+      if (!result.success) {
+        throw new Error(result.message || 'Invalid email or password');
+      }
+
+      return {
+        token: result.token!,
+        user: {
+          id: result.user!.id,
+          name: `${result.user!.firstName} ${result.user!.lastName}`,
+          email: result.user!.email,
+        },
+      };
+    } catch (error) {
+      console.error('Login API error:', error);
+      if (error instanceof Error) {
+        throw error;
+      }
+      throw new Error('Unable to connect to server');
     }
-
-    return {
-      token: result.token!,
-      user: {
-        id: result.user!.id,
-        name: `${result.user!.firstName} ${result.user!.lastName}`,
-        email: result.user!.email,
-      },
-    };
-  } catch (error) {
-    console.error('Login API error:', error);
-    if (error instanceof Error) {
-      throw error;
-    }
-    throw new Error('Unable to connect to server');
-  }
+  });
 };

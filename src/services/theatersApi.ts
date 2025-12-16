@@ -25,26 +25,16 @@ const calculateDistance = (lat1: number, lng1: number, lat2: number, lng2: numbe
 
 export const fetchNearbyTheaters = async (lat: number, lng: number): Promise<Theater[]> => {
   const radius = 32186.9;
-  
-  console.log('Fetching theaters with:', {lat, lng, radius});
-  
   const url = `${BACKEND_URL}/theaters/nearby?latitude=${lat}&longitude=${lng}&radius=${radius}`;
-  
   const response = await fetch(url);
   const data = await response.json();
-  
-  console.log('Backend API response status:', data.status);
-  console.log('Number of results:', data.results?.length || 0);
-  
   if (data.error) {
     console.error('API Error:', data.message || data.error);
     throw new Error(data.message || data.error);
   }
-  
   if (!data.results) {
     return [];
   }
-  
   const theatersData: Theater[] = data.results.map((place: any) => {
     const distance = calculateDistance(
       lat,
@@ -52,7 +42,6 @@ export const fetchNearbyTheaters = async (lat: number, lng: number): Promise<The
       place.geometry.location.lat,
       place.geometry.location.lng
     );
-    
     return {
       id: place.place_id,
       name: place.name,
@@ -62,11 +51,9 @@ export const fetchNearbyTheaters = async (lat: number, lng: number): Promise<The
       longitude: place.geometry.location.lng,
     };
   });
-  
-  console.log('Total theaters found:', theatersData.length);
   const filtered = theatersData.filter(t => t.distance <= 20).sort((a, b) => a.distance - b.distance);
-  console.log('Theaters within 20 miles:', filtered.length);
-  
+  // Only one log per function
+  console.log('fetchNearbyTheaters called');
   return filtered;
 };
 

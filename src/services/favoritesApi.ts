@@ -1,11 +1,13 @@
 
 import { Movie } from './movieApi';
+import {trackOperation} from './performance';
 
 const API_URL = 'http://localhost:5001/api/favorites';
 
 export const getFavorites = async (token: string): Promise<Movie[]> => {
-  try {
-    const response = await fetch(API_URL, {
+  return trackOperation('fetch_favorites', async () => {
+    try {
+      const response = await fetch(API_URL, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -30,20 +32,15 @@ export const getFavorites = async (token: string): Promise<Movie[]> => {
     }
     
     throw new Error(data.message || 'Failed to fetch favorites');
-  } catch (error) {
-    console.error('Get favorites error:', error);
-    throw error;
-  }
+    } catch (error) {
+      console.error('Get favorites error:', error);
+      throw error;
+    }
+  });
 };
 
 export const addFavorite = async (token: string, movie: Movie): Promise<void> => {
   try {
-    console.log('📤 API: Adding favorite', {
-      movieId: movie.id,
-      title: movie.title,
-      hasToken: !!token
-    });
-
     const response = await fetch(API_URL, {
       method: 'POST',
       headers: {
@@ -59,24 +56,20 @@ export const addFavorite = async (token: string, movie: Movie): Promise<void> =>
         overview: movie.overview || '',
       }),
     });
-
-    console.log('📥 API: Response status', response.status);
     const data = await response.json();
-    console.log('📥 API: Response data', data);
-
     if (!data.success) {
       throw new Error(data.message || 'Failed to add favorite');
     }
+    // Only one log per function
+    console.log('addFavorite called');
   } catch (error) {
-    console.error('❌ Add favorite error:', error);
+    console.error('Add favorite error:', error);
     throw error;
   }
 };
 
 export const removeFavorite = async (token: string, movieId: number): Promise<void> => {
   try {
-    console.log('📤 API: Removing favorite', movieId);
-    
     const response = await fetch(`${API_URL}/${movieId}`, {
       method: 'DELETE',
       headers: {
@@ -84,16 +77,14 @@ export const removeFavorite = async (token: string, movieId: number): Promise<vo
         'Content-Type': 'application/json',
       },
     });
-
-    console.log('📥 API: Response status', response.status);
     const data = await response.json();
-    console.log('📥 API: Response data', data);
-
     if (!data.success) {
       throw new Error(data.message || 'Failed to remove favorite');
     }
+    // Only one log per function
+    console.log('removeFavorite called');
   } catch (error) {
-    console.error('❌ Remove favorite error:', error);
+    console.error('Remove favorite error:', error);
     throw error;
   }
 };

@@ -1,0 +1,50 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+  branches:
+    include:
+      - main
+
+parameters:
+  - name: lane
+    displayName: Fastlane lane (Android)
+    type: string
+    default: beta
+    values:
+      - beta
+      - release
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+  - checkout: self
+    fetchDepth: 1
+
+  - task: JavaToolInstaller@0
+    inputs:
+      versionSpec: "17"
+      jdkArchitectureOption: "x64"
+      jdkSourceOption: "PreInstalled"
+
+  - task: NodeTool@0
+    inputs:
+      versionSpec: "18.x"
+
+  - script: |
+      npm ci
+    displayName: Install JS deps
+
+  - script: |
+      cd android
+      gem install bundler
+      bundle install
+    displayName: Install gems (Android fastlane)
+
+  - script: |
+      cd android
+      bundle exec fastlane ${{ parameters.lane }}
+    displayName: Run fastlane lane (Android)

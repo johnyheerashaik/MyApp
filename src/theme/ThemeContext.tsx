@@ -8,7 +8,7 @@ import React, {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useThemeMode, useThemeActions} from '../store/hooks';
 import {DARK_THEME_COLORS, LIGHT_THEME_COLORS, STORAGE_KEYS, ThemeColors} from '../constants';
-import {logThemeChange} from '../services/analyticsEvents';
+import {logThemeChange} from '../services/analytics';
 
 type ThemeMode = 'light' | 'dark';
 

@@ -1,8 +1,11 @@
-import Config from 'react-native-config';
+import { Platform } from 'react-native';
 import {sanitizeEmail} from '../utils/sanitization';
-import {trackOperation} from './performance';
+import {trackOperation, perfFetch} from './performance';
 
-const API_URL = Config.AUTH_API_URL || 'http://localhost:5001/api/auth';
+const API_URL =
+  Platform.OS === 'android'
+    ? 'http://10.0.2.2:5001/api/auth'
+    : 'http://localhost:5001/api/auth';
 
 export interface RegisterData {
   firstName: string;
@@ -37,7 +40,7 @@ export const registerApi = async (data: RegisterData): Promise<AuthResponse> => 
       email: sanitizeEmail(data.email),
     };
     
-    const response = await fetch(`${API_URL}/register`, {
+    const response = await perfFetch(`${API_URL}/register`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -56,7 +59,7 @@ export const registerApi = async (data: RegisterData): Promise<AuthResponse> => 
 export const loginApi = async (email: string, password: string) => {
   return trackOperation('user_login_api', async () => {
     try {
-      const response = await fetch(`${API_URL}/login`, {
+      const response = await perfFetch(`${API_URL}/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

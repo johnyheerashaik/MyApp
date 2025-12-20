@@ -12,7 +12,7 @@ import {useAuth} from '../auth/AuthContext';
 import {useTheme} from '../theme/ThemeContext';
 import {APP_STRINGS} from '../constants';
 import {AuthStackParamList} from '../navigation/types';
-import {logUserLogin} from '../services/analyticsEvents';
+import {logUserLogin} from '../services/analytics';
 import styles from './styles';
 
 type RenderInputProps = {

@@ -106,7 +106,7 @@ export const AuthProvider = ({children}: {children: ReactNode}) => {
   const signOut = async () => {
     await clearAuthData();
     dispatch(signOutAction());
-    const {logUserLogout} = await import('../services/analyticsEvents');
+    const {logUserLogout} = await import('../services/analytics');
     logUserLogout();
   };
 

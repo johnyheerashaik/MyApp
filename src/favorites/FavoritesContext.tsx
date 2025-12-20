@@ -12,7 +12,7 @@ import {
 } from '../store/favorites/actions';
 import * as favoritesApi from '../services/favoritesApi';
 import * as reminderApi from '../services/reminderApi';
-import { logMovieFavorited, logMovieUnfavorited } from '../services/analyticsEvents';
+import { logMovieFavorited, logMovieUnfavorited } from '../services/analytics';
 
 type FavoritesContextValue = {
   favorites: Movie[];
@@ -33,11 +33,13 @@ export const FavoritesProvider = ({children}: {children: React.ReactNode}) => {
   const {user} = useAuth();
   const dispatch = useDispatch();
   const favoritesState = useSelector((s: RootState) => s.favorites);
+  const [reminders, setReminders] = React.useState<{[movieId: number]: boolean}>({});
 
   useEffect(() => {
-    const loadFavorites = async () => {
+    const loadFavoritesAndReminders = async () => {
       if (!user?.token) {
         dispatch(initFavoritesAction([]));
+        setReminders({});
         return;
       }
 
@@ -48,9 +50,21 @@ export const FavoritesProvider = ({children}: {children: React.ReactNode}) => {
         console.error('Failed to load favorites from server:', error);
         dispatch(initFavoritesAction([]));
       }
+
+      try {
+        const remindersList = await reminderApi.getReminders(user.token);
+        const remindersMap: {[movieId: number]: boolean} = {};
+        remindersList.forEach(r => {
+          remindersMap[r.movieId] = !!r.reminderEnabled;
+        });
+        setReminders(remindersMap);
+      } catch (error) {
+        console.error('Failed to load reminders from server:', error);
+        setReminders({});
+      }
     };
 
-    loadFavorites();
+    loadFavoritesAndReminders();
   }, [user?.id, user?.token, dispatch]);
 
   const isFavorite = (id: number) => {
@@ -134,13 +148,7 @@ export const FavoritesProvider = ({children}: {children: React.ReactNode}) => {
 
     try {
       await reminderApi.toggleReminder(user.token, movieId, enabled);
-      
-      // Update the local state
-      const updatedFavorites = favoritesState.favorites.map(fav =>
-        fav.id === movieId ? {...fav, reminderEnabled: enabled} : fav,
-      );
-      dispatch(initFavoritesAction(updatedFavorites));
-      
+      setReminders(prev => ({ ...prev, [movieId]: enabled }));
       console.log(`✅ Reminder ${enabled ? 'enabled' : 'disabled'} for movie ${movieId}`);
     } catch (error) {
       console.error('Failed to toggle reminder:', error);
@@ -149,8 +157,7 @@ export const FavoritesProvider = ({children}: {children: React.ReactNode}) => {
   };
 
   const isReminderEnabled = (id: number) => {
-    const movie = favoritesState.favorites.find(m => m.id === id);
-    return movie?.reminderEnabled || false;
+    return !!reminders[id];
   };
 
   return (

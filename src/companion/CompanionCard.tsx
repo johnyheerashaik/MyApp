@@ -194,7 +194,7 @@ export default function CompanionCard({
 
       setMessages(prev => [...prev, botMessage]);
       
-      const {logAIChat, logAIRecommendation} = await import('../services/analyticsEvents');
+      const {logAIChat, logAIRecommendation} = await import('../services/analytics');
       logAIChat('user_message');
       if (suggestedMovies.length > 0) {
         logAIRecommendation(suggestedMovies.length);

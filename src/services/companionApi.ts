@@ -1,8 +1,11 @@
 import {Movie} from './movieApi';
-import {trackOperation} from './performance';
+import {trackOperation, perfFetch} from './performance';
 
+import { Platform } from 'react-native';
 const BASE_URL = __DEV__
-  ? 'http://localhost:4000' 
+  ? Platform.OS === 'android'
+    ? 'http://10.0.2.2:4000'
+    : 'http://localhost:4000'
   : 'https://your-production-backend-url.com';
 
 export async function askCompanion(
@@ -12,7 +15,7 @@ export async function askCompanion(
   userId?: string,
 ): Promise<string> {
   return trackOperation('ai_companion_chat', async () => {
-    const res = await fetch(`${BASE_URL}/companion`, {
+    const res = await perfFetch(`${BASE_URL}/companion`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -41,7 +44,7 @@ export async function getMovieDataForAI(): Promise<{
   upcoming: Movie[];
   topRated: Movie[];
 }> {
-  const res = await fetch(`${BASE_URL}/movies/all`, {
+  const res = await perfFetch(`${BASE_URL}/movies/all`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',

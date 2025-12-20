@@ -338,8 +338,17 @@ app.delete('/api/favorites/:movieId', authenticateToken, async (req, res) => {
   }
 });
 
-// PATCH /api/favorites/:movieId/reminder - Toggle reminder for a movie
-app.patch('/api/favorites/:movieId/reminder', authenticateToken, async (req, res) => {
+// GET /api/reminders - Get all reminders for the authenticated user
+app.get('/api/reminders', authenticateToken, async (req, res) => {
+  try {
+    const reminders = await Reminder.find({ userId: req.userId, reminderEnabled: true });
+    res.json({ success: true, reminders });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+import Reminder from './models/Reminder.mjs';
+app.patch('/api/reminders/:movieId', authenticateToken, async (req, res) => {
   try {
     const { movieId } = req.params;
     const { reminderEnabled } = req.body;
@@ -351,28 +360,19 @@ app.patch('/api/favorites/:movieId/reminder', authenticateToken, async (req, res
       });
     }
 
-    const favorite = await Favorite.findOneAndUpdate(
+    // Upsert reminder for this user and movie
+    const reminder = await Reminder.findOneAndUpdate(
       { userId: req.userId, movieId: parseInt(movieId) },
-      { 
-        reminderEnabled,
-        reminderSent: false // Reset reminderSent when toggling
-      },
-      { new: true }
+      { reminderEnabled, reminderSent: false },
+      { new: true, upsert: true }
     );
-
-    if (!favorite) {
-      return res.status(404).json({
-        success: false,
-        message: 'Favorite not found'
-      });
-    }
 
     res.status(200).json({
       success: true,
       message: reminderEnabled ? 'Reminder enabled' : 'Reminder disabled',
-      favorite: {
-        id: favorite.movieId,
-        reminderEnabled: favorite.reminderEnabled
+      reminder: {
+        id: reminder.movieId,
+        reminderEnabled: reminder.reminderEnabled
       }
     });
   } catch (error) {

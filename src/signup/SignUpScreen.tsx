@@ -14,8 +14,10 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { AuthStackParamList } from '../navigation/types';
 import { useTheme } from '../theme/ThemeContext';
 import { APP_STRINGS } from '../constants';
-import { logUserSignup } from '../services/analyticsEvents';
+import { logUserSignup } from '../services/analytics';
 import styles from '../login/styles';
+import { perfFetch } from '../services/performance';
+
 
 type SignUpScreenNavigationProp = NativeStackNavigationProp<
   AuthStackParamList,
@@ -76,7 +78,10 @@ export default function SignUpScreen({ navigation }: Props) {
 
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:5001/api/auth/register', {
+      const apiUrl = Platform.OS === 'android'
+        ? 'http://10.0.2.2:5001/api/auth/register'
+        : 'http://localhost:5001/api/auth/register';
+      const response = await perfFetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

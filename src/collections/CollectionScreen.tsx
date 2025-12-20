@@ -28,7 +28,7 @@ export default function CollectionScreen({navigation, route}: Props) {
 
   useEffect(() => {
     loadCollection();
-    import('../services/analyticsEvents').then(({logCollectionView}) => {
+    import('../services/analytics').then(({logCollectionView}) => {
       logCollectionView(title || 'unknown');
     });
   }, [collectionId, keywordId]);

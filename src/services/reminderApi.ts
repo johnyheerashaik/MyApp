@@ -1,5 +1,10 @@
 
-const API_URL = 'http://localhost:5001/api';
+import { Platform } from 'react-native';
+import { perfFetch } from './performance';
+const API_URL =
+  Platform.OS === 'android'
+    ? 'http://10.0.2.2:5001/api'
+    : 'http://localhost:5001/api';
 
 export const toggleReminder = async (
   token: string,
@@ -7,7 +12,7 @@ export const toggleReminder = async (
   reminderEnabled: boolean,
 ): Promise<void> => {
   try {
-    const response = await fetch(`${API_URL}/favorites/${movieId}/reminder`, {
+    const response = await perfFetch(`${API_URL}/reminders/${movieId}`, {
       method: 'PATCH',
       headers: {
         Authorization: `Bearer ${token}`,
@@ -29,7 +34,7 @@ export const toggleReminder = async (
 
 export const getReminders = async (token: string): Promise<any[]> => {
   try {
-    const response = await fetch(`${API_URL}/favorites/reminders`, {
+    const response = await perfFetch(`${API_URL}/reminders`, {
       method: 'GET',
       headers: {
         Authorization: `Bearer ${token}`,
@@ -55,7 +60,7 @@ export const updatePushToken = async (
   pushToken: string,
 ): Promise<void> => {
   try {
-    const response = await fetch(`${API_URL}/users/push-token`, {
+    const response = await perfFetch(`${API_URL}/users/push-token`, {
       method: 'PUT',
       headers: {
         Authorization: `Bearer ${token}`,
@@ -83,7 +88,7 @@ export const updateNotificationPreferences = async (
   },
 ): Promise<void> => {
   try {
-    const response = await fetch(`${API_URL}/users/notification-preferences`, {
+    const response = await perfFetch(`${API_URL}/users/notification-preferences`, {
       method: 'PUT',
       headers: {
         Authorization: `Bearer ${token}`,

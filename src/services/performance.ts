@@ -1,79 +1,100 @@
-import { getPerformance, trace as createTrace } from '@react-native-firebase/perf';
 
-export const startTrace = async (traceName: string) => {
+import { getPerformance, initializePerformance, trace as createTrace, httpMetric, FirebasePerformanceTypes } from '@react-native-firebase/perf';
+import { getApp } from '@react-native-firebase/app';
+
+const getPerf = () => {
+  const app = getApp();
+  return getPerformance(app);
+};
+
+export async function perfFetch(url: string, options?: RequestInit) {
+  const perf = getPerf();
+  const method = (options?.method || 'GET').toUpperCase() as FirebasePerformanceTypes.HttpMethod;
+  const metric = httpMetric(perf, url, method);
+  await metric.start();
+  let response;
   try {
-    const perf = getPerformance();
-    const trace = createTrace(perf, traceName);
-    await trace.start();
-    return trace;
+    response = await fetch(url, options);
+    metric.setHttpResponseCode(response.status);
+    metric.setResponseContentType(response.headers.get('Content-Type') || '');
+    return response;
+  } catch (error) {
+    metric.setHttpResponseCode(0);
+    throw error;
+  } finally {
+    await metric.stop();
+  }
+}
+
+
+type PerfTrace = FirebasePerformanceTypes.Trace;
+
+export const startTrace = async (traceName: string): Promise<PerfTrace | null> => {
+  try {
+    const perf = getPerf();
+    const safeName = traceName.trim().slice(0, 100);
+    const t = createTrace(perf, safeName);
+    await t.start();
+    return t;
   } catch (error) {
     console.error(`Error starting trace ${traceName}:`, error);
     return null;
   }
 };
 
-export const stopTrace = async (trace: any) => {
+export const stopTrace = async (t: PerfTrace | null) => {
   try {
-    if (trace) {
-      await trace.stop();
-    }
+    if (t) await t.stop();
   } catch (error) {
     console.error('Error stopping trace:', error);
   }
 };
 
-export const trackOperation = async (
-  operationName: string,
-  operation: () => Promise<any>
-) => {
-  const trace = await startTrace(operationName);
-  
+export const trackOperation = async <T>(operationName: string, operation: () => Promise<T>) => {
+  const t = await startTrace(operationName);
+
   try {
-    const result = await operation();
-    return result;
+    return await operation();
   } catch (error) {
-    if (trace) {
-      trace.putAttribute('error', 'true');
-      trace.putAttribute('error_message', String(error));
+    if (t) {
+      t.putAttribute('error', 'true');
+      t.putAttribute('error_message', String(error).slice(0, 100));
     }
     throw error;
   } finally {
-    await stopTrace(trace);
+    await stopTrace(t);
   }
 };
 
-export const addTraceAttribute = (trace: any, key: string, value: string) => {
+export const addTraceAttribute = (t: PerfTrace | null, key: string, value: string) => {
   try {
-    if (trace) {
-      trace.putAttribute(key, value);
-    }
+    if (t) t.putAttribute(key, String(value).slice(0, 100));
   } catch (error) {
     console.error(`Error adding attribute ${key}:`, error);
   }
 };
 
-export const addTraceMetric = (trace: any, metricName: string, value: number) => {
+export const addTraceMetric = (t: PerfTrace | null, metricName: string, value: number) => {
   try {
-    if (trace) {
-      trace.putMetric(metricName, value);
-    }
+    if (t) t.putMetric(metricName, value);
   } catch (error) {
     console.error(`Error adding metric ${metricName}:`, error);
   }
 };
 
-export const trackScreenRender = async (screenName: string) => {
-  const trace = await startTrace(`screen_${screenName}`);
-  return trace;
-};
-
 export const initializePerformanceMonitoring = async () => {
   try {
-    const perf = getPerformance();
+    const app = getApp();
+    await initializePerformance(app, { dataCollectionEnabled: true });
 
+    const perf = getPerformance(app);
+    const testTrace = createTrace(perf, 'test_trace');
+    await testTrace.start();
+    await new Promise<void>(r => setTimeout(r, 500));
+    await testTrace.stop();
+
+    console.log('✅ Firebase Performance initialized and test trace sent');
   } catch (error) {
     console.error('❌ Error initializing performance monitoring:', error);
   }
 };
-
-export { getPerformance };

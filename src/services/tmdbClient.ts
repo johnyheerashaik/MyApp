@@ -1,5 +1,5 @@
 import Config from 'react-native-config';
-import {trackOperation} from './performance';
+import {trackOperation, perfFetch} from './performance';
 
 const BASE_URL = 'https://api.themoviedb.org/3';
 const TMDB_TOKEN = Config.TMDB_API_TOKEN || '';
@@ -10,7 +10,7 @@ if (!TMDB_TOKEN) {
 
 export const tmdbFetch = async (endpoint: string) => {
   return trackOperation(`tmdb_api${endpoint}`, async () => {
-    const res = await fetch(`${BASE_URL}${endpoint}`, {
+    const res = await perfFetch(`${BASE_URL}${endpoint}`, {
       method: 'GET',
       headers: {
         Authorization: `Bearer ${TMDB_TOKEN}`,

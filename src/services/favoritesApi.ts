@@ -1,13 +1,17 @@
 
 import { Movie } from './movieApi';
-import {trackOperation} from './performance';
+import {trackOperation, perfFetch} from './performance';
 
-const API_URL = 'http://localhost:5001/api/favorites';
+import { Platform } from 'react-native';
+const API_URL =
+  Platform.OS === 'android'
+    ? 'http://10.0.2.2:5001/api/favorites'
+    : 'http://localhost:5001/api/favorites';
 
 export const getFavorites = async (token: string): Promise<Movie[]> => {
   return trackOperation('fetch_favorites', async () => {
     try {
-      const response = await fetch(API_URL, {
+      const response = await perfFetch(API_URL, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -41,7 +45,7 @@ export const getFavorites = async (token: string): Promise<Movie[]> => {
 
 export const addFavorite = async (token: string, movie: Movie): Promise<void> => {
   try {
-    const response = await fetch(API_URL, {
+    const response = await perfFetch(API_URL, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -70,7 +74,7 @@ export const addFavorite = async (token: string, movie: Movie): Promise<void> =>
 
 export const removeFavorite = async (token: string, movieId: number): Promise<void> => {
   try {
-    const response = await fetch(`${API_URL}/${movieId}`, {
+    const response = await perfFetch(`${API_URL}/${movieId}`, {
       method: 'DELETE',
       headers: {
         'Authorization': `Bearer ${token}`,

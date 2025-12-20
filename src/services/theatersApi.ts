@@ -1,4 +1,9 @@
-const BACKEND_URL = 'http://localhost:4000';
+import { Platform } from 'react-native';
+import { perfFetch } from './performance';
+const BACKEND_URL =
+  Platform.OS === 'android'
+    ? 'http://10.0.2.2:4000'
+    : 'http://localhost:4000';
 
 export type Theater = {
   id: string;
@@ -26,7 +31,7 @@ const calculateDistance = (lat1: number, lng1: number, lat2: number, lng2: numbe
 export const fetchNearbyTheaters = async (lat: number, lng: number): Promise<Theater[]> => {
   const radius = 32186.9;
   const url = `${BACKEND_URL}/theaters/nearby?latitude=${lat}&longitude=${lng}&radius=${radius}`;
-  const response = await fetch(url);
+  const response = await perfFetch(url);
   const data = await response.json();
   if (data.error) {
     console.error('API Error:', data.message || data.error);
@@ -59,7 +64,7 @@ export const fetchNearbyTheaters = async (lat: number, lng: number): Promise<The
 
 export const geocodeZipCode = async (zip: string): Promise<{lat: number; lng: number}> => {
   const url = `${BACKEND_URL}/geocode/zipcode?zip=${zip}`;
-  const response = await fetch(url);
+  const response = await perfFetch(url);
   const data = await response.json();
   
   if (data.error) {

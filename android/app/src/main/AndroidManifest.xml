@@ -14,6 +14,8 @@
       android:theme="@style/AppTheme"
       android:usesCleartextTraffic="${usesCleartextTraffic}"
       android:supportsRtl="true">
+
+      <profileable android:shell="true" />
       
       <!-- Firebase Analytics Configuration -->
       <meta-data

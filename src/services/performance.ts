@@ -14,11 +14,14 @@ export async function perfFetch(url: string, options?: RequestInit) {
   await metric.start();
   let response;
   try {
+    console.log('[perfFetch] Request:', url, options);
     response = await fetch(url, options);
+    console.log('[perfFetch] Response:', response.status, response.headers.get('Content-Type'));
     metric.setHttpResponseCode(response.status);
     metric.setResponseContentType(response.headers.get('Content-Type') || '');
     return response;
   } catch (error) {
+    console.error('[perfFetch] Error:', error);
     metric.setHttpResponseCode(0);
     throw error;
   } finally {

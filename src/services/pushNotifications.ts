@@ -7,6 +7,7 @@ import {
   registerDeviceForRemoteMessages,
 } from '@react-native-firebase/messaging';
 import {Platform, PermissionsAndroid, Alert} from 'react-native';
+import Clipboard from '@react-native-clipboard/clipboard';
 
 export async function requestNotificationPermission(): Promise<boolean> {
   try {
@@ -72,16 +73,35 @@ export function setupNotificationListeners() {
 }
 
 export async function initializePushNotifications(
-  updateTokenCallback?: (token: string) => Promise<void>,
+  updateTokenCallback?: (token: string) => Promise<void>
 ): Promise<void> {
   try {
     const hasPermission = await requestNotificationPermission();
+    if (!hasPermission) {
+      console.warn('Notification permission not granted');
+      return;
+    }
     const token = await getFCMToken();
+    if (token) {
+      Alert.alert(
+        'FCM Token',
+        token,
+        [
+          {
+            text: 'OK',
+            onPress: () => {
+              Clipboard.setString(token);
+              console.log('FCM token copied to clipboard');
+            },
+          },
+        ],
+        { cancelable: false }
+      );
+    }
     if (token && updateTokenCallback) {
       await updateTokenCallback(token);
     }
     setupNotificationListeners();
-    // Only one log per function
     console.log('initializePushNotifications called');
   } catch (error) {
     console.error('❌ Error initializing push notifications:', error);

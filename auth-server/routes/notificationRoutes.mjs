@@ -6,22 +6,6 @@ import authenticateToken from '../middleware/authenticateToken.mjs';
 
 const router = Router();
 
-// JWT authentication middleware (for this router only)
-// const authenticateToken = (req, res, next) => {
-//   const authHeader = req.headers['authorization'];
-//   const token = authHeader && authHeader.split(' ')[1];
-//   if (!token) {
-//     return res.status(401).json({ success: false, message: 'Access token required' });
-//   }
-//   jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
-//     if (err) {
-//       return res.status(403).json({ success: false, message: 'Invalid or expired token' });
-//     }
-//     req.userId = decoded.id;
-//     next();
-//   });
-// };
-
 router.use(authenticateToken);
 
 router.post('/send-notification', async (req, res) => {

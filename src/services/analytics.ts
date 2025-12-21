@@ -6,9 +6,12 @@ export const initializeFirebaseServices = async () => {
     const analytics = getAnalytics();
     const crashlytics = getCrashlytics();
 
-
     await setAnalyticsCollectionEnabled(analytics, true);
     await setCrashlyticsCollectionEnabled(crashlytics, true);
+
+    // Log Crashlytics state for diagnostics
+    console.log('[Crashlytics] Initialized:', !!crashlytics);
+    console.log('[Crashlytics] setCrashlyticsCollectionEnabled is always available');
 
     await firebaseLogEvent(analytics, 'app_initialized', {
       timestamp: new Date().toISOString(),

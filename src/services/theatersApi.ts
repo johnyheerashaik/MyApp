@@ -1,5 +1,5 @@
 import { Platform } from 'react-native';
-import { perfFetch } from './performance';
+import { apiCall } from './api';
 const BACKEND_URL =
   Platform.OS === 'android'
     ? 'http://10.0.2.2:4000'
@@ -31,10 +31,12 @@ const calculateDistance = (lat1: number, lng1: number, lat2: number, lng2: numbe
 export const fetchNearbyTheaters = async (lat: number, lng: number): Promise<Theater[]> => {
   const radius = 32186.9;
   const url = `${BACKEND_URL}/theaters/nearby?latitude=${lat}&longitude=${lng}&radius=${radius}`;
-  const response = await perfFetch(url);
-  const data = await response.json();
+  const response = await apiCall<any>({
+    url,
+    method: 'GET',
+  });
+  const data = response.data;
   if (data.error) {
-    console.error('API Error:', data.message || data.error);
     throw new Error(data.message || data.error);
   }
   if (!data.results) {
@@ -57,19 +59,18 @@ export const fetchNearbyTheaters = async (lat: number, lng: number): Promise<The
     };
   });
   const filtered = theatersData.filter(t => t.distance <= 20).sort((a, b) => a.distance - b.distance);
-  // Only one log per function
-  console.log('fetchNearbyTheaters called');
   return filtered;
 };
 
 export const geocodeZipCode = async (zip: string): Promise<{lat: number; lng: number}> => {
   const url = `${BACKEND_URL}/geocode/zipcode?zip=${zip}`;
-  const response = await perfFetch(url);
-  const data = await response.json();
-  
+  const response = await apiCall<any>({
+    url,
+    method: 'GET',
+  });
+  const data = response.data;
   if (data.error) {
     throw new Error(data.error);
   }
-  
   return data.location;
 };

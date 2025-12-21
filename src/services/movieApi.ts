@@ -18,7 +18,8 @@ export const fetchMoviesFromEndpoint = async (
   endpoint: string,
 ): Promise<Movie[]> => {
 
-  const data = await tmdbFetch(`${endpoint}?language=en-US`);
+  const response = await tmdbFetch(`${endpoint}?language=en-US`);
+  const data = response.data;
 
   return (data.results || []).map((m: any) => ({
     id: m.id,
@@ -48,9 +49,10 @@ export const searchMovies = async (query: string): Promise<Movie[]> => {
     return [];
   }
   
-  const data = await tmdbFetch(
+  const response = await tmdbFetch(
     `/search/movie?query=${encodeURIComponent(query)}&language=en-US&page=1&include_adult=false`,
   );
+  const data = response.data;
 
   return (data.results || []).slice(0, 5).map((m: any) => ({
     id: m.id,
@@ -67,9 +69,10 @@ export const searchMovies = async (query: string): Promise<Movie[]> => {
 
 export const getMoviesByCollection = async (collectionId: number): Promise<Movie[]> => {
   try {
-    const data = await tmdbFetch(
+    const response = await tmdbFetch(
       `/collection/${collectionId}?language=en-US`,
     );
+    const data = response.data;
 
     return (data.parts || []).map((m: any) => ({
       id: m.id,
@@ -91,9 +94,10 @@ export const getMoviesByCollection = async (collectionId: number): Promise<Movie
 
 export const getMoviesByKeyword = async (keywordId: number): Promise<Movie[]> => {
   try {
-    const data = await tmdbFetch(
+    const response = await tmdbFetch(
       `/discover/movie?with_keywords=${keywordId}&sort_by=popularity.desc&language=en-US&page=1`,
     );
+    const data = response.data;
 
     return (data.results || []).map((m: any) => ({
       id: m.id,
@@ -155,9 +159,10 @@ export type MovieDetails = {
 export const getMovieDetails = async (
   movieId: number,
 ): Promise<MovieDetails> => {
-  const data = await tmdbFetch(
+  const response = await tmdbFetch(
     `/movie/${movieId}?append_to_response=credits&language=en-US`,
   );
+  const data = response.data;
 
   return {
     id: data.id,
@@ -187,8 +192,8 @@ export const getMovieDetails = async (
 
 export const getMovieTrailer = async (movieId: number): Promise<string | null> => {
   try {
-    const data = await tmdbFetch(`/movie/${movieId}/videos?language=en-US`);
-    const videos = data.results || [];
+    const response = await tmdbFetch(`/movie/${movieId}/videos?language=en-US`);
+    const videos = response.data.results || [];
     
     const trailer = videos.find((v: any) => 
       v.type === 'Trailer' && v.site === 'YouTube'
@@ -221,7 +226,8 @@ export type WatchProviderData = {
 
 export const getMovieWatchProviders = async (movieId: number): Promise<WatchProviderData | null> => {
   try {
-    const data = await tmdbFetch(`/movie/${movieId}/watch/providers`);
+    const response = await tmdbFetch(`/movie/${movieId}/watch/providers`);
+    const data = response.data;
     
     const usProviders = data.results?.US;
     

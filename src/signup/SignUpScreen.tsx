@@ -16,7 +16,7 @@ import { useTheme } from '../theme/ThemeContext';
 import { APP_STRINGS } from '../constants';
 import { logUserSignup, logError } from '../services/analytics';
 import styles from '../login/styles';
-import { perfFetch } from '../services/performance';
+import { apiCall } from '../services/api';
 
 
 type SignUpScreenNavigationProp = NativeStackNavigationProp<
@@ -81,20 +81,20 @@ export default function SignUpScreen({ navigation }: Props) {
       const apiUrl = Platform.OS === 'android'
         ? 'http://10.0.2.2:5001/api/auth/register'
         : 'http://localhost:5001/api/auth/register';
-      const response = await perfFetch(apiUrl, {
+      const response = await apiCall<any>({
+        url: apiUrl,
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
+        data: {
           firstName: firstName.trim(),
           lastName: lastName.trim(),
           email: email.trim().toLowerCase(),
           password,
-        }),
+        },
+        headers: {
+          'Content-Type': 'application/json',
+        },
       });
-
-      const data = await response.json();
+      const data = response.data;
 
       if (data.success) {
         logUserSignup('email');

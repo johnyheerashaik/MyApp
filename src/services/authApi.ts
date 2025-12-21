@@ -1,6 +1,6 @@
 import { Platform } from 'react-native';
 import {sanitizeEmail} from '../utils/sanitization';
-import {trackOperation, perfFetch} from './performance';
+import {apiCall} from './api';
 
 const API_URL =
   Platform.OS === 'android'
@@ -33,60 +33,36 @@ export interface AuthResponse {
   errors?: Array<{ msg: string; param: string }>;
 }
 
-export const registerApi = async (data: RegisterData): Promise<AuthResponse> => {
-  try {
-    const sanitizedData = {
-      ...data,
-      email: sanitizeEmail(data.email),
-    };
-    
-    const response = await perfFetch(`${API_URL}/register`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(sanitizedData),
-    });
 
-    const result = await response.json();
-    return result;
-  } catch (error) {
-    console.error('Register API error:', error);
-    throw new Error('Unable to connect to server');
-  }
+export const registerApi = async (data: RegisterData): Promise<AuthResponse> => {
+  const sanitizedData = {
+    ...data,
+    email: sanitizeEmail(data.email),
+  };
+  const response = await apiCall<AuthResponse>({
+    url: `${API_URL}/register`,
+    method: 'POST',
+    data: sanitizedData,
+  });
+  return response.data;
 };
 
 export const loginApi = async (email: string, password: string) => {
-  return trackOperation('user_login_api', async () => {
-    try {
-      const response = await perfFetch(`${API_URL}/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const result: AuthResponse = await response.json();
-
-      if (!result.success) {
-        throw new Error(result.message || 'Invalid email or password');
-      }
-
-      return {
-        token: result.token!,
-        user: {
-          id: result.user!.id,
-          name: `${result.user!.firstName} ${result.user!.lastName}`,
-          email: result.user!.email,
-        },
-      };
-    } catch (error) {
-      console.error('Login API error:', error);
-      if (error instanceof Error) {
-        throw error;
-      }
-      throw new Error('Unable to connect to server');
-    }
+  const response = await apiCall<AuthResponse>({
+    url: `${API_URL}/login`,
+    method: 'POST',
+    data: { email, password },
   });
+  const result = response.data;
+  if (!result.success) {
+    throw new Error(result.message || 'Invalid email or password');
+  }
+  return {
+    token: result.token!,
+    user: {
+      id: result.user!.id,
+      name: `${result.user!.firstName} ${result.user!.lastName}`,
+      email: result.user!.email,
+    },
+  };
 };

@@ -1,5 +1,6 @@
 import {Movie} from './movieApi';
-import {trackOperation, perfFetch} from './performance';
+import {apiCall} from './api';
+import {trackOperation} from './performance';
 
 import { Platform } from 'react-native';
 const BASE_URL = __DEV__
@@ -15,26 +16,24 @@ export async function askCompanion(
   userId?: string,
 ): Promise<string> {
   return trackOperation('ai_companion_chat', async () => {
-    const res = await perfFetch(`${BASE_URL}/companion`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      question, 
-      favorites, 
-      userName,
-      userId: userId || 'guest'
-    }),
-  });
-
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(text || 'Companion API failed');
-  }
-
-    const json = await res.json();
-    return json.answer as string;
+      const response = await apiCall<any>({
+        url: `${BASE_URL}/companion`,
+        method: 'POST',
+        data: {
+          question,
+          favorites,
+          userName,
+          userId: userId || 'guest',
+        },
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      const data = response.data;
+      if (!data.answer) {
+        throw new Error('Companion API failed');
+      }
+      return data.answer as string;
   });
 }
 
@@ -44,16 +43,16 @@ export async function getMovieDataForAI(): Promise<{
   upcoming: Movie[];
   topRated: Movie[];
 }> {
-  const res = await perfFetch(`${BASE_URL}/movies/all`, {
+  const response = await apiCall<any>({
+    url: `${BASE_URL}/movies/all`,
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
     },
   });
-
-  if (!res.ok) {
+  const data = response.data;
+  if (!data) {
     throw new Error('Failed to fetch movie data');
   }
-
-  return res.json();
+  return data;
 }

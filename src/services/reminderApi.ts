@@ -1,6 +1,6 @@
 
 import { Platform } from 'react-native';
-import { perfFetch } from './performance';
+import { apiCall } from './api';
 const API_URL =
   Platform.OS === 'android'
     ? 'http://10.0.2.2:5001/api'
@@ -11,74 +11,57 @@ export const toggleReminder = async (
   movieId: number,
   reminderEnabled: boolean,
 ): Promise<void> => {
-  try {
-    const response = await perfFetch(`${API_URL}/reminders/${movieId}`, {
-      method: 'PATCH',
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({reminderEnabled}),
-    });
-
-    const data = await response.json();
-
-    if (!data.success) {
-      throw new Error(data.message || 'Failed to toggle reminder');
-    }
-  } catch (error) {
-    console.error('Toggle reminder error:', error);
-    throw error;
+  const response = await apiCall<any>({
+    url: `${API_URL}/reminders/${movieId}`,
+    method: 'PATCH',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+    data: { reminderEnabled },
+  });
+  const data = response.data;
+  if (!data.success) {
+    throw new Error(data.message || 'Failed to toggle reminder');
   }
 };
 
 export const getReminders = async (token: string): Promise<any[]> => {
-  try {
-    const response = await perfFetch(`${API_URL}/reminders`, {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-    });
-
-    const data = await response.json();
-
-    if (data.success) {
-      return data.reminders;
-    }
-
-    throw new Error(data.message || 'Failed to get reminders');
-  } catch (error) {
-    console.error('Get reminders error:', error);
-    throw error;
+  const response = await apiCall<any>({
+    url: `${API_URL}/reminders`,
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+  });
+  const data = response.data;
+  if (data.success) {
+    return data.reminders;
   }
+  throw new Error(data.message || 'Failed to get reminders');
 };
 
 export const updatePushToken = async (
   token: string,
   pushToken: string,
 ): Promise<void> => {
-  try {
-    const response = await perfFetch(`${API_URL}/users/push-token`, {
-      method: 'PUT',
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({pushToken}),
-    });
-
-    const data = await response.json();
-
-    if (!data.success) {
-      throw new Error(data.message || 'Failed to update push token');
-    }
-  } catch (error) {
-    console.error('Update push token error:', error);
-    throw error;
+  const response = await apiCall<any>({
+    url: `${API_URL}/users/push-token`,
+    method: 'PUT',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+    data: { pushToken },
+  });
+  const data = response.data;
+  if (!data.success) {
+    throw new Error(data.message || 'Failed to update push token');
   }
 };
+
+// Removed duplicate getReminders code block
 
 export const updateNotificationPreferences = async (
   token: string,
@@ -87,23 +70,17 @@ export const updateNotificationPreferences = async (
     reminderTime?: string;
   },
 ): Promise<void> => {
-  try {
-    const response = await perfFetch(`${API_URL}/users/notification-preferences`, {
-      method: 'PUT',
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(preferences),
-    });
-
-    const data = await response.json();
-
-    if (!data.success) {
-      throw new Error(data.message || 'Failed to update preferences');
-    }
-  } catch (error) {
-    console.error('Update notification preferences error:', error);
-    throw error;
+  const response = await apiCall<any>({
+    url: `${API_URL}/users/notification-preferences`,
+    method: 'PUT',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+    data: preferences,
+  });
+  const data = response.data;
+  if (!data.success) {
+    throw new Error(data.message || 'Failed to update notification preferences');
   }
 };

@@ -19,6 +19,7 @@ import { useFavorites } from '../favorites/FavoritesContext';
 import TrailerPlayer from './TrailerPlayer';
 import StreamingProviders from '../streaming/StreamingProviders';
 import { logMovieView } from '../services/analytics';
+import { logError } from '../services/analytics';
 
 type MovieDetailsScreenProps = NativeStackScreenProps<
   RootStackParamList,
@@ -219,6 +220,7 @@ export default function MovieDetailsScreen({ route, navigation }: MovieDetailsSc
               try {
                 await toggleReminder(movieId, true);
               } catch (error) {
+                logError(error as any, 'Failed to enable reminder');
                 Alert.alert('Error', 'Failed to enable reminder');
               } finally {
                 setTogglingReminder(false);
@@ -232,6 +234,7 @@ export default function MovieDetailsScreen({ route, navigation }: MovieDetailsSc
       try {
         await toggleReminder(movieId, false);
       } catch (error) {
+        logError(error as any, 'Failed to disable reminder');
         Alert.alert('Error', 'Failed to disable reminder');
       } finally {
         setTogglingReminder(false);

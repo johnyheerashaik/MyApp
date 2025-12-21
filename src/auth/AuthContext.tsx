@@ -8,6 +8,7 @@ import {
   clearAuthData,
 } from '../utils/secureStorage';
 import {sanitizeEmail, sanitizeString} from '../utils/sanitization';
+import { logError } from '../services/analytics';
 
 import {useSelector, useDispatch} from 'react-redux';
 import type {RootState} from '../store';
@@ -58,11 +59,11 @@ export const AuthProvider = ({children}: {children: ReactNode}) => {
           dispatch(initAuth(null));
         }
       } catch (error) {
-        console.error('Error restoring auth state:', error);
+        logError(error as any, 'Error restoring auth state');
         try {
           await clearAuthData();
         } catch (clearError) {
-          console.error('Error clearing auth data:', clearError);
+          logError(clearError as any, 'Error clearing auth data');
         }
         if (mounted) {
           dispatch(initAuth(null));

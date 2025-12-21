@@ -12,6 +12,7 @@ import {useTheme} from '../theme/ThemeContext';
 import { Movie} from '../services/movieApi';
 import {useFavorites} from '../favorites/FavoritesContext';
 import styles from './styles';
+import { logError } from '../services/analytics';
 
 type Props = {
   navigation: any;
@@ -46,7 +47,7 @@ export default function CollectionScreen({navigation, route}: Props) {
         setMovies(results);
       }
     } catch (error) {
-      console.error('Failed to load collection:', error);
+      logError(error as any, 'Failed to load collection');
     } finally {
       setLoading(false);
     }

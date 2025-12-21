@@ -1,4 +1,5 @@
-// App.tsx
+import { registerGlobalErrorHandler } from './src/utils/globalErrorHandler';
+registerGlobalErrorHandler();
 import React, {useEffect} from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
@@ -18,7 +19,6 @@ const store = configureAppStore();
 
 function AppContent() {
   const {user} = useAuth();
-
   useEffect(() => {
     Promise.all([
       initializeFirebaseServices(),

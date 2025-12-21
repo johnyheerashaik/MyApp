@@ -8,7 +8,7 @@ import React, {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useThemeMode, useThemeActions} from '../store/hooks';
 import {DARK_THEME_COLORS, LIGHT_THEME_COLORS, STORAGE_KEYS, ThemeColors} from '../constants';
-import {logThemeChange} from '../services/analytics';
+import {logThemeChange, logError} from '../services/analytics';
 
 type ThemeMode = 'light' | 'dark';
 
@@ -32,16 +32,16 @@ export const ThemeProvider = ({children}: {children: ReactNode}) => {
           setThemeMode(savedTheme);
         }
       } catch (error) {
-        console.log('Error loading theme:', error);
+        logError(error as any, 'Error loading theme');
       }
     };
     loadTheme();
   }, [setThemeMode]);
 
   useEffect(() => {
-    AsyncStorage.setItem(STORAGE_KEYS.THEME, mode).catch(error =>
-      console.log('Error saving theme:', error)
-    );
+    AsyncStorage.setItem(STORAGE_KEYS.THEME, mode).catch(error => {
+      logError(error, 'Error saving theme');
+    });
     logThemeChange(mode);
   }, [mode]);
 

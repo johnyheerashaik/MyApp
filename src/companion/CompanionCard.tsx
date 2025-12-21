@@ -11,6 +11,7 @@ import {
 import { useTheme } from '../theme/ThemeContext';
 import { Movie, searchMovies } from '../services/movieApi';
 import { askCompanion } from '../services/companionApi';
+import { logError } from '../services/analytics';
 import { APP_STRINGS } from '../constants';
 import styles from './styles';
 
@@ -131,6 +132,7 @@ export default function CompanionCard({
         const results = await searchMovies(title);
         return results.length > 0 ? results[0] : null;
       } catch (error) {
+        logError(error as any, 'Error searching movies in CompanionCard');
         return null;
       }
     });

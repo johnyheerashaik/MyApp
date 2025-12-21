@@ -18,6 +18,8 @@ import {useTheme} from '../theme/ThemeContext';
 import {fetchNearbyTheaters, geocodeZipCode, Theater} from '../services/theatersApi';
 import {isFeatureEnabled} from '../config/featureToggles';
 import styles from './styles';
+import {logError} from '../services/analytics';
+
 
 export default function TheatresScreen() {
   const theme = useTheme();
@@ -81,6 +83,8 @@ export default function TheatresScreen() {
           const {logTheaterSearch} = await import('../services/analytics');
           logTheaterSearch('gps', results.length);
         } catch (error: any) {
+          const { logError } = await import('../services/analytics');
+          logError(error, 'Failed to fetch theaters');
           Alert.alert('Error', error.message || 'Failed to fetch theaters');
         } finally {
           setLoading(false);
@@ -88,7 +92,7 @@ export default function TheatresScreen() {
       },
       error => {
         setLoading(false);
-        console.error('Location error:', error);
+        logError(error as any, 'Location error');
         Alert.alert('Location Error', `Unable to get your location: ${error.message}`);
       },
       {enableHighAccuracy: true, timeout: 30000, maximumAge: 0}
@@ -110,6 +114,8 @@ export default function TheatresScreen() {
       const {logTheaterSearch} = await import('../services/analytics');
       logTheaterSearch('zipcode', results.length);
     } catch (error: any) {
+      const { logError } = await import('../services/analytics');
+      logError(error, 'Failed to find theaters');
       Alert.alert('Error', error.message || 'Failed to find theaters');
     } finally {
       setLoading(false);

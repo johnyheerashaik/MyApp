@@ -14,7 +14,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { AuthStackParamList } from '../navigation/types';
 import { useTheme } from '../theme/ThemeContext';
 import { APP_STRINGS } from '../constants';
-import { logUserSignup } from '../services/analytics';
+import { logUserSignup, logError } from '../services/analytics';
 import styles from '../login/styles';
 import { perfFetch } from '../services/performance';
 
@@ -115,7 +115,7 @@ export default function SignUpScreen({ navigation }: Props) {
         );
       }
     } catch (error) {
-      console.error('Sign up error:', error);
+      logError(error as any, 'Sign up error');
       Alert.alert(
         'Error',
         'Unable to connect to server. Please check your connection.'

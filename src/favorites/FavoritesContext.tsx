@@ -1,3 +1,4 @@
+import { logError } from '../services/analytics';
 
 import React, {createContext, useContext, useEffect} from 'react';
 import {Movie} from '../services/movieApi';
@@ -47,7 +48,7 @@ export const FavoritesProvider = ({children}: {children: React.ReactNode}) => {
         const favorites = await favoritesApi.getFavorites(user.token);
         dispatch(initFavoritesAction(favorites));
       } catch (error) {
-        console.error('Failed to load favorites from server:', error);
+        logError(error as any, 'Failed to load favorites from server');
         dispatch(initFavoritesAction([]));
       }
 
@@ -59,7 +60,7 @@ export const FavoritesProvider = ({children}: {children: React.ReactNode}) => {
         });
         setReminders(remindersMap);
       } catch (error) {
-        console.error('Failed to load reminders from server:', error);
+        logError(error as any, 'Failed to load reminders from server');
         setReminders({});
       }
     };
@@ -98,7 +99,7 @@ export const FavoritesProvider = ({children}: {children: React.ReactNode}) => {
         logMovieFavorited(movie.id.toString(), movie.title);
       }
     } catch (error) {
-      console.error('Failed to toggle favorite:', error);
+      logError(error as any, 'Failed to toggle favorite');
       if (isCurrentlyFavorite) {
         dispatch(addFavoriteAction(movie));
       } else {
@@ -119,7 +120,7 @@ export const FavoritesProvider = ({children}: {children: React.ReactNode}) => {
       await favoritesApi.addFavorite(user.token, movie);
       logMovieFavorited(movie.id.toString(), movie.title);
     } catch (error) {
-      console.error('Failed to add favorite:', error);
+      logError(error as any, 'Failed to add favorite');
       dispatch(removeFavoriteAction(movie.id));
     }
   };
@@ -135,8 +136,8 @@ export const FavoritesProvider = ({children}: {children: React.ReactNode}) => {
     try {
       await favoritesApi.removeFavorite(user.token, id);
     } catch (error) {
-      console.error('Failed to remove favorite:', error);
-      console.error('Cannot revert remove - movie data not available');
+      logError(error as any, 'Failed to remove favorite');
+      logError(error as any, 'Cannot revert remove - movie data not available');
     }
   };
 
@@ -151,7 +152,7 @@ export const FavoritesProvider = ({children}: {children: React.ReactNode}) => {
       setReminders(prev => ({ ...prev, [movieId]: enabled }));
       console.log(`✅ Reminder ${enabled ? 'enabled' : 'disabled'} for movie ${movieId}`);
     } catch (error) {
-      console.error('Failed to toggle reminder:', error);
+      logError(error as any, 'Failed to toggle reminder');
       throw error;
     }
   };

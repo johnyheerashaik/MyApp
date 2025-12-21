@@ -4,7 +4,6 @@ import { readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import User from '../models/User.mjs';
-import Favorite from '../models/Favorite.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -81,49 +80,39 @@ async function checkAndSendReminders() {
 
     console.log(`📅 Looking for movies releasing on: ${tomorrowDate}`);
 
-    // Find all favorites with reminders enabled for movies releasing tomorrow
-    const favorites = await Favorite.find({
-      reminderEnabled: true,
-      reminderSent: false,
-      releaseDate: tomorrowDate,
-    }).populate('userId');
+    // Find all users with at least one favorite with reminders enabled for movies releasing tomorrow
+    const users = await User.find({
+      'favorites.reminderEnabled': true,
+      'favorites.reminderSent': false,
+      'favorites.releaseDate': tomorrowDate,
+      pushToken: { $ne: null }
+    });
 
-    console.log(`📬 Found ${favorites.length} reminders to send`);
-
-    for (const favorite of favorites) {
-      const user = await User.findById(favorite.userId);
-      
-      if (!user || !user.pushToken) {
-        console.log(`⚠️  No push token for user ${favorite.userId}, skipping`);
-        continue;
-      }
-
-      // Check if user has release reminders enabled
+    let remindersToSend = 0;
+    for (const user of users) {
       if (!user.notificationPreferences?.releaseReminders) {
-        console.log(`⚠️  User ${user.name} has disabled release reminders`);
+        console.log(`⚠️  User ${user.email} has disabled release reminders`);
         continue;
       }
-
-      // Send the notification
-      const title = '🎬 Movie Reminder';
-      const body = `${favorite.title} releases tomorrow! Don't miss it!`;
-      const data = {
-        movieId: favorite.movieId.toString(),
-        movieTitle: favorite.title,
-        releaseDate: favorite.releaseDate,
-      };
-
-      const result = await sendPushNotification(user.pushToken, title, body, data);
-
-      if (result) {
-        // Mark reminder as sent
-        favorite.reminderSent = true;
-        await favorite.save();
-        console.log(`✅ Sent reminder to ${user.name} for "${favorite.title}"`);
+      const favorites = (user.favorites || []).filter(fav => fav.reminderEnabled && !fav.reminderSent && fav.releaseDate === tomorrowDate);
+      for (const fav of favorites) {
+        const title = '🎬 Movie Reminder';
+        const body = `${fav.title} releases tomorrow! Don't miss it!`;
+        const data = {
+          movieId: fav.movieId.toString(),
+          movieTitle: fav.title,
+          releaseDate: fav.releaseDate,
+        };
+        const result = await sendPushNotification(user.pushToken, title, body, data);
+        if (result) {
+          fav.reminderSent = true;
+          remindersToSend++;
+          console.log(`✅ Sent reminder to ${user.email} for "${fav.title}"`);
+        }
       }
+      await user.save();
     }
-
-    console.log('✅ Reminder check completed');
+    console.log(`✅ Reminder check completed. Sent ${remindersToSend} reminders.`);
   } catch (error) {
     console.error('❌ Error checking/sending reminders:', error);
   }

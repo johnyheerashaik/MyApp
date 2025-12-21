@@ -99,11 +99,17 @@ export default function FavoritesSection({favorites, onPressMovie, onRemoveFavor
           {APP_STRINGS.NO_MOVIES_ADDED}
         </Text>
       ) : (
-        <FlatList
-          horizontal
-          data={sortedFavorites}
-          keyExtractor={item => String(item.id)}
-          showsHorizontalScrollIndicator={false}
+        <View style={{minHeight: 180, paddingBottom: 16}}>
+          <FlatList
+            horizontal
+            data={sortedFavorites}
+            keyExtractor={(item, index) =>
+              item && typeof item.id !== 'undefined' && item.id !== null
+                ? String(item.id)
+                : `favorite-${index}`
+            }
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{paddingRight: 24, paddingBottom: 8}}
           renderItem={({item}) => (
             <View style={styles.favoriteItem}>
               <TouchableOpacity
@@ -114,14 +120,14 @@ export default function FavoritesSection({favorites, onPressMovie, onRemoveFavor
                     style={styles.favoritePoster}
                   />
                 )}
-                
+
                 {/* Reminder indicator badge */}
                 {item.reminderEnabled && (
                   <View style={[styles.reminderBadge, {backgroundColor: theme.colors.primary}]}>
                     <Text style={styles.reminderBadgeText}>🔔</Text>
                   </View>
                 )}
-                
+
                 <Text
                   numberOfLines={1}
                   style={[
@@ -131,7 +137,7 @@ export default function FavoritesSection({favorites, onPressMovie, onRemoveFavor
                   {item.title}
                 </Text>
               </TouchableOpacity>
-              
+
               {/* Remove button */}
               {onRemoveFavorite && (
                 <TouchableOpacity
@@ -147,6 +153,7 @@ export default function FavoritesSection({favorites, onPressMovie, onRemoveFavor
             </View>
           )}
         />
+        </View>
       )}
     </View>
   );

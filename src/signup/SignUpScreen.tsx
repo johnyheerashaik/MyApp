@@ -36,6 +36,7 @@ export default function SignUpScreen({ navigation }: Props) {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [touched, setTouched] = useState<{ [key: string]: boolean }>({});
   const theme = useTheme();
 
   const validateForm = () => {
@@ -212,17 +213,18 @@ export default function SignUpScreen({ navigation }: Props) {
               value={password}
               onChangeText={(text) => {
                 setPassword(text);
-                if (errors.password) {
+                if (errors.password && text.length >= 6) {
                   setErrors({ ...errors, password: '' });
                 }
               }}
+              onBlur={() => setTouched((prev) => ({ ...prev, password: true }))}
               secureTextEntry={true}
               autoCapitalize="none"
               autoComplete="off"
               textContentType="none"
               editable={!loading}
             />
-            {errors.password && (
+            {touched.password && errors.password && (
               <Text style={[styles.error, { color: theme.colors.danger }]}>{errors.password}</Text>
             )}
           </View>
@@ -236,17 +238,18 @@ export default function SignUpScreen({ navigation }: Props) {
               value={confirmPassword}
               onChangeText={(text) => {
                 setConfirmPassword(text);
-                if (errors.confirmPassword) {
+                if (errors.confirmPassword && text === password) {
                   setErrors({ ...errors, confirmPassword: '' });
                 }
               }}
+              onBlur={() => setTouched((prev) => ({ ...prev, confirmPassword: true }))}
               secureTextEntry={true}
               autoCapitalize="none"
               autoComplete="off"
               textContentType="none"
               editable={!loading}
             />
-            {errors.confirmPassword && (
+            {touched.confirmPassword && errors.confirmPassword && (
               <Text style={[styles.error, { color: theme.colors.danger }]}>{errors.confirmPassword}</Text>
             )}
           </View>

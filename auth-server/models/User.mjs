@@ -1,6 +1,18 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 
+const FavoriteSchema = new mongoose.Schema({
+  movieId: { type: Number, required: true },
+  title: String,
+  posterPath: String,
+  releaseDate: String,
+  voteAverage: Number,
+  overview: String,
+  reminderEnabled: { type: Boolean, default: false },
+  reminderSent: { type: Boolean, default: false },
+  addedAt: { type: Date, default: Date.now }
+}, { _id: false });
+
 const userSchema = new mongoose.Schema({
   firstName: {
     type: String,
@@ -43,6 +55,7 @@ const userSchema = new mongoose.Schema({
       enum: ['09:00', '12:00', '18:00', '21:00']
     }
   },
+  favorites: [FavoriteSchema],
   createdAt: {
     type: Date,
     default: Date.now

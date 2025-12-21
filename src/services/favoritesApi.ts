@@ -20,12 +20,12 @@ export const getFavorites = async (token: string): Promise<Movie[]> => {
   const data = response.data;
   if (data.success) {
     return data.favorites.map((fav: any) => ({
-      id: fav.id,
+      id: fav.movieId,
       title: fav.title,
-      poster: fav.poster_path,
-      year: fav.release_date?.split('-')[0] || fav.release_date || 'N/A',
-      releaseDate: fav.release_date,
-      rating: fav.vote_average,
+      poster: fav.posterPath,
+      year: fav.releaseDate?.split('-')[0] || fav.releaseDate || 'N/A',
+      releaseDate: fav.releaseDate,
+      rating: fav.voteAverage,
       overview: fav.overview,
       reminderEnabled: fav.reminderEnabled || false,
       reminderSent: fav.reminderSent || false,

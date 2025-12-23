@@ -39,6 +39,10 @@
 	<string>This app needs your location to provide personalized movie recommendations based on your area.</string>
 	<key>NSLocationAlwaysUsageDescription</key>
 	<string>This app needs your location to provide personalized movie recommendations based on your area.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>This app needs access to your microphone for voice input features.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>This app needs access to speech recognition for voice input features.</string>
 	<key>RCTNewArchEnabled</key>
 	<true/>
 	<key>UIBackgroundModes</key>

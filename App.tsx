@@ -36,13 +36,13 @@ function AppContent() {
       }
 
       // Initialize push notifications
-      initializePushNotifications(async (fcmToken) => {
-        try {
-          await reminderApi.updatePushToken(user.token, fcmToken);
-        } catch (error) {
-          console.error('Failed to register push token:', error);
-        }
-      });
+      // initializePushNotifications(async (fcmToken) => {
+      //   try {
+      //     await reminderApi.updatePushToken(user.token, fcmToken);
+      //   } catch (error) {
+      //     console.error('Failed to register push token:', error);
+      //   }
+      // });
     }
   }, [user?.token]);
 

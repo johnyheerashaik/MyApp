@@ -1,7 +1,8 @@
 import React, {useState} from 'react';
 import {View, TouchableOpacity, Text} from 'react-native';
 import {Movie} from '../services/movieApi';
-import CompanionCard, {Message} from '../companion/CompanionCard';
+import CompanionCard from '../companion/CompanionCard';
+import type { Message } from '../companion/types/types';
 import styles from './styles';
 
 type Props = {
@@ -27,15 +28,12 @@ export default function FloatingCompanion({
 
   return (
     <>
-      {/* Floating FAB */}
       <TouchableOpacity style={styles.aiFab} onPress={onOpen}>
         <Text style={styles.aiFabText}>🤖</Text>
       </TouchableOpacity>
 
-      {/* Popup overlay */}
       {visible && (
         <View style={styles.aiPopupOverlay} pointerEvents="box-none">
-          {/* Tap outside to close */}
           <TouchableOpacity
             style={styles.aiBackdrop}
             activeOpacity={1}

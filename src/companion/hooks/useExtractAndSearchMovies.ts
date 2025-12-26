@@ -1,6 +1,6 @@
-import {useCallback} from 'react';
-import {Movie, searchMovies} from '../../services/movieApi';
-import {logError} from '../../services/analytics';
+import { useCallback } from 'react';
+import { Movie, searchMovies } from '../../services/movieApi';
+import { logError } from '../../services/analytics';
 
 export function useExtractAndSearchMovies(favorites: Movie[]) {
   const shuffleArray = useCallback(<T,>(array: T[]): T[] => {
@@ -14,7 +14,7 @@ export function useExtractAndSearchMovies(favorites: Movie[]) {
 
   return useCallback(
     async (responseText: string, maxTitles = 8): Promise<Movie[]> => {
-      const cleanedText = responseText.replace(/^\d+\.\s+/gm, '');
+      const cleanedText = responseText.replaceAll(/^\d+\.\s+/gm, '');
 
       const patterns = [
         /\*\*([^*]+)\*\*/g, // **Title**
@@ -32,7 +32,7 @@ export function useExtractAndSearchMovies(favorites: Movie[]) {
           if (title && title.length > 2 && title.length < 100 && !title.includes('\n')) {
             let t = title.trim();
             t = t.split(' - ')[0].trim();
-            t = t.replace(/[.,!?;:]+$/, '').trim();
+            t = t.replaceAll(/[.,!?;:]+$/, '').trim();
             if (t.length > 3) potentialTitles.add(t);
           }
         });

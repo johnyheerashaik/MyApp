@@ -33,8 +33,8 @@ export default function FavoritesSection({favorites, onPressMovie, onRemoveFavor
         return sorted.sort((a, b) => b.rating - a.rating);
       case 'year':
         return sorted.sort((a, b) => {
-          const yearA = parseInt(a.year) || 0;
-          const yearB = parseInt(b.year) || 0;
+          const yearA = Number.parseInt(a.year) || 0;
+          const yearB = Number.parseInt(b.year) || 0;
           return yearB - yearA;
         });
       case 'title':
@@ -105,9 +105,7 @@ export default function FavoritesSection({favorites, onPressMovie, onRemoveFavor
             horizontal
             data={sortedFavorites}
             keyExtractor={(item, index) =>
-              item && typeof item.id !== 'undefined' && item.id !== null
-                ? String(item.id)
-                : `favorite-${index}`
+              item?.id != null ? String(item.id) : `favorite-${index}`
             }
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={{paddingRight: SPACING.XL, paddingBottom: SPACING.SM}}
@@ -122,7 +120,6 @@ export default function FavoritesSection({favorites, onPressMovie, onRemoveFavor
                   />
                 )}
 
-                {/* Reminder indicator badge */}
                 {item.reminderEnabled && (
                   <View style={[styles.reminderBadge, {backgroundColor: theme.colors.primary}]}>
                     <Text style={styles.reminderBadgeText}>🔔</Text>
@@ -139,13 +136,10 @@ export default function FavoritesSection({favorites, onPressMovie, onRemoveFavor
                 </Text>
               </TouchableOpacity>
 
-              {/* Remove button */}
               {onRemoveFavorite && (
                 <TouchableOpacity
                   style={[styles.removeButton, {
-                    backgroundColor: theme.mode === 'dark' 
-                      ? theme.colors.danger 
-                      : theme.colors.danger,
+                    backgroundColor: theme.colors.danger,
                   }]}
                   onPress={() => onRemoveFavorite(item.id)}>
                   <Text style={styles.removeButtonText}>✕</Text>

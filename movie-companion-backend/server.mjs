@@ -346,8 +346,8 @@ function buildMovieContext(tmdbData, genreMap, question, favorites = []) {
       if (releaseDate !== 'TBA' && releaseDate.includes('-')) {
         const [y, mo, d] = releaseDate.split('-');
         const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-        const monthName = months[parseInt(mo) - 1] || mo;
-        dateStr = `${monthName} ${parseInt(d)}, ${y}`;
+        const monthName = months[Number.parseInt(mo) - 1] || mo;
+        dateStr = `${monthName} ${Number.parseInt(d)}, ${y}`;
       }
       return `*${m.title}* (Release: ${dateStr}) ⭐${rating} [${genres}]`;
     }).join(', ');

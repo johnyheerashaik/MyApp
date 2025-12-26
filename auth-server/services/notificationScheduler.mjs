@@ -1,8 +1,8 @@
 import cron from 'node-cron';
 import admin from 'firebase-admin';
-import { readFileSync } from 'fs';
-import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { dirname, join } from 'node:path';
 import User from '../models/User.mjs';
 
 const __filename = fileURLToPath(import.meta.url);

@@ -21,27 +21,31 @@ function TypingBubbleBase({styles, colors, mode, d1, d2, d3}: Props) {
         </Text>
 
         <View style={styles.typingIndicator}> 
-          {[d1, d2, d3].map((dot, idx) => ( 
-            <Animated.View 
-              key={idx} 
-              style={[ 
-                styles.typingDot, 
+          {[
+            {dot: d1, key: 'typing-dot-1'},
+            {dot: d2, key: 'typing-dot-2'},
+            {dot: d3, key: 'typing-dot-3'},
+          ].map(({dot, key}) => (
+            <Animated.View
+              key={key}
+              style={[
+                styles.typingDot,
                 localStyles.typingDot,
-                { 
-                  backgroundColor: colors.text, 
-                  opacity: dot, 
-                  transform: [ 
-                    { 
-                      translateY: dot.interpolate({ 
-                        inputRange: [0, 1], 
-                        outputRange: [0, -8], 
-                      }), 
-                    }, 
-                  ], 
-                }, 
-              ]} 
-            /> 
-          ))} 
+                {
+                  backgroundColor: colors.text,
+                  opacity: dot,
+                  transform: [
+                    {
+                      translateY: dot.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [0, -8],
+                      }),
+                    },
+                  ],
+                },
+              ]}
+            />
+          ))}
         </View> 
       </View> 
     </View>
@@ -57,7 +61,6 @@ const localStyles = StyleSheet.create({
     marginRight: 8,
   },
   typingDot: {
-    // Add dot-specific spacing or sizing if needed
   },
 });
 

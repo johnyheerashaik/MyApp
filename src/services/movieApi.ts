@@ -5,14 +5,27 @@ export type Movie = {
   id: number;
   title: string;
   year: string;
-  releaseDate?: string; // Full date YYYY-MM-DD for reminders
+  releaseDate?: string; 
   rating: number;
   poster: string | null;
-  genres?: string[]; // Add genres to Movie type
+  genres?: string[]; 
   overview?: string;
   reminderEnabled?: boolean;
   reminderSent?: boolean;
 };
+
+const mapMovieData = (m: any): Movie => ({
+  id: m.id,
+  title: m.title,
+  year: m.release_date?.split('-')[0] ?? 'N/A',
+  releaseDate: m.release_date || null,
+  rating: m.vote_average ?? 0,
+  poster: m.poster_path
+    ? `https://image.tmdb.org/t/p/w500${m.poster_path}`
+    : null,
+  genres: m.genre_ids || [],
+  overview: m.overview || '',
+});
 
 export const fetchMoviesFromEndpoint = async (
   endpoint: string,
@@ -21,18 +34,7 @@ export const fetchMoviesFromEndpoint = async (
   const response = await tmdbFetch(`${endpoint}?language=en-US`);
   const data = response.data;
 
-  return (data.results || []).map((m: any) => ({
-    id: m.id,
-    title: m.title,
-    year: m.release_date?.split('-')[0] ?? 'N/A',
-    releaseDate: m.release_date || null,
-    rating: m.vote_average ?? 0,
-    poster: m.poster_path
-      ? `https://image.tmdb.org/t/p/w500${m.poster_path}`
-      : null,
-    genres: m.genre_ids || [], // Include genre IDs
-    overview: m.overview || '',
-  }));
+  return (data.results || []).map(mapMovieData);
 };
 
 export const getPopularMovies = () => fetchMoviesFromEndpoint('/movie/popular');
@@ -54,17 +56,7 @@ export const searchMovies = async (query: string): Promise<Movie[]> => {
   );
   const data = response.data;
 
-  return (data.results || []).slice(0, 5).map((m: any) => ({
-    id: m.id,
-    title: m.title,
-    year: m.release_date?.split('-')[0] ?? 'N/A',
-    releaseDate: m.release_date || null,
-    rating: m.vote_average ?? 0,
-    poster: m.poster_path
-      ? `https://image.tmdb.org/t/p/w500${m.poster_path}`
-      : null,
-    genres: m.genre_ids || [],
-  }));
+  return (data.results || []).slice(0, 5).map(mapMovieData);
 };
 
 export const getMoviesByCollection = async (collectionId: number): Promise<Movie[]> => {
@@ -74,18 +66,7 @@ export const getMoviesByCollection = async (collectionId: number): Promise<Movie
     );
     const data = response.data;
 
-    return (data.parts || []).map((m: any) => ({
-      id: m.id,
-      title: m.title,
-      year: m.release_date?.split('-')[0] ?? 'N/A',
-      releaseDate: m.release_date || null,
-      rating: m.vote_average ?? 0,
-      poster: m.poster_path
-        ? `https://image.tmdb.org/t/p/w500${m.poster_path}`
-        : null,
-      genres: m.genre_ids || [],
-      overview: m.overview || '',
-    }));
+    return (data.parts || []).map(mapMovieData);
   } catch (error) {
     console.error('Failed to fetch collection:', error);
     return [];
@@ -99,18 +80,7 @@ export const getMoviesByKeyword = async (keywordId: number): Promise<Movie[]> =>
     );
     const data = response.data;
 
-    return (data.results || []).map((m: any) => ({
-      id: m.id,
-      title: m.title,
-      year: m.release_date?.split('-')[0] ?? 'N/A',
-      releaseDate: m.release_date || null,
-      rating: m.vote_average ?? 0,
-      poster: m.poster_path
-        ? `https://image.tmdb.org/t/p/w500${m.poster_path}`
-        : null,
-      genres: m.genre_ids || [],
-      overview: m.overview || '',
-    }));
+    return (data.results || []).map(mapMovieData);
   } catch (error) {
     console.error('Failed to fetch movies by keyword:', error);
     return [];

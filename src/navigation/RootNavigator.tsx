@@ -1,7 +1,8 @@
-import React from 'react';
+import React, {memo, useMemo} from 'react';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {View, ActivityIndicator, Text} from 'react-native';
+
 import type {AuthStackParamList, AppStackParamList} from '../navigation/types';
 
 import LoginScreen from '../login/LoginScreen';
@@ -10,16 +11,26 @@ import HomeScreen from '../home/HomeScreen';
 import MoviesScreen from '../movies/MoviesScreen';
 import TheatresScreen from '../theatres/TheatresScreen';
 import CollectionScreen from '../collections/CollectionScreen';
-import {useAuth} from '../auth/AuthContext';
-import {useTheme} from '../theme/ThemeContext';
 import MovieDetailsScreen from '../movieDetail/MovieDetailScreen';
 
-import { ICON_SIZE } from '../constants';
+import {useAuth} from '../auth/AuthContext';
+import {useTheme} from '../theme/ThemeContext';
+import {ICON_SIZE} from '../constants';
 import {isFeatureEnabled} from '../config/featureToggles';
 
 const AuthStack = createNativeStackNavigator<AuthStackParamList>();
 const AppStack = createNativeStackNavigator<AppStackParamList>();
 const Tab = createBottomTabNavigator();
+
+const TabEmojiIcon = memo(function TabEmojiIcon({
+  emoji,
+  color,
+}: {
+  emoji: string;
+  color: string;
+}) {
+  return <Text style={{fontSize: ICON_SIZE.MD, color}}>{emoji}</Text>;
+});
 
 function AuthNavigator() {
   return (
@@ -30,9 +41,42 @@ function AuthNavigator() {
   );
 }
 
-function TabNavigator() {
-  const theme = useTheme();
-  
+type TabNavigatorProps = {
+  theme: ReturnType<typeof useTheme>;
+};
+
+function TabNavigator({theme}: TabNavigatorProps) {
+  const tabScreens = useMemo(() => {
+    const screens: Array<{
+      name: string;
+      component: React.ComponentType<any>;
+      label: string;
+      emoji: string;
+    }> = [
+      {name: 'HomeTab', component: HomeScreen, label: 'Home', emoji: '🏠'},
+    ];
+
+    if (isFeatureEnabled('ENABLE_MOVIES')) {
+      screens.push({
+        name: 'MoviesTab',
+        component: MoviesScreen,
+        label: 'Movies',
+        emoji: '🎥',
+      });
+    }
+
+    if (isFeatureEnabled('ENABLE_THEATERS')) {
+      screens.push({
+        name: 'TheatresTab',
+        component: TheatresScreen,
+        label: 'Theaters',
+        emoji: '🎬',
+      });
+    }
+
+    return screens;
+  }, []);
+
   return (
     <Tab.Navigator
       screenOptions={{
@@ -44,48 +88,35 @@ function TabNavigator() {
         tabBarActiveTintColor: theme.colors.primary,
         tabBarInactiveTintColor: theme.colors.mutedText,
       }}>
-      <Tab.Screen
-        name="HomeTab"
-        component={HomeScreen}
-        options={{
-          tabBarLabel: 'Home',
-          tabBarIcon: ({color}) => (
-            <Text style={{fontSize: ICON_SIZE.MD, color}}>🏠</Text>
-          ),
-        }}
-      />
-      {isFeatureEnabled('ENABLE_MOVIES') && (
+      {tabScreens.map(s => (
         <Tab.Screen
-          name="MoviesTab"
-          component={MoviesScreen}
+          key={s.name}
+          name={s.name as never}
+          component={s.component}
           options={{
-            tabBarLabel: 'Movies',
-            tabBarIcon: ({color}) => (
-              <Text style={{fontSize: ICON_SIZE.MD, color}}>🎥</Text>
-            ),
+            tabBarLabel: s.label,
+            tabBarIcon: ({color}) => <TabEmojiIcon emoji={s.emoji} color={color} />,
           }}
         />
-      )}
-      {isFeatureEnabled('ENABLE_THEATERS') && (
-        <Tab.Screen
-          name="TheatresTab"
-          component={TheatresScreen}
-          options={{
-            tabBarLabel: 'Theaters',
-            tabBarIcon: ({color}) => (
-              <Text style={{fontSize: ICON_SIZE.MD, color}}>🎬</Text>
-            ),
-          }}
-        />
-      )}
+      ))}
     </Tab.Navigator>
   );
 }
 
-function AppNavigator() {
+type AppNavigatorProps = {
+  theme: ReturnType<typeof useTheme>;
+};
+
+function AppNavigator({theme}: AppNavigatorProps) {
+  const TabNavigatorWithTheme = useMemo(() => {
+    const Comp = () => <TabNavigator theme={theme} />;
+    Comp.displayName = 'TabNavigatorWithTheme';
+    return Comp;
+  }, [theme]);
+
   return (
     <AppStack.Navigator screenOptions={{headerShown: false}}>
-      <AppStack.Screen name="Home" component={TabNavigator} />
+      <AppStack.Screen name="Home" component={TabNavigatorWithTheme} />
       <AppStack.Screen name="MovieDetails" component={MovieDetailsScreen} />
       <AppStack.Screen name="Collection" component={CollectionScreen} />
     </AppStack.Navigator>
@@ -109,5 +140,5 @@ export default function RootNavigator() {
     );
   }
 
-  return user ? <AppNavigator /> : <AuthNavigator />;
+  return user ? <AppNavigator theme={theme} /> : <AuthNavigator />;
 }

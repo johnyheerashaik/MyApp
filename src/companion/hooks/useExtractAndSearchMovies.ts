@@ -19,7 +19,7 @@ export function useExtractAndSearchMovies(favorites: Movie[]) {
       const patterns = [
         /\*\*([^*]+)\*\*/g, // **Title**
         /\*([^*]+)\*/g, // *Title*
-        /[""]([^"""]+)[""]|"([^"]+)"/g, // "Title"
+        /"([^"]+)"/g, // "Title"
         /'([^']+)'/g, // 'Title'
       ];
 

@@ -55,7 +55,7 @@ export default function SignUpScreen({ navigation }: Props) {
 
     if (!email.trim()) {
       newErrors.email = STRINGS.EMAIL_REQUIRED;
-    } else if (!/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email)) {
+    } else if (!/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(email)) {
       newErrors.email = STRINGS.EMAIL_INVALID;
     }
 

@@ -31,18 +31,6 @@ export default function StreamingProviders({movieId}: Props) {
     }
   };
 
-  if (loading) {
-    return null;
-  }
-
-  if (!providers || (!providers.flatrate && !providers.rent && !providers.buy)) {
-    return (
-      <View style={[styles.container, {backgroundColor: theme.colors.card}]}>
-          <Text style={[styles.title, {color: theme.colors.text}]}>{STRINGS.WHERE_TO_WATCH}</Text>
-          <Text style={[styles.noProviders, {color: theme.colors.mutedText}]}>{STRINGS.NOT_AVAILABLE_ON_STREAMING}</Text>
-      </View>
-    );
-  }
 
   const renderProviderSection = (title: string, providerList: any[], type: 'stream' | 'rent' | 'buy') => {
     if (!providerList || providerList.length === 0) return null;
@@ -70,7 +58,7 @@ export default function StreamingProviders({movieId}: Props) {
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.providerList}>
           {providerList.map((provider) => (
-            <View key={provider.provider_id} style={[styles.providerCard, {backgroundColor: theme.colors.background}]}>
+            <View key={provider.provider_id} style={[styles.providerCard, {backgroundColor: theme.colors.background}]}> 
               <Image
                 source={{uri: `https://image.tmdb.org/t/p/original${provider.logo_path}`}}
                 style={styles.providerLogo}
@@ -86,24 +74,31 @@ export default function StreamingProviders({movieId}: Props) {
     );
   };
 
+  if (loading) {
+    return null;
+  }
+  if (!providers || (!providers.flatrate && !providers.rent && !providers.buy)) {
+    return (
+      <View style={[styles.container, {backgroundColor: theme.colors.card}]}> 
+        <Text style={[styles.title, {color: theme.colors.text}]}>{STRINGS.WHERE_TO_WATCH}</Text>
+        <Text style={[styles.noProviders, {color: theme.colors.mutedText}]}>{STRINGS.NOT_AVAILABLE_ON_STREAMING}</Text>
+      </View>
+    );
+  }
   return (
-    <View style={[styles.container, {backgroundColor: theme.colors.card}]}>
+    <View style={[styles.container, {backgroundColor: theme.colors.card}]}> 
       <View style={styles.header}>
-          <Text style={[styles.title, {color: theme.colors.text}]}>{STRINGS.WHERE_TO_WATCH}</Text>
-        {providers.link && (
+        <Text style={[styles.title, {color: theme.colors.text}]}>{STRINGS.WHERE_TO_WATCH}</Text>
+        {providers?.link && (
           <TouchableOpacity onPress={openJustWatch} style={styles.justWatchButton}>
-            <Text style={[styles.justWatchText, {color: theme.colors.primary}]}>
-              View All →
-            </Text>
+            <Text style={[styles.justWatchText, {color: theme.colors.primary}]}>View All →</Text>
           </TouchableOpacity>
         )}
       </View>
-
-      {renderProviderSection('Stream', providers.flatrate || [], 'stream')}
-      {renderProviderSection('Rent', providers.rent || [], 'rent')}
-      {renderProviderSection('Buy', providers.buy || [], 'buy')}
-
-        <Text style={[styles.disclaimer, {color: theme.colors.mutedText}]}>{STRINGS.POWERED_BY_JUSTWATCH}</Text>
+      {renderProviderSection('Stream', providers?.flatrate || [], 'stream')}
+      {renderProviderSection('Rent', providers?.rent || [], 'rent')}
+      {renderProviderSection('Buy', providers?.buy || [], 'buy')}
+      <Text style={[styles.disclaimer, {color: theme.colors.mutedText}]}>{STRINGS.POWERED_BY_JUSTWATCH}</Text>
     </View>
   );
 }

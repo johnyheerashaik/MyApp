@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Text,
   FlatList,
@@ -7,9 +7,9 @@ import {
   View,
   TouchableOpacity,
 } from 'react-native';
-import {SafeAreaView} from 'react-native-safe-area-context';
-import {useTheme} from '../theme/ThemeContext';
-import {useFavorites} from '../favorites/FavoritesContext';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTheme } from '../theme/ThemeContext';
+import { useFavorites } from '../favorites/FavoritesContext';
 import styles from './styles';
 import { DARK_THEME_COLORS } from '../constants/colors';
 import { SPACING } from '../constants/spacing';
@@ -23,10 +23,10 @@ type Props = {
   route: any;
 };
 
-export default function CollectionScreen({navigation, route}: Props) {
+export default function CollectionScreen({ navigation, route }: Props) {
   const theme = useTheme();
-  const {isFavorite, toggleFavorite} = useFavorites();
-  const {title, collectionId, keywordId} = route.params;
+  const { isFavorite, toggleFavorite } = useFavorites();
+  const { title, collectionId, keywordId } = route.params;
 
   const [movies, setMovies] = useState<Movie[]>([]);
   const [loading, setLoading] = useState(true);
@@ -54,28 +54,27 @@ export default function CollectionScreen({navigation, route}: Props) {
     }
   };
 
-  const renderMovie = ({item}: {item: Movie}) => {
+  const renderMovie = ({ item }: { item: Movie }) => {
     const favorite = isFavorite(item.id);
     return (
       <TouchableOpacity
-        style={[styles.movieCard, {backgroundColor: theme.colors.card}]}
-        onPress={() => navigation.navigate('MovieDetails', {movieId: item.id})}
+        style={[styles.movieCard, { backgroundColor: theme.colors.card }]}
+        onPress={() => navigation.navigate('MovieDetails', { movieId: item.id })}
         accessibilityRole="button"
         accessibilityLabel={ACCESSIBILITY_STRINGS.MOVIE_CARD_LABEL}
         accessibilityHint={ACCESSIBILITY_STRINGS.MOVIE_CARD_HINT}
       >
-        {item.poster && (
-          <Image source={{uri: item.poster}} style={styles.poster} />
+        {typeof item.poster === 'string' && (
+          <Image source={{ uri: item.poster }} style={styles.poster} />
         )}
         <View style={styles.movieInfo}>
-          <Text style={[styles.movieTitle, {color: theme.colors.text}]} numberOfLines={2}>
+          <Text style={[styles.movieTitle, { color: theme.colors.text }]} numberOfLines={2}>
             {item.title}
           </Text>
-          <Text style={[styles.movieMeta, {color: theme.colors.mutedText}]}>\n            {item.year} • ⭐ {item.rating.toFixed(1)}
-          </Text>
+          <Text style={[styles.movieMeta, { color: theme.colors.mutedText }]}>{item.year} • ⭐ {item.rating.toFixed(1)}</Text>
         </View>
         <TouchableOpacity
-          style={[styles.favoriteButton, {backgroundColor: DARK_THEME_COLORS.overlay}]}
+          style={[styles.favoriteButton, { backgroundColor: DARK_THEME_COLORS.overlay }]}
           onPress={() => toggleFavorite(item)}
           accessibilityRole="button"
           accessibilityLabel={favorite ? ACCESSIBILITY_STRINGS.REMOVE_FAVORITE_LABEL : ACCESSIBILITY_STRINGS.ADD_FAVORITE_LABEL}
@@ -84,7 +83,7 @@ export default function CollectionScreen({navigation, route}: Props) {
           <Text
             style={[
               styles.favoriteIcon,
-              {color: favorite ? theme.colors.primary : DARK_THEME_COLORS.white},
+              { color: favorite ? theme.colors.primary : DARK_THEME_COLORS.white },
             ]}
           >
             {favorite ? '♥' : '♡'}
@@ -97,21 +96,21 @@ export default function CollectionScreen({navigation, route}: Props) {
   return (
     <SafeAreaView
       edges={['top', 'left', 'right']}
-      style={[styles.screen, {backgroundColor: theme.colors.background}]}>
+      style={[styles.screen, { backgroundColor: theme.colors.background }]}>
       <View style={styles.header}>
         <TouchableOpacity
-          style={[styles.backButton, {backgroundColor: theme.colors.card}]}
+          style={[styles.backButton, { backgroundColor: theme.colors.card }]}
           onPress={() => navigation.goBack()}
           accessibilityRole="button"
           accessibilityLabel={ACCESSIBILITY_STRINGS.BACK_BUTTON_LABEL}
           accessibilityHint={ACCESSIBILITY_STRINGS.BACK_BUTTON_HINT}
         >
-          <Text style={[styles.backIcon, {color: theme.colors.text}]}>{'‹'}</Text>
+          <Text style={[styles.backIcon, { color: theme.colors.text }]}>{'‹'}</Text>
         </TouchableOpacity>
-        <Text style={[styles.headerTitle, {color: theme.colors.text}]} numberOfLines={1}>
+        <Text style={[styles.headerTitle, { color: theme.colors.text }]} numberOfLines={1}>
           {title}
         </Text>
-        <View style={{width: SPACING.XXL}} />
+        <View style={{ width: SPACING.XXL }} />
       </View>
 
       {loading ? (
@@ -120,7 +119,7 @@ export default function CollectionScreen({navigation, route}: Props) {
         </View>
       ) : movies.length === 0 ? (
         <View style={styles.center}>
-          <Text style={[styles.emptyText, {color: theme.colors.mutedText}]}>{STRINGS.NO_MOVIES_FOUND}</Text>
+          <Text style={[styles.emptyText, { color: theme.colors.mutedText }]}>{STRINGS.NO_MOVIES_FOUND}</Text>
         </View>
       ) : (
         <FlatList

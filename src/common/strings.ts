@@ -110,4 +110,12 @@ export const STRINGS = {
     // Voice Button
     VOICE_START: 'Start voice input',
     VOICE_STOP: 'Stop voice input',
+
+    // General Errors
+    UNABLE_TO_OPEN_MAPS: 'Unable to open maps.',
+    SOMETHING_WENT_WRONG: 'Something went wrong. Please try again.',
+
+    // Movie Detail Errors
+    FAILED_TO_LOAD: 'Failed to load movie details.',
+    REMINDER_ERROR: 'Failed to set reminder. Please try again.',
 };

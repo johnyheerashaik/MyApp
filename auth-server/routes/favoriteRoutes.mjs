@@ -60,7 +60,7 @@ router.delete('/:movieId', async (req, res) => {
       return res.status(404).json({ success: false, message: 'User not found' });
     }
     const initialLength = user.favorites.length;
-    user.favorites = user.favorites.filter(fav => fav.movieId !== parseInt(movieId));
+    user.favorites = user.favorites.filter(fav => fav.movieId !== Number.parseInt(movieId));
     if (user.favorites.length === initialLength) {
       return res.status(404).json({ success: false, message: 'Favorite not found' });
     }

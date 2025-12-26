@@ -110,7 +110,7 @@ function renderSubmitButton(
       onPress={onPress}
       disabled={submitting}
       accessibilityRole="button"
-      accessibilityLabel={submitting ? ACCESSIBILITY_STRINGS.SIGN_IN_LABEL : ACCESSIBILITY_STRINGS.SIGN_IN_LABEL}
+      accessibilityLabel={ACCESSIBILITY_STRINGS.SIGN_IN_LABEL}
       accessibilityHint={ACCESSIBILITY_STRINGS.SIGN_IN_HINT}
       importantForAccessibility="yes"
     >

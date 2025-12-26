@@ -74,7 +74,6 @@ export const FavoritesProvider = ({children}: {children: React.ReactNode}) => {
   };
 
   const toggleFavorite = async (movie: Movie) => {
-    // ...existing code...
     if (!user?.token) {
       console.warn(STRINGS.FAV_CANNOT_TOGGLE_NOT_LOGGED_IN);
       return;
@@ -160,18 +159,28 @@ export const FavoritesProvider = ({children}: {children: React.ReactNode}) => {
     return !!reminders[id];
   };
 
+  const contextValue = React.useMemo(() => ({
+    favorites: favoritesState.favorites,
+    loading: favoritesState.loading,
+    isFavorite,
+    toggleFavorite,
+    addFavorite,
+    removeFavorite,
+    toggleReminder,
+    isReminderEnabled,
+  }), [
+    favoritesState.favorites,
+    favoritesState.loading,
+    isFavorite,
+    toggleFavorite,
+    addFavorite,
+    removeFavorite,
+    toggleReminder,
+    isReminderEnabled
+  ]);
+
   return (
-    <FavoritesContext.Provider
-      value={{
-        favorites: favoritesState.favorites,
-        loading: favoritesState.loading,
-        isFavorite,
-        toggleFavorite,
-        addFavorite,
-        removeFavorite,
-        toggleReminder,
-        isReminderEnabled,
-      }}>
+    <FavoritesContext.Provider value={contextValue}>
       {children}
     </FavoritesContext.Provider>
   );

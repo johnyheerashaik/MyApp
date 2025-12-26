@@ -103,7 +103,7 @@ api.interceptors.response.use(
             await metric.stop();
             perfMetrics.delete(error.config);
         }
-        return Promise.reject(error);
+        throw error;
     }
 );
 

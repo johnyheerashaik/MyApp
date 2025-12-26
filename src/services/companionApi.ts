@@ -3,11 +3,15 @@ import {apiCall} from './api';
 import {trackOperation} from './performance';
 
 import { Platform } from 'react-native';
-const BASE_URL = __DEV__
-  ? Platform.OS === 'android'
-    ? 'http://10.0.2.2:4000'
-    : 'http://localhost:4000'
-  : 'https://your-production-backend-url.com';
+let BASE_URL = 'https://your-production-backend-url.com';
+
+if (__DEV__) {
+  if (Platform.OS === 'android') {
+    BASE_URL = 'http://10.0.2.2:4000';
+  } else {
+    BASE_URL = 'http://localhost:4000';
+  }
+}
 
 export async function askCompanion(
   question: string,

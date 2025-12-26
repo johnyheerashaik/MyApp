@@ -32,7 +32,7 @@ router.patch('/:movieId', async (req, res) => {
     if (!user) {
       return res.status(404).json({ success: false, message: 'User not found' });
     }
-    const fav = user.favorites.find(fav => fav.movieId === parseInt(movieId));
+    const fav = user.favorites.find(fav => fav.movieId === Number.parseInt(movieId));
     if (!fav) {
       return res.status(404).json({ success: false, message: 'Favorite not found' });
     }

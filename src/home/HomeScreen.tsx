@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../auth/AuthContext';
 import { useTheme } from '../theme/ThemeContext';
@@ -21,7 +20,6 @@ export default function HomeScreen({ navigation }: Props) {
 
   const [showMenu, setShowMenu] = useState(false);
   const [showCompanion, setShowCompanion] = useState(false);
-  const [companionMessages, setCompanionMessages] = useState<any[]>([]);
 
   const handleLogout = () => {
     setShowMenu(false);
@@ -46,7 +44,7 @@ export default function HomeScreen({ navigation }: Props) {
   return (
     <SafeAreaView
       edges={['top', 'left', 'right']}
-      style={[styles.screen, { backgroundColor: theme.colors.background }]}>
+      style={[styles.screen, { backgroundColor: theme.colors.background }]}> 
       <HomeHeader
         userName={user?.name}
         initials={initials}

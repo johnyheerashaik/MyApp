@@ -1,5 +1,5 @@
 import {StyleSheet} from 'react-native';
-import {SPACING, BORDER_RADIUS, FONT_SIZE, FONT_WEIGHT} from '../constants';
+import {SPACING, BORDER_RADIUS, FONT_SIZE, FONT_WEIGHT, DARK_THEME_COLORS} from '../constants';
 
 export default StyleSheet.create({
   container: {
@@ -50,7 +50,7 @@ export default StyleSheet.create({
     borderRadius: BORDER_RADIUS.SM,
   },
   badgeText: {
-    color: '#fff',
+    color: DARK_THEME_COLORS.white,
     fontSize: FONT_SIZE.XS,
     fontWeight: FONT_WEIGHT.BOLD,
     textTransform: 'uppercase',

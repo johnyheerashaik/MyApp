@@ -1,7 +1,8 @@
 import {StyleSheet} from 'react-native';
+import {SPACING, FONT_SIZE, FONT_WEIGHT, BORDER_RADIUS, ICON_SIZE} from '../constants';
 
 export default StyleSheet.create({
- menuOverlay: {
+  menuOverlay: {
     position: 'absolute',
     top: 0,
     right: 0,
@@ -9,14 +10,14 @@ export default StyleSheet.create({
     left: 0,
     justifyContent: 'flex-start',
     alignItems: 'flex-end',
-    paddingTop: 50,
-    paddingRight: 16,
+    paddingTop: SPACING.XXXL,
+    paddingRight: SPACING.BASE,
   },
   menuCard: {
     width: 260,
-    borderRadius: 16,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
+    borderRadius: BORDER_RADIUS.XXL,
+    paddingHorizontal: SPACING.LG,
+    paddingVertical: SPACING.SM,
     shadowColor: '#000',
     shadowOpacity: 0.3,
     shadowRadius: 12,
@@ -26,44 +27,42 @@ export default StyleSheet.create({
   menuUserRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: SPACING.SM,
   },
   menuAvatar: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: ICON_SIZE.LG,
+    height: ICON_SIZE.LG,
+    borderRadius: BORDER_RADIUS.XL,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 10,
+    marginRight: SPACING.BASE,
   },
   menuAvatarText: {
-    color: '#fff',
-    fontWeight: '700',
+    fontWeight: FONT_WEIGHT.BOLD,
   },
   menuUserName: {
-    fontSize: 15,
-    fontWeight: '600',
+    fontSize: FONT_SIZE.LG,
+    fontWeight: FONT_WEIGHT.SEMI_BOLD,
   },
   menuUserEmail: {
-    fontSize: 12,
+    fontSize: FONT_SIZE.XS,
   },
   menuDivider: {
     height: 1,
     backgroundColor: 'rgba(255,255,255,0.08)',
-    marginVertical: 6,
+    marginVertical: SPACING.XS,
   },
   menuItem: {
-    paddingVertical: 8,
+    paddingVertical: SPACING.SM,
   },
   menuItemText: {
-    fontSize: 14,
-    fontWeight: '600',
+    fontSize: FONT_SIZE.BASE,
+    fontWeight: FONT_WEIGHT.SEMI_BOLD,
   },
   menuItemRow: {
-    paddingVertical: 8,
+    paddingVertical: SPACING.SM,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-
 });

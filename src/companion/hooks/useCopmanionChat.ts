@@ -3,7 +3,12 @@ import {Keyboard} from 'react-native';
 import {askCompanion} from '../../services/companionApi';
 import {Movie} from '../../services/movieApi';
 import {APP_STRINGS} from '../../constants';
-import type {Message} from '../types/types';
+import type {Message as BaseMessage} from '../types/types';
+import {logAIChat, logAIRecommendation} from '../../services/analytics';
+
+type Message = BaseMessage & {
+  suggestedMovies?: Movie[];
+};
 
 type Args = {
   favorites: Movie[];
@@ -40,12 +45,10 @@ export function useCompanionChat({
       try {
         const reply = await askCompanion(trimmed, favorites, userName ?? 'Guest', userId ?? undefined);
 
-        // Build bot message first (fast UI)
         const botId = `bot-${Date.now()}`;
         const botMessage: Message = {id: botId, from: 'bot', text: reply};
         setMessages((prev) => [...prev, botMessage]);
 
-        // Fetch suggestions after showing reply
         const suggestedMovies = await extractAndSearchMovies(reply);
         if (suggestedMovies.length > 0) {
           setMessages((prev) =>
@@ -53,7 +56,6 @@ export function useCompanionChat({
           );
         }
 
-        const {logAIChat, logAIRecommendation} = await import('../../services/analytics');
         logAIChat('user_message');
         if (suggestedMovies.length > 0) logAIRecommendation(suggestedMovies.length);
       } catch (e) {

@@ -1,3 +1,4 @@
+import { STRINGS } from '../common/strings';
 import { logError } from '../services/analytics';
 
 import React, {createContext, useContext, useEffect} from 'react';
@@ -73,11 +74,9 @@ export const FavoritesProvider = ({children}: {children: React.ReactNode}) => {
   };
 
   const toggleFavorite = async (movie: Movie) => {
-    console.log('🔄 Toggle favorite called for:', movie.title, 'ID:', movie.id);
-    console.log('🔄 User token exists:', !!user?.token);
-    
+    // ...existing code...
     if (!user?.token) {
-      console.warn('❌ Cannot toggle favorite: user not logged in');
+      console.warn(STRINGS.FAV_CANNOT_TOGGLE_NOT_LOGGED_IN);
       return;
     }
 
@@ -110,7 +109,7 @@ export const FavoritesProvider = ({children}: {children: React.ReactNode}) => {
 
   const addFavorite = async (movie: Movie) => {
     if (!user?.token) {
-      console.warn('Cannot add favorite: user not logged in');
+      console.warn(STRINGS.FAV_CANNOT_ADD_NOT_LOGGED_IN);
       return;
     }
 
@@ -127,7 +126,7 @@ export const FavoritesProvider = ({children}: {children: React.ReactNode}) => {
 
   const removeFavorite = async (id: number) => {
     if (!user?.token) {
-      console.warn('Cannot remove favorite: user not logged in');
+      console.warn(STRINGS.FAV_CANNOT_REMOVE_NOT_LOGGED_IN);
       return;
     }
 
@@ -143,7 +142,7 @@ export const FavoritesProvider = ({children}: {children: React.ReactNode}) => {
 
   const toggleReminder = async (movieId: number, enabled: boolean) => {
     if (!user?.token) {
-      console.warn('Cannot toggle reminder: user not logged in');
+      console.warn(STRINGS.FAV_CANNOT_TOGGLE_REMINDER_NOT_LOGGED_IN);
       return;
     }
 
@@ -182,7 +181,7 @@ export const useFavorites = () => {
   const ctx = useContext(FavoritesContext);
 
   if (!ctx) {
-    throw new Error('useFavorites must be used inside FavoritesProvider');
+    throw new Error(STRINGS.USE_FAVORITES_PROVIDER_ERROR);
   }
 
   return ctx;

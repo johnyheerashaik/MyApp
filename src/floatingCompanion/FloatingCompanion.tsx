@@ -4,6 +4,7 @@ import {Movie} from '../services/movieApi';
 import CompanionCard from '../companion/CompanionCard';
 import type { Message } from '../companion/types/types';
 import styles from './styles';
+import {useTheme} from '../theme/ThemeContext';
 
 type Props = {
   visible: boolean;
@@ -25,17 +26,18 @@ export default function FloatingCompanion({
   onAddToFavorites,
 }: Props) {
   const [messages, setMessages] = useState<Message[]>([]);
+  const theme = useTheme();
 
   return (
     <>
-      <TouchableOpacity style={styles.aiFab} onPress={onOpen}>
+      <TouchableOpacity style={[styles.aiFab, {backgroundColor: theme.colors.primary}]} onPress={onOpen}>
         <Text style={styles.aiFabText}>🤖</Text>
       </TouchableOpacity>
 
       {visible && (
         <View style={styles.aiPopupOverlay} pointerEvents="box-none">
           <TouchableOpacity
-            style={styles.aiBackdrop}
+            style={[styles.aiBackdrop, {backgroundColor: theme.colors.overlay}]}
             activeOpacity={1}
             onPress={onClose}
           />
@@ -43,8 +45,9 @@ export default function FloatingCompanion({
           <View style={styles.aiPopupCard}>
             <TouchableOpacity
               onPress={onClose}
-              style={styles.aiCloseButton}>
-              <Text style={styles.aiCloseText}>✕</Text>
+              style={[styles.aiCloseButton, {backgroundColor: theme.colors.overlay}]}
+            >
+              <Text style={[styles.aiCloseText, {color: theme.colors.text}]}>✕</Text>
             </TouchableOpacity>
 
             <CompanionCard

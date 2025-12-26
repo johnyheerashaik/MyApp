@@ -18,7 +18,8 @@ import {useTheme} from '../theme/ThemeContext';
 import {fetchNearbyTheaters, geocodeZipCode, Theater} from '../services/theatersApi';
 import {isFeatureEnabled} from '../config/featureToggles';
 import styles from './styles';
-import {logError} from '../services/analytics';
+import { STRINGS } from '../common/strings';
+import {logError, logTheaterSearch, logTheaterDirections} from '../services/analytics';
 
 
 export default function TheatresScreen() {
@@ -30,12 +31,10 @@ export default function TheatresScreen() {
         edges={['top', 'left', 'right']}
         style={[styles.container, {backgroundColor: theme.colors.background}]}>
         <View style={styles.header}>
-          <Text style={[styles.title, {color: theme.colors.text}]}>Theaters</Text>
+          <Text style={[styles.title, {color: theme.colors.text}]}>{STRINGS.THEATERS}</Text>
         </View>
         <View style={styles.center}>
-          <Text style={[styles.emptyText, {color: theme.colors.mutedText}]}>
-            This feature is currently disabled.
-          </Text>
+          <Text style={[styles.emptyText, {color: theme.colors.mutedText}]}>{STRINGS.FEATURE_DISABLED}</Text>
         </View>
       </SafeAreaView>
     );
@@ -50,17 +49,17 @@ export default function TheatresScreen() {
         const granted = await PermissionsAndroid.request(
           PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
           {
-            title: 'Location Permission',
-            message: 'This app needs access to your location to find nearby theaters.',
-            buttonNeutral: 'Ask Me Later',
-            buttonNegative: 'Cancel',
-            buttonPositive: 'OK',
+            title: STRINGS.LOCATION_PERMISSION_TITLE,
+            message: STRINGS.LOCATION_PERMISSION_MESSAGE,
+            buttonNeutral: STRINGS.LOCATION_PERMISSION_NEUTRAL,
+            buttonNegative: STRINGS.LOCATION_PERMISSION_NEGATIVE,
+            buttonPositive: STRINGS.LOCATION_PERMISSION_POSITIVE,
           }
         );
         if (granted === PermissionsAndroid.RESULTS.GRANTED) {
           getUserLocation();
         } else {
-          Alert.alert('Permission Denied', 'Location permission is required to find nearby theaters.');
+          Alert.alert(STRINGS.PERMISSION_DENIED, STRINGS.LOCATION_PERMISSION_REQUIRED);
         }
       } catch (err) {
         console.warn(err);
@@ -72,20 +71,16 @@ export default function TheatresScreen() {
 
   const getUserLocation = () => {
     setLoading(true);
-    console.log('Requesting user location...');
     Geolocation.getCurrentPosition(
       async position => {
         const {latitude, longitude} = position.coords;
-        console.log('Got location:', {latitude, longitude});
         try {
           const results = await fetchNearbyTheaters(latitude, longitude);
           setTheaters(results);
-          const {logTheaterSearch} = await import('../services/analytics');
           logTheaterSearch('gps', results.length);
         } catch (error: any) {
-          const { logError } = await import('../services/analytics');
           logError(error, 'Failed to fetch theaters');
-          Alert.alert('Error', error.message || 'Failed to fetch theaters');
+          Alert.alert(STRINGS.ERROR, error.message || STRINGS.FAILED_TO_FIND_THEATERS);
         } finally {
           setLoading(false);
         }
@@ -93,7 +88,7 @@ export default function TheatresScreen() {
       error => {
         setLoading(false);
         logError(error as any, 'Location error');
-        Alert.alert('Location Error', `Unable to get your location: ${error.message}`);
+        Alert.alert(STRINGS.LOCATION_ERROR, `${STRINGS.UNABLE_TO_GET_LOCATION}${error.message}`);
       },
       {enableHighAccuracy: true, timeout: 30000, maximumAge: 0}
     );
@@ -101,22 +96,19 @@ export default function TheatresScreen() {
 
   const searchByZipCode = async () => {
     if (!zipCode || zipCode.length < 5) {
-      Alert.alert('Invalid Zip Code', 'Please enter a valid 5-digit zip code.');
+      Alert.alert(STRINGS.INVALID_ZIP_CODE, STRINGS.ENTER_VALID_ZIP);
       return;
     }
 
     setLoading(true);
     try {
       const {lat, lng} = await geocodeZipCode(zipCode);
-      console.log('Zip code location:', {lat, lng});
       const results = await fetchNearbyTheaters(lat, lng);
       setTheaters(results);
-      const {logTheaterSearch} = await import('../services/analytics');
       logTheaterSearch('zipcode', results.length);
     } catch (error: any) {
-      const { logError } = await import('../services/analytics');
       logError(error, 'Failed to find theaters');
-      Alert.alert('Error', error.message || 'Failed to find theaters');
+      Alert.alert(STRINGS.ERROR, error.message || STRINGS.FAILED_TO_FIND_THEATERS);
     } finally {
       setLoading(false);
     }
@@ -131,7 +123,6 @@ export default function TheatresScreen() {
   };
 
   const openInMaps = async (theater: Theater) => {
-    const {logTheaterDirections} = await import('../services/analytics');
     logTheaterDirections(theater.name);
     const url = Platform.select({
       ios: `maps://app?daddr=${theater.latitude},${theater.longitude}`,
@@ -152,10 +143,11 @@ export default function TheatresScreen() {
           {item.address}
         </Text>
         <Text style={[styles.theaterDistance, {color: theme.colors.primary}]}>
-          {item.distance.toFixed(1)} miles away
-        </Text>
+    {item.distance.toFixed(1)} {STRINGS.MILES_AWAY}
+  </Text>
+          <Text style={[styles.theaterDistance, {color: theme.colors.primary}]}>\n          {item.distance.toFixed(1)} {STRINGS.MILES_AWAY}\n        </Text>
       </View>
-      <Text style={[styles.directionsIcon, {color: theme.colors.primary}]}>→</Text>
+      <Text style={[styles.directionsIcon, {color: theme.colors.primary}]}>{STRINGS.ARROW}</Text>
     </TouchableOpacity>
   );
 
@@ -164,20 +156,20 @@ export default function TheatresScreen() {
       edges={['top', 'left', 'right']}
       style={[styles.container, {backgroundColor: theme.colors.background}]}>
       <View style={styles.header}>
-        <Text style={[styles.title, {color: theme.colors.text}]}>Nearby Theaters</Text>
+        <Text style={[styles.title, {color: theme.colors.text}]}>{STRINGS.NEARBY_THEATERS}</Text>
       </View>
 
       <View style={styles.searchContainer}>
         <TouchableOpacity
           style={[styles.locationButton, {backgroundColor: theme.colors.primary}]}
           onPress={requestLocationPermission}>
-          <Text style={styles.locationButtonText}>📍 Use My Location</Text>
+          <Text style={styles.locationButtonText}>{STRINGS.USE_MY_LOCATION}</Text>
         </TouchableOpacity>
         
         <View style={styles.zipContainer}>
           <TextInput
             style={[styles.zipInput, {backgroundColor: theme.colors.card, color: theme.colors.text, borderColor: theme.colors.mutedText, borderWidth: 1}]}
-            placeholder="Enter Zip Code"
+            placeholder={STRINGS.ENTER_ZIP_CODE}
             placeholderTextColor={theme.colors.mutedText}
             value={zipCode}
             onChangeText={setZipCode}
@@ -187,7 +179,7 @@ export default function TheatresScreen() {
           <TouchableOpacity
             style={[styles.zipButton, {backgroundColor: theme.colors.primary}]}
             onPress={searchByZipCode}>
-            <Text style={styles.zipButtonText}>Search</Text>
+            <Text style={styles.zipButtonText}>{STRINGS.SEARCH}</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -195,9 +187,7 @@ export default function TheatresScreen() {
       {loading && theaters.length === 0 ? (
         <View style={styles.center}>
           <ActivityIndicator size="large" color={theme.colors.primary} />
-          <Text style={[styles.loadingText, {color: theme.colors.mutedText}]}>
-            Finding theaters near you...
-          </Text>
+          <Text style={[styles.loadingText, {color: theme.colors.mutedText}]}>{STRINGS.FINDING_THEATERS}</Text>
         </View>
       ) : theaters.length === 0 ? (
         <FlatList
@@ -205,9 +195,7 @@ export default function TheatresScreen() {
           renderItem={null}
           ListEmptyComponent={
             <View style={styles.center}>
-              <Text style={[styles.emptyText, {color: theme.colors.mutedText}]}>
-                No theaters found. Use location or enter zip code.
-              </Text>
+              <Text style={[styles.emptyText, {color: theme.colors.mutedText}]}>{STRINGS.NO_THEATERS_FOUND}</Text>
             </View>
           }
           refreshControl={

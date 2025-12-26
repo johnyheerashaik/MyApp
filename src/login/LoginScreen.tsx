@@ -10,7 +10,8 @@ import {
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useAuth} from '../auth/AuthContext';
 import {useTheme} from '../theme/ThemeContext';
-import {APP_STRINGS} from '../constants';
+import { STRINGS } from '../common/strings';
+import { ACCESSIBILITY_STRINGS } from '../common/accessibilityStrings';
 import {AuthStackParamList} from '../navigation/types';
 import {logUserLogin} from '../services/analytics';
 import styles from './styles';
@@ -40,6 +41,21 @@ function renderInput({
   secureTextEntry,
   keyboardType = 'default',
 }: RenderInputProps) {
+  let accessibilityLabel = '';
+  let accessibilityHint = '';
+  switch (placeholder) {
+    case STRINGS.EMAIL:
+      accessibilityLabel = ACCESSIBILITY_STRINGS.EMAIL_LABEL;
+      accessibilityHint = ACCESSIBILITY_STRINGS.EMAIL_HINT;
+      break;
+    case STRINGS.PASSWORD:
+      accessibilityLabel = ACCESSIBILITY_STRINGS.PASSWORD_LABEL;
+      accessibilityHint = ACCESSIBILITY_STRINGS.PASSWORD_HINT;
+      break;
+    default:
+      accessibilityLabel = placeholder;
+      accessibilityHint = `Enter your ${placeholder.toLowerCase()}`;
+  }
   return (
     <TextInput
       style={[
@@ -53,6 +69,9 @@ function renderInput({
       secureTextEntry={secureTextEntry}
       value={value}
       onChangeText={onChangeText}
+      accessibilityLabel={accessibilityLabel}
+      accessibilityHint={accessibilityHint}
+      importantForAccessibility="yes"
     />
   );
 }
@@ -89,9 +108,14 @@ function renderSubmitButton(
         {backgroundColor: colors.primary},
       ]}
       onPress={onPress}
-      disabled={submitting}>
+      disabled={submitting}
+      accessibilityRole="button"
+      accessibilityLabel={submitting ? ACCESSIBILITY_STRINGS.SIGN_IN_LABEL : ACCESSIBILITY_STRINGS.SIGN_IN_LABEL}
+      accessibilityHint={ACCESSIBILITY_STRINGS.SIGN_IN_HINT}
+      importantForAccessibility="yes"
+    >
       <Text style={styles.buttonText}>
-        {submitting ? APP_STRINGS.SIGNING_IN : APP_STRINGS.SIGN_IN}
+        {submitting ? STRINGS.SIGNING_IN : STRINGS.SIGN_IN}
       </Text>
     </TouchableOpacity>
   );
@@ -126,7 +150,7 @@ export default function LoginScreen({navigation}: LoginScreenProps) {
       await signIn(email.trim(), password);
       logUserLogin('email');
     } catch (e: any) {
-      setError(e?.message || 'Login failed');
+      setError(e?.message || STRINGS.LOGIN_FAILED);
     } finally {
       setSubmitting(false);
     }
@@ -140,16 +164,16 @@ export default function LoginScreen({navigation}: LoginScreenProps) {
       ]}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <View style={[styles.card, {backgroundColor: theme.colors.card}]}>
-        <Text style={[styles.title, {color: theme.colors.text}]}>
-          {APP_STRINGS.WELCOME}
+        <Text style={[styles.title, {color: theme.colors.text}]}> 
+          {STRINGS.WELCOME}
         </Text>
-        <Text style={[styles.subtitle, {color: theme.colors.mutedText}]}>
-          {APP_STRINGS.SIGN_IN_TO_CONTINUE}
+        <Text style={[styles.subtitle, {color: theme.colors.mutedText}]}> 
+          {STRINGS.SIGN_IN_TO_CONTINUE}
         </Text>
 
         {renderInput({
           colors: theme.colors,
-          placeholder: APP_STRINGS.EMAIL,
+          placeholder: STRINGS.EMAIL,
           value: email,
           onChangeText: setEmail,
           keyboardType: 'email-address',
@@ -157,7 +181,7 @@ export default function LoginScreen({navigation}: LoginScreenProps) {
 
         {renderInput({
           colors: theme.colors,
-          placeholder: APP_STRINGS.PASSWORD,
+          placeholder: STRINGS.PASSWORD,
           value: password,
           onChangeText: setPassword,
           secureTextEntry: true,
@@ -167,13 +191,19 @@ export default function LoginScreen({navigation}: LoginScreenProps) {
 
         {renderSubmitButton(theme.colors, submitting, handleLogin)}
 
-        <View style={{marginTop: 20, alignItems: 'center'}}>
-          <Text style={[{color: theme.colors.mutedText}]}>
-            Don't have an account?{' '}
+        <View style={styles.signUpRow}>
+          <Text style={{color: theme.colors.mutedText}}>
+            {STRINGS.DONT_HAVE_ACCOUNT}{' '}
           </Text>
-          <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
-            <Text style={[{color: theme.colors.primary, fontWeight: 'bold'}]}>
-              Sign Up
+          <TouchableOpacity
+            onPress={() => navigation.navigate('SignUp')}
+            accessibilityRole="button"
+            accessibilityLabel={ACCESSIBILITY_STRINGS.SIGN_UP_LABEL}
+            accessibilityHint={ACCESSIBILITY_STRINGS.SIGN_UP_HINT}
+            importantForAccessibility="yes"
+          >
+            <Text style={{color: theme.colors.primary, fontWeight: 'bold'}}>
+              {STRINGS.SIGN_UP}
             </Text>
           </TouchableOpacity>
         </View>

@@ -1,64 +1,66 @@
+
 import {StyleSheet} from 'react-native';
+import {SPACING, BORDER_RADIUS, FONT_SIZE, FONT_WEIGHT} from '../constants';
 
 export default StyleSheet.create({
- favoritesSection: {
-    marginTop: 12,
-    paddingHorizontal: 24,
+  favoritesSection: {
+    marginTop: SPACING.MD,
+    paddingHorizontal: SPACING.XL,
   },
   headerRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 8,
-    gap: 8,
+    marginBottom: SPACING.SM,
+    gap: SPACING.SM,
   },
   sectionTitle: {
-    fontSize: 20,
-    fontWeight: '700',
+    fontSize: FONT_SIZE.XXL,
+    fontWeight: FONT_WEIGHT.BOLD,
   },
   countBadge: {
-    fontSize: 14,
-    fontWeight: '600',
+    fontSize: FONT_SIZE.BASE,
+    fontWeight: FONT_WEIGHT.SEMI_BOLD,
   },
   sortButtons: {
     flexDirection: 'row',
-    gap: 8,
-    marginBottom: 12,
-    paddingRight: 24,
+    gap: SPACING.SM,
+    marginBottom: SPACING.MD,
+    paddingRight: SPACING.XL,
   },
   sortButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
+    paddingHorizontal: SPACING.BASE,
+    paddingVertical: SPACING.SM,
+    borderRadius: BORDER_RADIUS.XXXL,
   },
   sortButtonText: {
-    fontSize: 13,
-    fontWeight: '600',
+    fontSize: FONT_SIZE.SM,
+    fontWeight: FONT_WEIGHT.SEMI_BOLD,
   },
   emptyText: {
-    fontSize: 14,
+    fontSize: FONT_SIZE.BASE,
   },
   favoriteItem: {
     width: 110,
-    marginRight: 12,
+    marginRight: SPACING.MD,
     position: 'relative',
   },
   favoritePoster: {
     width: 110,
     height: 160,
-    borderRadius: 12,
-    marginBottom: 6,
+    borderRadius: BORDER_RADIUS.LG,
+    marginBottom: SPACING.XS,
   },
   favoriteTitle: {
-    fontSize: 12,
-    fontWeight: '600',
+    fontSize: FONT_SIZE.XS,
+    fontWeight: FONT_WEIGHT.SEMI_BOLD,
   },
   removeButton: {
     position: 'absolute',
-    top: 4,
-    right: 4,
+    top: SPACING.XS,
+    right: SPACING.XS,
     width: 24,
     height: 24,
-    borderRadius: 12,
+    borderRadius: BORDER_RADIUS.XL,
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#000',
@@ -69,17 +71,17 @@ export default StyleSheet.create({
   },
   removeButtonText: {
     color: '#ffffff',
-    fontSize: 14,
-    fontWeight: '700',
+    fontSize: FONT_SIZE.BASE,
+    fontWeight: FONT_WEIGHT.BOLD,
     lineHeight: 16,
   },
   reminderBadge: {
     position: 'absolute',
     bottom: 30,
-    left: 4,
+    left: SPACING.XS,
     width: 28,
     height: 28,
-    borderRadius: 14,
+    borderRadius: BORDER_RADIUS.XXL,
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#000',
@@ -90,6 +92,6 @@ export default StyleSheet.create({
     zIndex: 10,
   },
   reminderBadgeText: {
-    fontSize: 14,
+    fontSize: FONT_SIZE.BASE,
   },
 });

@@ -11,6 +11,9 @@ export const DARK_THEME_COLORS = {
   warning: '#f59e0b',
   
   overlay: 'rgba(0, 0, 0, 0.5)',
+  streamingBadgeStream: '#10B981',
+  streamingBadgeRent: '#F59E0B',
+  streamingBadgeBuy: '#EF4444',
   chatBotBubble: 'rgba(203, 213, 225, 0.2)',
   chatContainer: 'rgba(30, 41, 59, 0.95)',
   border: 'rgba(148, 163, 184, 0.1)',
@@ -33,6 +36,9 @@ export const LIGHT_THEME_COLORS = {
   warning: '#d97706',
   
   overlay: 'rgba(0, 0, 0, 0.3)',
+  streamingBadgeStream: '#10B981',
+  streamingBadgeRent: '#F59E0B',
+  streamingBadgeBuy: '#EF4444',
   chatBotBubble: '#e5e7eb',
   chatContainer: '#ffffff',
   border: 'rgba(148, 163, 184, 0.3)',
@@ -54,6 +60,9 @@ export type ThemeColors = {
   success: string;
   warning: string;
   overlay: string;
+  streamingBadgeStream: string;
+  streamingBadgeRent: string;
+  streamingBadgeBuy: string;
   chatBotBubble: string;
   chatContainer: string;
   border: string;

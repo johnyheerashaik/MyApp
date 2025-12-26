@@ -12,7 +12,11 @@ import {useTheme} from '../theme/ThemeContext';
 import { Movie} from '../services/movieApi';
 import {useFavorites} from '../favorites/FavoritesContext';
 import styles from './styles';
-import { logError } from '../services/analytics';
+import { DARK_THEME_COLORS } from '../constants/colors';
+import { SPACING } from '../constants/spacing';
+import { logError, logCollectionView } from '../services/analytics';
+import { getMoviesByCollection, getMoviesByKeyword } from '../services/movieApi';
+import { STRINGS } from '../common/strings';
 
 type Props = {
   navigation: any;
@@ -29,20 +33,16 @@ export default function CollectionScreen({navigation, route}: Props) {
 
   useEffect(() => {
     loadCollection();
-    import('../services/analytics').then(({logCollectionView}) => {
-      logCollectionView(title || 'unknown');
-    });
+    logCollectionView(title || 'unknown');
   }, [collectionId, keywordId]);
 
   const loadCollection = async () => {
     setLoading(true);
     try {
       if (collectionId) {
-        const {getMoviesByCollection} = await import('../services/movieApi');
         const results = await getMoviesByCollection(collectionId);
         setMovies(results);
       } else if (keywordId) {
-        const {getMoviesByKeyword} = await import('../services/movieApi');
         const results = await getMoviesByKeyword(keywordId);
         setMovies(results);
       }
@@ -72,12 +72,12 @@ export default function CollectionScreen({navigation, route}: Props) {
           </Text>
         </View>
         <TouchableOpacity
-          style={[styles.favoriteButton, {backgroundColor: 'rgba(0,0,0,0.5)'}]}
+          style={[styles.favoriteButton, {backgroundColor: DARK_THEME_COLORS.overlay}]}
           onPress={() => toggleFavorite(item)}>
           <Text
             style={[
               styles.favoriteIcon,
-              {color: favorite ? theme.colors.primary : '#ffffff'},
+              {color: favorite ? theme.colors.primary : DARK_THEME_COLORS.white},
             ]}>
             {favorite ? '♥' : '♡'}
           </Text>
@@ -97,11 +97,11 @@ export default function CollectionScreen({navigation, route}: Props) {
           <Text style={[styles.backIcon, {color: theme.colors.text}]}>{'‹'}</Text>
         </TouchableOpacity>
 
-        <Text style={[styles.headerTitle, {color: theme.colors.text}]} numberOfLines={1}>
+          <Text style={[styles.headerTitle, {color: theme.colors.text}]} numberOfLines={1}>
           {title}
         </Text>
 
-        <View style={{width: 32}} />
+        <View style={{width: SPACING.XXL}} />
       </View>
 
       {loading ? (
@@ -110,9 +110,7 @@ export default function CollectionScreen({navigation, route}: Props) {
         </View>
       ) : movies.length === 0 ? (
         <View style={styles.center}>
-          <Text style={[styles.emptyText, {color: theme.colors.mutedText}]}>
-            No movies found in this collection
-          </Text>
+          <Text style={[styles.emptyText, {color: theme.colors.mutedText}]}>{STRINGS.NO_MOVIES_FOUND}</Text>
         </View>
       ) : (
         <FlatList

@@ -21,7 +21,7 @@ export default function HomeHeader({userName, initials, onPressAvatar}: Props) {
       <TouchableOpacity
         style={[styles.avatar, {backgroundColor: theme.colors.primary}]}
         onPress={onPressAvatar}>
-        <Text style={styles.avatarText}>{initials}</Text>
+        <Text style={[styles.avatarText, {color: theme.colors.white}]}>{initials}</Text>
       </TouchableOpacity>
     </View>
   );

@@ -14,6 +14,7 @@ import {SafeAreaView} from 'react-native-safe-area-context';
 import {useTheme} from '../theme/ThemeContext';
 import {fetchMoviesFromEndpoint, Movie} from '../services/movieApi';
 import {useFavorites} from '../favorites/FavoritesContext';
+import { STRINGS } from '../common/strings';
 import {APP_STRINGS, MOVIE_ENDPOINTS} from '../constants';
 import styles from './styles';
 
@@ -112,7 +113,7 @@ function MovieRow({title, endpoint, navigation, searchQuery}: RowProps) {
 
           return (
             <View style={styles.posterWrapper}>
-              <View style={{position: 'relative'}}>
+              <View style={styles.posterRelative}>
                 <TouchableOpacity
                   style={styles.posterTouchable}
                   onPress={() =>
@@ -127,7 +128,7 @@ function MovieRow({title, endpoint, navigation, searchQuery}: RowProps) {
                   style={[
                     styles.favoriteBadge,
                     {
-                      backgroundColor: 'rgba(0,0,0,0.55)',
+                      backgroundColor: theme.colors.overlay,
                     },
                   ]}
                   onPress={() => toggleFavorite(item)}>
@@ -137,7 +138,7 @@ function MovieRow({title, endpoint, navigation, searchQuery}: RowProps) {
                       {
                         color: favorite
                           ? theme.colors.primary
-                          : '#ffffff',
+                          : theme.colors.white,
                       },
                     ]}>
                     {favorite ? '♥' : '♡'}
@@ -197,7 +198,7 @@ export default function MoviesScreen({navigation}: ScreenProps) {
           {APP_STRINGS.MOVIES}
         </Text>
 
-        <View style={{width: 32}} />
+        <View style={{width: 32 /* Use SPACING or ICON_SIZE if appropriate */}} />
       </View>
 
       {/* SEARCH */}
@@ -209,7 +210,7 @@ export default function MoviesScreen({navigation}: ScreenProps) {
         <TextInput
           value={searchQuery}
           onChangeText={setSearchQuery}
-          placeholder={APP_STRINGS.SEARCH_MOVIES}
+          placeholder={STRINGS.SEARCH_MOVIES}
           placeholderTextColor={theme.colors.mutedText}
           style={[styles.searchInput, {color: theme.colors.text}]}
           returnKeyType="search"

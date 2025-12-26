@@ -1,3 +1,4 @@
+import { STRINGS } from '../common/strings';
 import React, {createContext, useContext, useEffect, ReactNode} from 'react';
 import {loginApi} from '../services/authApi';
 import {
@@ -8,7 +9,7 @@ import {
   clearAuthData,
 } from '../utils/secureStorage';
 import {sanitizeEmail, sanitizeString} from '../utils/sanitization';
-import { logError } from '../services/analytics';
+import { logError, logUserLogout } from '../services/analytics';
 
 import {useSelector, useDispatch} from 'react-redux';
 import type {RootState} from '../store';
@@ -52,7 +53,6 @@ export const AuthProvider = ({children}: {children: ReactNode}) => {
           };
           dispatch(initAuth(userWithToken));
         } else if (userData || token) {
-          // Inconsistent state, clear everything
           await clearAuthData();
           dispatch(initAuth(null));
         } else {
@@ -93,12 +93,11 @@ export const AuthProvider = ({children}: {children: ReactNode}) => {
       token,
     };
 
-    // Store token and user data separately in secure storage
     const tokenStored = await storeAuthToken(token);
     const userStored = await storeUserData(apiUser);
     
     if (!tokenStored || !userStored) {
-      throw new Error('Failed to save authentication data');
+      throw new Error(STRINGS.FAILED_TO_SAVE_AUTH);
     }
 
     dispatch(signInAction(userWithToken));
@@ -107,7 +106,6 @@ export const AuthProvider = ({children}: {children: ReactNode}) => {
   const signOut = async () => {
     await clearAuthData();
     dispatch(signOutAction());
-    const {logUserLogout} = await import('../services/analytics');
     logUserLogout();
   };
 
@@ -127,7 +125,7 @@ export const AuthProvider = ({children}: {children: ReactNode}) => {
 export const useAuth = () => {
   const ctx = useContext(AuthContext);
   if (!ctx) {
-    throw new Error('useAuth must be used inside AuthProvider');
+    throw new Error(STRINGS.USE_AUTH_PROVIDER_ERROR);
   }
   return ctx;
 };

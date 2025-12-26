@@ -82,8 +82,8 @@ export default function ProfileMenu({
           <Switch
             value={isDarkMode}
             onValueChange={onToggleTheme}
-            thumbColor="#ffffff"
-            trackColor={{false: '#4b5563', true: '#22c55e'}}
+            thumbColor={theme.colors.white}
+            trackColor={{false: theme.colors.mutedText, true: theme.colors.success}}
           />
         </View>
 

@@ -1,4 +1,5 @@
 import {StyleSheet} from 'react-native';
+import {SPACING, FONT_SIZE, FONT_WEIGHT, BORDER_RADIUS, ICON_SIZE} from '../constants';
 
 export default StyleSheet.create({
   screen: {
@@ -6,19 +7,18 @@ export default StyleSheet.create({
   },
   bottomButtonContainer: {
     position: 'absolute',
-    left: 24,
-    right: 24,
-    bottom: 40,
+    left: SPACING.XL,
+    right: SPACING.XL,
+    bottom: SPACING.XXXL,
   },
   primaryButton: {
-    height: 56,
-    borderRadius: 18,
+    height: ICON_SIZE.XXL,
+    borderRadius: BORDER_RADIUS.XXXL,
     justifyContent: 'center',
     alignItems: 'center',
   },
   primaryButtonText: {
-    color: '#ffffff',
-    fontSize: 18,
-    fontWeight: '600',
+    fontSize: FONT_SIZE.XL,
+    fontWeight: FONT_WEIGHT.SEMI_BOLD,
   }
 });

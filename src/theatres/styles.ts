@@ -1,5 +1,5 @@
 import {StyleSheet} from 'react-native';
-import {SPACING, BORDER_RADIUS, FONT_SIZE, FONT_WEIGHT} from '../constants';
+import {SPACING, BORDER_RADIUS, FONT_SIZE, FONT_WEIGHT, DARK_THEME_COLORS} from '../constants';
 
 export default StyleSheet.create({
   container: {
@@ -27,7 +27,7 @@ export default StyleSheet.create({
     alignItems: 'center',
   },
   locationButtonText: {
-    color: '#fff',
+    color: DARK_THEME_COLORS.white,
     fontSize: FONT_SIZE.BASE,
     fontWeight: FONT_WEIGHT.SEMI_BOLD,
   },
@@ -49,7 +49,7 @@ export default StyleSheet.create({
     justifyContent: 'center',
   },
   zipButtonText: {
-    color: '#fff',
+    color: DARK_THEME_COLORS.white,
     fontSize: FONT_SIZE.BASE,
     fontWeight: FONT_WEIGHT.SEMI_BOLD,
   },

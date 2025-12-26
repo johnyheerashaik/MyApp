@@ -13,9 +13,10 @@ import {
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { AuthStackParamList } from '../navigation/types';
 import { useTheme } from '../theme/ThemeContext';
-import { APP_STRINGS } from '../constants';
+import { STRINGS } from '../common/strings';
+import { ACCESSIBILITY_STRINGS } from '../common/accessibilityStrings';
 import { logUserSignup, logError } from '../services/analytics';
-import styles from '../login/styles';
+import styles from './styles';
 import { apiCall } from '../services/api';
 
 
@@ -39,33 +40,35 @@ export default function SignUpScreen({ navigation }: Props) {
   const [touched, setTouched] = useState<{ [key: string]: boolean }>({});
   const theme = useTheme();
 
+
+
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
 
     if (!firstName.trim()) {
-      newErrors.firstName = 'First name is required';
+      newErrors.firstName = STRINGS.FIRST_NAME_REQUIRED;
     }
 
     if (!lastName.trim()) {
-      newErrors.lastName = 'Last name is required';
+      newErrors.lastName = STRINGS.LAST_NAME_REQUIRED;
     }
 
     if (!email.trim()) {
-      newErrors.email = 'Email is required';
+      newErrors.email = STRINGS.EMAIL_REQUIRED;
     } else if (!/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email)) {
-      newErrors.email = 'Please enter a valid email';
+      newErrors.email = STRINGS.EMAIL_INVALID;
     }
 
     if (!password) {
-      newErrors.password = 'Password is required';
+      newErrors.password = STRINGS.PASSWORD_REQUIRED;
     } else if (password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
+      newErrors.password = STRINGS.PASSWORD_MIN_LENGTH;
     }
 
     if (!confirmPassword) {
-      newErrors.confirmPassword = 'Please confirm your password';
+      newErrors.confirmPassword = STRINGS.CONFIRM_PASSWORD_REQUIRED;
     } else if (password !== confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match';
+      newErrors.confirmPassword = STRINGS.PASSWORDS_DO_NOT_MATCH;
     }
 
     setErrors(newErrors);
@@ -100,26 +103,26 @@ export default function SignUpScreen({ navigation }: Props) {
       if (data.success) {
         logUserSignup('email');
         Alert.alert(
-          'Success!',
-          'Account created successfully. Please login.',
+          STRINGS.SUCCESS,
+          STRINGS.ACCOUNT_CREATED,
           [
             {
-              text: 'OK',
+              text: STRINGS.OK,
               onPress: () => navigation.navigate('Login'),
             },
           ]
         );
       } else {
         Alert.alert(
-          'Registration Failed',
-          data.message || 'Unable to create account. Please try again.'
+          STRINGS.REGISTRATION_FAILED,
+          data.message || STRINGS.UNABLE_TO_CREATE_ACCOUNT
         );
       }
     } catch (error) {
       logError(error as any, 'Sign up error');
       Alert.alert(
-        'Error',
-        'Unable to connect to server. Please check your connection.'
+        STRINGS.ERROR,
+        STRINGS.UNABLE_TO_CONNECT
       );
     } finally {
       setLoading(false);
@@ -132,18 +135,18 @@ export default function SignUpScreen({ navigation }: Props) {
       style={[styles.container, { backgroundColor: theme.colors.background }]}
     >
       <ScrollView
-        contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', padding: 24 }}
+        contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
       >
         <View style={[styles.card, { backgroundColor: theme.colors.card }]}>
-          <Text style={[styles.title, { color: theme.colors.text }]}>Create Account</Text>
-          <Text style={[styles.subtitle, { color: theme.colors.mutedText }]}>Sign up to get started</Text>
+          <Text style={[styles.title, { color: theme.colors.text }]}>{STRINGS.CREATE_ACCOUNT}</Text>
+          <Text style={[styles.subtitle, { color: theme.colors.mutedText }]}>{STRINGS.SIGN_UP_TO_GET_STARTED}</Text>
 
           {/* First Name */}
-          <View style={{ marginBottom: 12 }}>
+          <View style={styles.inputGroup}>
             <TextInput
               style={[styles.input, { borderColor: theme.colors.mutedText, color: theme.colors.text, backgroundColor: theme.colors.card }]}
-              placeholder="First name"
+              placeholder={STRINGS.FIRST_NAME}
               placeholderTextColor={theme.colors.mutedText}
               value={firstName}
               onChangeText={(text) => {
@@ -152,8 +155,11 @@ export default function SignUpScreen({ navigation }: Props) {
                   setErrors({ ...errors, firstName: '' });
                 }
               }}
-              autoCapitalize="words"
               editable={!loading}
+              accessibilityLabel={ACCESSIBILITY_STRINGS.FIRST_NAME_LABEL}
+              accessibilityHint={ACCESSIBILITY_STRINGS.FIRST_NAME_HINT}
+              returnKeyType="next"
+              importantForAccessibility="yes"
             />
             {errors.firstName && (
               <Text style={[styles.error, { color: theme.colors.danger }]}>{errors.firstName}</Text>
@@ -161,10 +167,10 @@ export default function SignUpScreen({ navigation }: Props) {
           </View>
 
           {/* Last Name */}
-          <View style={{ marginBottom: 12 }}>
+          <View style={styles.inputGroup}>
             <TextInput
               style={[styles.input, { borderColor: theme.colors.mutedText, color: theme.colors.text, backgroundColor: theme.colors.card }]}
-              placeholder="Last name"
+              placeholder={STRINGS.LAST_NAME}
               placeholderTextColor={theme.colors.mutedText}
               value={lastName}
               onChangeText={(text) => {
@@ -173,8 +179,11 @@ export default function SignUpScreen({ navigation }: Props) {
                   setErrors({ ...errors, lastName: '' });
                 }
               }}
-              autoCapitalize="words"
               editable={!loading}
+              accessibilityLabel={ACCESSIBILITY_STRINGS.LAST_NAME_LABEL}
+              accessibilityHint={ACCESSIBILITY_STRINGS.LAST_NAME_HINT}
+              returnKeyType="next"
+              importantForAccessibility="yes"
             />
             {errors.lastName && (
               <Text style={[styles.error, { color: theme.colors.danger }]}>{errors.lastName}</Text>
@@ -182,10 +191,10 @@ export default function SignUpScreen({ navigation }: Props) {
           </View>
 
           {/* Email */}
-          <View style={{ marginBottom: 12 }}>
+          <View style={styles.inputGroup}>
             <TextInput
               style={[styles.input, { borderColor: theme.colors.mutedText, color: theme.colors.text, backgroundColor: theme.colors.card }]}
-              placeholder={APP_STRINGS.EMAIL}
+              placeholder={STRINGS.EMAIL}
               placeholderTextColor={theme.colors.mutedText}
               value={email}
               onChangeText={(text) => {
@@ -195,9 +204,13 @@ export default function SignUpScreen({ navigation }: Props) {
                 }
               }}
               keyboardType="email-address"
-              autoCapitalize="none"
               autoCorrect={false}
               editable={!loading}
+              accessibilityLabel={ACCESSIBILITY_STRINGS.EMAIL_LABEL}
+              accessibilityHint={ACCESSIBILITY_STRINGS.EMAIL_HINT}
+              textContentType="emailAddress"
+              returnKeyType="next"
+              importantForAccessibility="yes"
             />
             {errors.email && (
               <Text style={[styles.error, { color: theme.colors.danger }]}>{errors.email}</Text>
@@ -205,10 +218,10 @@ export default function SignUpScreen({ navigation }: Props) {
           </View>
 
           {/* Password */}
-          <View style={{ marginBottom: 12 }}>
+          <View style={styles.inputGroup}>
             <TextInput
               style={[styles.input, { borderColor: theme.colors.mutedText, color: theme.colors.text, backgroundColor: theme.colors.card }]}
-              placeholder={APP_STRINGS.PASSWORD}
+              placeholder={STRINGS.PASSWORD}
               placeholderTextColor={theme.colors.mutedText}
               value={password}
               onChangeText={(text) => {
@@ -219,10 +232,13 @@ export default function SignUpScreen({ navigation }: Props) {
               }}
               onBlur={() => setTouched((prev) => ({ ...prev, password: true }))}
               secureTextEntry={true}
-              autoCapitalize="none"
               autoComplete="off"
-              textContentType="none"
+              textContentType="password"
               editable={!loading}
+              accessibilityLabel={ACCESSIBILITY_STRINGS.PASSWORD_LABEL}
+              accessibilityHint={ACCESSIBILITY_STRINGS.PASSWORD_HINT}
+              returnKeyType="next"
+              importantForAccessibility="yes"
             />
             {touched.password && errors.password && (
               <Text style={[styles.error, { color: theme.colors.danger }]}>{errors.password}</Text>
@@ -230,10 +246,10 @@ export default function SignUpScreen({ navigation }: Props) {
           </View>
 
           {/* Confirm Password */}
-          <View style={{ marginBottom: 12 }}>
+          <View style={styles.inputGroup}>
             <TextInput
               style={[styles.input, { borderColor: theme.colors.mutedText, color: theme.colors.text, backgroundColor: theme.colors.card }]}
-              placeholder="Confirm password"
+              placeholder={STRINGS.CONFIRM_PASSWORD}
               placeholderTextColor={theme.colors.mutedText}
               value={confirmPassword}
               onChangeText={(text) => {
@@ -244,10 +260,13 @@ export default function SignUpScreen({ navigation }: Props) {
               }}
               onBlur={() => setTouched((prev) => ({ ...prev, confirmPassword: true }))}
               secureTextEntry={true}
-              autoCapitalize="none"
               autoComplete="off"
-              textContentType="none"
+              textContentType="password"
               editable={!loading}
+              accessibilityLabel={ACCESSIBILITY_STRINGS.CONFIRM_PASSWORD_LABEL}
+              accessibilityHint={ACCESSIBILITY_STRINGS.CONFIRM_PASSWORD_HINT}
+              returnKeyType="done"
+              importantForAccessibility="yes"
             />
             {touched.confirmPassword && errors.confirmPassword && (
               <Text style={[styles.error, { color: theme.colors.danger }]}>{errors.confirmPassword}</Text>
@@ -259,25 +278,33 @@ export default function SignUpScreen({ navigation }: Props) {
             style={[styles.button, { backgroundColor: theme.colors.primary }]}
             onPress={handleSignUp}
             disabled={loading}
+            accessibilityRole="button"
+            accessibilityLabel={ACCESSIBILITY_STRINGS.CREATE_ACCOUNT_LABEL}
+            accessibilityHint={ACCESSIBILITY_STRINGS.CREATE_ACCOUNT_HINT}
+            importantForAccessibility="yes"
           >
             {loading ? (
-              <ActivityIndicator color="#fff" />
+              <ActivityIndicator color={theme.colors.white} accessibilityLabel={ACCESSIBILITY_STRINGS.LOADING_INDICATOR} />
             ) : (
-              <Text style={styles.buttonText}>Create Account</Text>
+              <Text style={[styles.buttonText, {color: theme.colors.white}]}>{STRINGS.CREATE_ACCOUNT}</Text>
             )}
           </TouchableOpacity>
 
           {/* Login Link */}
-          <View style={{ marginTop: 16, alignItems: 'center' }}>
+          <View style={styles.loginLinkRow}>
             <Text style={{ color: theme.colors.mutedText }}>
-              Already have an account?{' '}
+              {STRINGS.ALREADY_HAVE_ACCOUNT}{' '}
             </Text>
             <TouchableOpacity
               onPress={() => navigation.navigate('Login')}
               disabled={loading}
+              accessibilityRole="button"
+              accessibilityLabel={ACCESSIBILITY_STRINGS.LOG_IN_LABEL}
+              accessibilityHint={ACCESSIBILITY_STRINGS.LOG_IN_HINT}
+              importantForAccessibility="yes"
             >
-              <Text style={{ color: theme.colors.primary, fontWeight: '600' }}>
-                Log In
+              <Text style={[styles.loginLinkText, { color: theme.colors.primary }]}>
+                {STRINGS.LOG_IN}
               </Text>
             </TouchableOpacity>
           </View>

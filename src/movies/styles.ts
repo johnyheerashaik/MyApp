@@ -2,6 +2,9 @@ import {StyleSheet} from 'react-native';
 import {SPACING, BORDER_RADIUS, FONT_SIZE, FONT_WEIGHT, ICON_SIZE} from '../constants';
 
 export default StyleSheet.create({
+  posterRelative: {
+    position: 'relative',
+  },
   screen: {
     flex: 1,
   },

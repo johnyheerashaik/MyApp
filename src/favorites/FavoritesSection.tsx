@@ -9,8 +9,9 @@ import {
 } from 'react-native';
 import {useTheme} from '../theme/ThemeContext';
 import {Movie} from '../services/movieApi';
-import {APP_STRINGS} from '../constants';
+import { STRINGS } from '../common/strings';
 import styles from './styles';
+import {SPACING, BORDER_RADIUS, FONT_SIZE, FONT_WEIGHT} from '../constants';
 
 type SortOption = 'rating' | 'year' | 'title';
 
@@ -47,7 +48,7 @@ export default function FavoritesSection({favorites, onPressMovie, onRemoveFavor
     <View style={styles.favoritesSection}>
       <View style={styles.headerRow}>
         <Text style={[styles.sectionTitle, {color: theme.colors.text}]}>
-          {APP_STRINGS.YOUR_FAVORITES}
+          {STRINGS.YOUR_FAVORITES}
         </Text>
         {favorites.length > 0 && (
           <Text style={[styles.countBadge, {color: theme.colors.mutedText}]}>
@@ -67,8 +68,8 @@ export default function FavoritesSection({favorites, onPressMovie, onRemoveFavor
               {backgroundColor: sortBy === 'rating' ? theme.colors.primary : theme.colors.card},
             ]}
             onPress={() => setSortBy('rating')}>
-            <Text style={[styles.sortButtonText, {color: sortBy === 'rating' ? '#fff' : theme.colors.text}]}>
-              ⭐ Rating
+            <Text style={[styles.sortButtonText, {color: sortBy === 'rating' ? theme.colors.white : theme.colors.text}]}> 
+              {STRINGS.RATING_LABEL}
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
@@ -77,8 +78,8 @@ export default function FavoritesSection({favorites, onPressMovie, onRemoveFavor
               {backgroundColor: sortBy === 'year' ? theme.colors.primary : theme.colors.card},
             ]}
             onPress={() => setSortBy('year')}>
-            <Text style={[styles.sortButtonText, {color: sortBy === 'year' ? '#fff' : theme.colors.text}]}>
-              📅 Year
+            <Text style={[styles.sortButtonText, {color: sortBy === 'year' ? theme.colors.white : theme.colors.text}]}> 
+              {STRINGS.YEAR_LABEL}
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
@@ -87,8 +88,8 @@ export default function FavoritesSection({favorites, onPressMovie, onRemoveFavor
               {backgroundColor: sortBy === 'title' ? theme.colors.primary : theme.colors.card},
             ]}
             onPress={() => setSortBy('title')}>
-            <Text style={[styles.sortButtonText, {color: sortBy === 'title' ? '#fff' : theme.colors.text}]}>
-              🔤 Title
+            <Text style={[styles.sortButtonText, {color: sortBy === 'title' ? theme.colors.white : theme.colors.text}]}> 
+              {STRINGS.TITLE_LABEL}
             </Text>
           </TouchableOpacity>
         </ScrollView>
@@ -96,10 +97,10 @@ export default function FavoritesSection({favorites, onPressMovie, onRemoveFavor
 
       {favorites.length === 0 ? (
         <Text style={[styles.emptyText, {color: theme.colors.mutedText}]}>
-          {APP_STRINGS.NO_MOVIES_ADDED}
+          {STRINGS.NO_MOVIES_ADDED}
         </Text>
       ) : (
-        <View style={{minHeight: 180, paddingBottom: 16}}>
+        <View style={{minHeight: SPACING.XXXL, paddingBottom: SPACING.BASE}}>
           <FlatList
             horizontal
             data={sortedFavorites}
@@ -109,7 +110,7 @@ export default function FavoritesSection({favorites, onPressMovie, onRemoveFavor
                 : `favorite-${index}`
             }
             showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{paddingRight: 24, paddingBottom: 8}}
+            contentContainerStyle={{paddingRight: SPACING.XL, paddingBottom: SPACING.SM}}
           renderItem={({item}) => (
             <View style={styles.favoriteItem}>
               <TouchableOpacity
@@ -143,8 +144,8 @@ export default function FavoritesSection({favorites, onPressMovie, onRemoveFavor
                 <TouchableOpacity
                   style={[styles.removeButton, {
                     backgroundColor: theme.mode === 'dark' 
-                      ? 'rgba(239, 68, 68, 0.9)' 
-                      : '#ef4444',
+                      ? theme.colors.danger 
+                      : theme.colors.danger,
                   }]}
                   onPress={() => onRemoveFavorite(item.id)}>
                   <Text style={styles.removeButtonText}>✕</Text>

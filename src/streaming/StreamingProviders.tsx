@@ -3,6 +3,7 @@ import {View, Text, Image, ScrollView, TouchableOpacity, Linking} from 'react-na
 import {getMovieWatchProviders, WatchProviderData} from '../services/movieApi';
 import {useTheme} from '../theme/ThemeContext';
 import styles from './styles';
+import { STRINGS } from '../common/strings';
 
 type Props = {
   movieId: number;
@@ -37,10 +38,8 @@ export default function StreamingProviders({movieId}: Props) {
   if (!providers || (!providers.flatrate && !providers.rent && !providers.buy)) {
     return (
       <View style={[styles.container, {backgroundColor: theme.colors.card}]}>
-        <Text style={[styles.title, {color: theme.colors.text}]}>Where to Watch</Text>
-        <Text style={[styles.noProviders, {color: theme.colors.mutedText}]}>
-          Not currently available on streaming services in the US
-        </Text>
+          <Text style={[styles.title, {color: theme.colors.text}]}>{STRINGS.WHERE_TO_WATCH}</Text>
+          <Text style={[styles.noProviders, {color: theme.colors.mutedText}]}>{STRINGS.NOT_AVAILABLE_ON_STREAMING}</Text>
       </View>
     );
   }
@@ -50,9 +49,9 @@ export default function StreamingProviders({movieId}: Props) {
 
     const getTypeColor = () => {
       switch (type) {
-        case 'stream': return '#10B981';
-        case 'rent': return '#F59E0B';
-        case 'buy': return '#EF4444';
+        case 'stream': return theme.colors.streamingBadgeStream;
+        case 'rent': return theme.colors.streamingBadgeRent;
+        case 'buy': return theme.colors.streamingBadgeBuy;
       }
     };
 
@@ -90,7 +89,7 @@ export default function StreamingProviders({movieId}: Props) {
   return (
     <View style={[styles.container, {backgroundColor: theme.colors.card}]}>
       <View style={styles.header}>
-        <Text style={[styles.title, {color: theme.colors.text}]}>Where to Watch</Text>
+          <Text style={[styles.title, {color: theme.colors.text}]}>{STRINGS.WHERE_TO_WATCH}</Text>
         {providers.link && (
           <TouchableOpacity onPress={openJustWatch} style={styles.justWatchButton}>
             <Text style={[styles.justWatchText, {color: theme.colors.primary}]}>
@@ -104,9 +103,7 @@ export default function StreamingProviders({movieId}: Props) {
       {renderProviderSection('Rent', providers.rent || [], 'rent')}
       {renderProviderSection('Buy', providers.buy || [], 'buy')}
 
-      <Text style={[styles.disclaimer, {color: theme.colors.mutedText}]}>
-        Powered by JustWatch • US availability
-      </Text>
+        <Text style={[styles.disclaimer, {color: theme.colors.mutedText}]}>{STRINGS.POWERED_BY_JUSTWATCH}</Text>
     </View>
   );
 }

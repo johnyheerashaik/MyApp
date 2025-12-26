@@ -17,8 +17,8 @@ function MessageItemBase({item, favoritesIds, mode, colors, styles, onAddMovie}:
 
   const bubbleBg = useMemo(() => {
     if (isUser) return colors.primary;
-    return mode === 'dark' ? 'rgba(203, 213, 225, 0.2)' : colors.inputBackground;
-  }, [isUser, colors.primary, colors.inputBackground, mode]);
+    return mode === 'dark' ? colors.chatBotBubble : colors.inputBackground;
+  }, [isUser, colors.primary, colors.inputBackground, colors.chatBotBubble, mode]);
 
   return (
     <View>
@@ -28,7 +28,7 @@ function MessageItemBase({item, favoritesIds, mode, colors, styles, onAddMovie}:
           isUser ? styles.userBubble : styles.botBubble,
           {backgroundColor: bubbleBg},
         ]}>
-        <Text style={[styles.messageText, {color: isUser ? '#fff' : colors.text}]}>
+        <Text style={[styles.messageText, {color: isUser ? colors.white : colors.text}]}> 
           {item.text}
         </Text>
       </View>

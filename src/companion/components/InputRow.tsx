@@ -1,5 +1,6 @@
 import React, {memo} from 'react';
-import {View, Text, TextInput} from 'react-native';
+import {View, Text, TextInput, StyleSheet} from 'react-native';
+import { SPACING, BORDER_RADIUS, FONT_SIZE } from '../../constants';
 import {useThreeDots} from '../../common/hooks/useThreeDots';
 import ThreeDots from '../../common/components/ThreeDots';
 import VoiceButton from '../../common/components/VoiceButton';
@@ -38,16 +39,12 @@ function InputRowBase({
     <>
       <View style={styles.inputRow}>
         <View
-          style={{
-            flex: 1,
-            flexDirection: 'row',
-            alignItems: 'center',
-            backgroundColor: colors.inputBackground,
-            borderRadius: 8,
-            paddingHorizontal: 12,
-          }}>
+          style={[
+            localStyles.inputContainer,
+            { backgroundColor: colors.inputBackground },
+          ]}>
           {isRecording ? (
-            <Text style={{color: colors.mutedText, fontStyle: 'italic', fontSize: 15}}>
+            <Text style={[localStyles.recordingText, {color: colors.mutedText}]}> 
               Recording <ThreeDots d1={dots.d1} d2={dots.d2} d3={dots.d3} color={colors.mutedText} />
             </Text>
           ) : (
@@ -56,7 +53,7 @@ function InputRowBase({
               onChangeText={setInput}
               placeholder={placeholder}
               placeholderTextColor={colors.mutedText}
-              style={[styles.input, {backgroundColor: 'transparent', color: colors.text}]}
+              style={[styles.input, localStyles.input, {color: colors.text}]}
               onSubmitEditing={onSend}
               returnKeyType="send"
             />
@@ -68,13 +65,38 @@ function InputRowBase({
           primary={colors.primary}
           muted={colors.mutedText}
           onPress={onToggleVoice}
-          style={[styles.askButton, {marginRight: 4}]}
+          style={[styles.askButton, localStyles.askButton]}
         />
       </View>
 
-      <ErrorText text={voiceError} style={{color: 'red', marginLeft: 8, marginTop: 6}} />
+      <ErrorText text={voiceError} style={localStyles.errorText} />
     </>
   );
 }
+
+const localStyles = StyleSheet.create({
+  inputContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: BORDER_RADIUS.BASE,
+    paddingHorizontal: SPACING.MD,
+  },
+  recordingText: {
+    fontStyle: 'italic',
+    fontSize: FONT_SIZE.MD,
+  },
+  input: {
+    backgroundColor: 'transparent',
+  },
+  askButton: {
+    marginRight: SPACING.XS,
+  },
+  errorText: {
+    color: 'red',
+    marginLeft: SPACING.SM,
+    marginTop: SPACING.SM,
+  },
+});
 
 export default memo(InputRowBase);

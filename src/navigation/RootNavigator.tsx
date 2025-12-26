@@ -13,6 +13,8 @@ import CollectionScreen from '../collections/CollectionScreen';
 import {useAuth} from '../auth/AuthContext';
 import {useTheme} from '../theme/ThemeContext';
 import MovieDetailsScreen from '../movieDetail/MovieDetailScreen';
+
+import { ICON_SIZE } from '../constants';
 import {isFeatureEnabled} from '../config/featureToggles';
 
 const AuthStack = createNativeStackNavigator<AuthStackParamList>();
@@ -48,7 +50,7 @@ function TabNavigator() {
         options={{
           tabBarLabel: 'Home',
           tabBarIcon: ({color}) => (
-            <Text style={{fontSize: 24, color}}>🏠</Text>
+            <Text style={{fontSize: ICON_SIZE.MD, color}}>🏠</Text>
           ),
         }}
       />
@@ -59,7 +61,7 @@ function TabNavigator() {
           options={{
             tabBarLabel: 'Movies',
             tabBarIcon: ({color}) => (
-              <Text style={{fontSize: 24, color}}>🎥</Text>
+              <Text style={{fontSize: ICON_SIZE.MD, color}}>🎥</Text>
             ),
           }}
         />
@@ -71,7 +73,7 @@ function TabNavigator() {
           options={{
             tabBarLabel: 'Theaters',
             tabBarIcon: ({color}) => (
-              <Text style={{fontSize: 24, color}}>🎬</Text>
+              <Text style={{fontSize: ICON_SIZE.MD, color}}>🎬</Text>
             ),
           }}
         />

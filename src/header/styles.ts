@@ -1,28 +1,29 @@
 import {StyleSheet} from 'react-native';
+import {SPACING, FONT_SIZE, FONT_WEIGHT, ICON_SIZE, BORDER_RADIUS} from '../constants';
 
 export default StyleSheet.create({
   headerRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingTop: 8,
-    paddingBottom: 12,
+    paddingHorizontal: SPACING.XL,
+    paddingTop: SPACING.SM,
+    paddingBottom: SPACING.MD,
   },
   welcomeText: {
-    fontSize: 28,
-    fontWeight: '800',
+    fontSize: FONT_SIZE.XXXXL,
+    fontWeight: FONT_WEIGHT.EXTRA_BOLD,
   },
   avatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: ICON_SIZE.XL,
+    height: ICON_SIZE.XL,
+    borderRadius: BORDER_RADIUS.XXXL,
     justifyContent: 'center',
     alignItems: 'center',
   },
   avatarText: {
-    color: '#ffffff',
-    fontWeight: '700',
-    fontSize: 16,
+    // Use theme.colors.white in component
+    fontWeight: FONT_WEIGHT.BOLD,
+    fontSize: FONT_SIZE.LG,
   }
 });

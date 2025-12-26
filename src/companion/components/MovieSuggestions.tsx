@@ -14,8 +14,8 @@ type Props = {
 function MovieSuggestionsBase({movies, favoritesIds, mode, colors, styles, onAddMovie}: Props) {
   const isDark = mode === 'dark';
 
-  const cardBg = isDark ? 'rgba(71, 85, 105, 0.3)' : 'rgba(0,0,0,0.05)';
-  const cardBorder = isDark ? 'rgba(148, 163, 184, 0.3)' : 'rgba(0,0,0,0.1)';
+  const cardBg = isDark ? colors.chatBotBubble : colors.inputBackground;
+  const cardBorder = isDark ? colors.border : colors.borderDark;
 
   const renderMovie = useCallback(
     (movie: Movie) => {
@@ -45,15 +45,13 @@ function MovieSuggestionsBase({movies, favoritesIds, mode, colors, styles, onAdd
               styles.addToFavButton,
               {
                 backgroundColor: isFav
-                  ? isDark
-                    ? 'rgba(148, 163, 184, 0.3)'
-                    : 'rgba(0,0,0,0.1)'
+                  ? (isDark ? colors.border : colors.borderDark)
                   : colors.primary,
               },
             ]}
             onPress={() => !isFav && onAddMovie(movie)}
             disabled={isFav}>
-            <Text style={[styles.addToFavText, {color: isFav ? colors.mutedText : '#fff'}]}>
+            <Text style={[styles.addToFavText, {color: isFav ? colors.mutedText : colors.white}]}>
               {isFav ? '✓ Added' : '+ Add'}
             </Text>
           </TouchableOpacity>

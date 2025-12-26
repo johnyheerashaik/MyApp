@@ -12,7 +12,8 @@ export default StyleSheet.create({
     borderRadius: BORDER_RADIUS.FULL,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#0ea5e9',
+    // Use theme.colors.primary in component
+    backgroundColor: DARK_THEME_COLORS.primary,
     elevation: 6,
   },
   aiFabText: {
@@ -52,7 +53,8 @@ export default StyleSheet.create({
     borderRadius: BORDER_RADIUS.FULL,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(71, 85, 105, 0.8)',
+    // Use theme.colors.overlay or similar in component
+    backgroundColor: DARK_THEME_COLORS.overlay,
     zIndex: 10,
   },
   aiCloseText: {

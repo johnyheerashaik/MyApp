@@ -22,7 +22,7 @@ export default StyleSheet.create({
   },
   youtubeButtonText: {
     fontSize: FONT_SIZE.SM,
-    color: '#FF0000',
+    // Use theme.colors.danger in component for color
     fontWeight: FONT_WEIGHT.SEMI_BOLD,
   },
 });

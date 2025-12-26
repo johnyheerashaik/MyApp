@@ -2,6 +2,8 @@ import React from 'react';
 import {View, Text, TouchableOpacity, Linking, Dimensions} from 'react-native';
 import YoutubePlayer from 'react-native-youtube-iframe';
 import styles from './trailerStyles';
+import {logTrailerPlay} from '../services/analytics';
+import { STRINGS } from '../common/strings';
 
 const {width} = Dimensions.get('window');
 
@@ -12,7 +14,6 @@ interface TrailerPlayerProps {
 
 export default function TrailerPlayer({trailerKey, textColor}: TrailerPlayerProps) {
   const handleOpenYouTube = async () => {
-    const {logTrailerPlay} = await import('../services/analytics');
     logTrailerPlay(trailerKey, 'YouTube Trailer');
     Linking.openURL(`https://www.youtube.com/watch?v=${trailerKey}`);
   };
@@ -20,9 +21,9 @@ export default function TrailerPlayer({trailerKey, textColor}: TrailerPlayerProp
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={[styles.title, {color: textColor}]}>Trailer</Text>
+        <Text style={[styles.title, {color: textColor}]}>{STRINGS.TRAILER}</Text>
         <TouchableOpacity onPress={handleOpenYouTube} style={styles.youtubeButton}>
-          <Text style={styles.youtubeButtonText}>Open in YouTube →</Text>
+          <Text style={styles.youtubeButtonText}>{STRINGS.OPEN_IN_YOUTUBE}</Text>
         </TouchableOpacity>
       </View>
       <YoutubePlayer

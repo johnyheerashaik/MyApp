@@ -1,4 +1,5 @@
 import React, {memo} from 'react';
+import { STRINGS } from '../../common/strings';
 import {View, Text, TouchableOpacity} from 'react-native';
 
 type QuickAction = {emoji: string; text: string; prompt: string};
@@ -12,11 +13,11 @@ type Props = {
   onPick: (prompt: string) => void;
 };
 
-function QuickActionsGridBase({title = 'Quick picks:', actions, mode, colors, styles, onPick}: Props) {
+function QuickActionsGridBase({title = STRINGS.QUICK_PICKS_TITLE, actions, mode, colors, styles, onPick}: Props) {
   const isDark = mode === 'dark';
 
-  const bg = isDark ? 'rgba(71, 85, 105, 0.3)' : 'rgba(0,0,0,0.05)';
-  const border = isDark ? 'rgba(148, 163, 184, 0.3)' : 'rgba(0,0,0,0.1)';
+  const bg = isDark ? colors.chatBotBubble : colors.inputBackground;
+  const border = isDark ? colors.border : colors.borderDark;
 
   return (
     <View style={styles.quickActionsContainer}>

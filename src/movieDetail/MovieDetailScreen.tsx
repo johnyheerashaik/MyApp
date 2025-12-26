@@ -11,7 +11,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '../theme/ThemeContext';
 import { getMovieDetails, getMovieTrailer, MovieDetails } from '../services/movieApi';
-import { APP_STRINGS } from '../constants';
+import { STRINGS } from '../common/strings';
 import styles from './styles';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
@@ -20,6 +20,7 @@ import TrailerPlayer from './TrailerPlayer';
 import StreamingProviders from '../streaming/StreamingProviders';
 import { logMovieView } from '../services/analytics';
 import { logError } from '../services/analytics';
+import { trackOperation } from '../services/performance';
 
 type MovieDetailsScreenProps = NativeStackScreenProps<
   RootStackParamList,
@@ -49,7 +50,7 @@ function renderErrorState(colors: ThemeColors, error: string) {
   return (
     <SafeAreaView
       style={[styles.screen, { backgroundColor: colors.background }]}>
-      <Text style={{ color: colors.danger }}>{error || APP_STRINGS.NO_DATA}</Text>
+      <Text style={{ color: colors.danger }}>{error || STRINGS.NO_DATA}</Text>
     </SafeAreaView>
   );
 }
@@ -108,10 +109,10 @@ function renderOverviewSection(movie: MovieDetails, colors: ThemeColors) {
   return (
     <View style={styles.section}>
       <Text style={[styles.sectionTitle, { color: colors.text }]}>
-        {APP_STRINGS.OVERVIEW}
+        {STRINGS.OVERVIEW}
       </Text>
       <Text style={[styles.overview, { color: colors.mutedText }]}>
-        {movie.overview || APP_STRINGS.NO_OVERVIEW_AVAILABLE}
+        {movie.overview || STRINGS.NO_OVERVIEW_AVAILABLE}
       </Text>
     </View>
   );
@@ -138,7 +139,7 @@ function renderCastMember(
         <Text
           style={[styles.castCharacter, { color: colors.mutedText }]}
           numberOfLines={1}>
-          {APP_STRINGS.AS} {member.character}
+          {STRINGS.AS} {member.character}
         </Text>
       </View>
     </View>
@@ -151,7 +152,7 @@ function renderCastSection(movie: MovieDetails, colors: ThemeColors) {
   return (
     <View style={styles.section}>
       <Text style={[styles.sectionTitle, { color: colors.text }]}>
-        {APP_STRINGS.CAST}
+        {STRINGS.CAST}
       </Text>
       {movie.cast.map(member => renderCastMember(member, colors))}
     </View>
@@ -174,7 +175,6 @@ export default function MovieDetailsScreen({ route, navigation }: MovieDetailsSc
 
   useEffect(() => {
     const load = async () => {
-      const { trackOperation } = await import('../services/performance');
       try {
         const [details, trailer] = await trackOperation('load_movie_details_screen', async () => {
           return Promise.all([
@@ -198,9 +198,9 @@ export default function MovieDetailsScreen({ route, navigation }: MovieDetailsSc
   const handleToggleReminder = async () => {
     if (!movie?.releaseDate) {
       Alert.alert(
-        'No Release Date',
-        'This movie does not have a release date available.',
-        [{ text: 'OK' }]
+        STRINGS.NO_RELEASE_DATE,
+        STRINGS.NO_RELEASE_DATE_AVAILABLE,
+        [{ text: STRINGS.OK }]
       );
       return;
     }
@@ -209,19 +209,19 @@ export default function MovieDetailsScreen({ route, navigation }: MovieDetailsSc
 
     if (newState) {
       Alert.alert(
-        'Enable Reminder?',
-        `Get notified one day before ${movie.title} releases on ${movie.releaseDate}`,
+        STRINGS.ENABLE_REMINDER,
+        STRINGS.GET_NOTIFIED.replace('{TITLE}', movie.title).replace('{DATE}', movie.releaseDate),
         [
-          { text: 'Cancel', style: 'cancel' },
+          { text: STRINGS.CANCEL, style: 'cancel' },
           {
-            text: 'Enable',
+            text: STRINGS.ENABLE,
             onPress: async () => {
               setTogglingReminder(true);
               try {
                 await toggleReminder(movieId, true);
               } catch (error) {
-                logError(error as any, 'Failed to enable reminder');
-                Alert.alert('Error', 'Failed to enable reminder');
+                logError(error as any, STRINGS.FAILED_TO_ENABLE_REMINDER);
+                Alert.alert(STRINGS.ERROR, STRINGS.FAILED_TO_ENABLE_REMINDER);
               } finally {
                 setTogglingReminder(false);
               }
@@ -234,8 +234,8 @@ export default function MovieDetailsScreen({ route, navigation }: MovieDetailsSc
       try {
         await toggleReminder(movieId, false);
       } catch (error) {
-        logError(error as any, 'Failed to disable reminder');
-        Alert.alert('Error', 'Failed to disable reminder');
+        logError(error as any, STRINGS.FAILED_TO_DISABLE_REMINDER);
+        Alert.alert(STRINGS.ERROR, STRINGS.FAILED_TO_DISABLE_REMINDER);
       } finally {
         setTogglingReminder(false);
       }
@@ -292,20 +292,20 @@ export default function MovieDetailsScreen({ route, navigation }: MovieDetailsSc
           <Text
             style={[
               styles.reminderButtonText,
-              { color: reminderOn ? '#fff' : theme.colors.primary },
+              { color: reminderOn ? theme.colors.white : theme.colors.primary },
             ]}
           >
             {togglingReminder
               ? '...'
               : reminderOn
-                ? '🔔 Reminder Enabled'
-                : '🔕 Remind Me'}
+                ? STRINGS.REMINDER_ENABLED
+                : STRINGS.REMIND_ME}
           </Text>
         </TouchableOpacity>
 
         {reminderOn && (
           <Text style={[styles.reminderSubtext, { color: theme.colors.mutedText }]}>
-            You'll be notified one day before release
+            {STRINGS.NOTIFY_ONE_DAY_BEFORE}
           </Text>
         )}
       </View>

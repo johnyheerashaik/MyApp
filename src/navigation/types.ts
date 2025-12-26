@@ -6,6 +6,7 @@ export type AuthStackParamList = {
 export type AppStackParamList = {
   Home: undefined;
   Movies: undefined;
+  // Theatres: undefined;
   MovieDetails: { movieId: number };
   Collection: { title: string; collectionId?: number; keywordId?: number };
 };

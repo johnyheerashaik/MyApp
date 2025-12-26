@@ -29,7 +29,8 @@ router.post('/register', registerValidation, async (req, res) => {
     if (!errors.isEmpty()) {
       return res.status(400).json({ success: false, errors: errors.array() });
     }
-    const { firstName, lastName, email, password } = req.body;
+    const { firstName, lastName, email: rawEmail, password } = req.body;
+    const email = String(rawEmail).trim().toLowerCase();
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ success: false, message: 'Email already registered' });
@@ -61,7 +62,8 @@ router.post('/login', loginValidation, async (req, res) => {
     if (!errors.isEmpty()) {
       return res.status(400).json({ success: false, errors: errors.array() });
     }
-    const { email, password } = req.body;
+    const { email: rawEmail, password } = req.body;
+    const email = String(rawEmail).trim().toLowerCase();
     const user = await User.findOne({ email }).select('+password');
     if (!user) {
       return res.status(401).json({ success: false, message: 'Invalid email or password' });

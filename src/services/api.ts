@@ -51,7 +51,7 @@ api.interceptors.request.use(
             console.log('[API Request Error]', error);
         }
         logError(error, 'API Request Error');
-        return Promise.reject(error);
+        throw error;
     }
 );
 

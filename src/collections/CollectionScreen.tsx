@@ -9,14 +9,14 @@ import {
 } from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {useTheme} from '../theme/ThemeContext';
-import { Movie} from '../services/movieApi';
 import {useFavorites} from '../favorites/FavoritesContext';
 import styles from './styles';
 import { DARK_THEME_COLORS } from '../constants/colors';
 import { SPACING } from '../constants/spacing';
 import { logError, logCollectionView } from '../services/analytics';
-import { getMoviesByCollection, getMoviesByKeyword } from '../services/movieApi';
+import { getMoviesByCollection, getMoviesByKeyword, Movie } from '../services/movieApi';
 import { STRINGS } from '../common/strings';
+import { ACCESSIBILITY_STRINGS } from '../common/accessibilityStrings';
 
 type Props = {
   navigation: any;
@@ -35,6 +35,7 @@ export default function CollectionScreen({navigation, route}: Props) {
     loadCollection();
     logCollectionView(title || 'unknown');
   }, [collectionId, keywordId]);
+
 
   const loadCollection = async () => {
     setLoading(true);
@@ -55,11 +56,14 @@ export default function CollectionScreen({navigation, route}: Props) {
 
   const renderMovie = ({item}: {item: Movie}) => {
     const favorite = isFavorite(item.id);
-
     return (
       <TouchableOpacity
         style={[styles.movieCard, {backgroundColor: theme.colors.card}]}
-        onPress={() => navigation.navigate('MovieDetails', {movieId: item.id})}>
+        onPress={() => navigation.navigate('MovieDetails', {movieId: item.id})}
+        accessibilityRole="button"
+        accessibilityLabel={ACCESSIBILITY_STRINGS.MOVIE_CARD_LABEL}
+        accessibilityHint={ACCESSIBILITY_STRINGS.MOVIE_CARD_HINT}
+      >
         {item.poster && (
           <Image source={{uri: item.poster}} style={styles.poster} />
         )}
@@ -67,18 +71,22 @@ export default function CollectionScreen({navigation, route}: Props) {
           <Text style={[styles.movieTitle, {color: theme.colors.text}]} numberOfLines={2}>
             {item.title}
           </Text>
-          <Text style={[styles.movieMeta, {color: theme.colors.mutedText}]}>
-            {item.year} • ⭐ {item.rating.toFixed(1)}
+          <Text style={[styles.movieMeta, {color: theme.colors.mutedText}]}>\n            {item.year} • ⭐ {item.rating.toFixed(1)}
           </Text>
         </View>
         <TouchableOpacity
           style={[styles.favoriteButton, {backgroundColor: DARK_THEME_COLORS.overlay}]}
-          onPress={() => toggleFavorite(item)}>
+          onPress={() => toggleFavorite(item)}
+          accessibilityRole="button"
+          accessibilityLabel={favorite ? ACCESSIBILITY_STRINGS.REMOVE_FAVORITE_LABEL : ACCESSIBILITY_STRINGS.ADD_FAVORITE_LABEL}
+          accessibilityHint={favorite ? ACCESSIBILITY_STRINGS.REMOVE_FAVORITE_HINT : ACCESSIBILITY_STRINGS.ADD_FAVORITE_HINT}
+        >
           <Text
             style={[
               styles.favoriteIcon,
               {color: favorite ? theme.colors.primary : DARK_THEME_COLORS.white},
-            ]}>
+            ]}
+          >
             {favorite ? '♥' : '♡'}
           </Text>
         </TouchableOpacity>
@@ -93,14 +101,16 @@ export default function CollectionScreen({navigation, route}: Props) {
       <View style={styles.header}>
         <TouchableOpacity
           style={[styles.backButton, {backgroundColor: theme.colors.card}]}
-          onPress={() => navigation.goBack()}>
+          onPress={() => navigation.goBack()}
+          accessibilityRole="button"
+          accessibilityLabel={ACCESSIBILITY_STRINGS.BACK_BUTTON_LABEL}
+          accessibilityHint={ACCESSIBILITY_STRINGS.BACK_BUTTON_HINT}
+        >
           <Text style={[styles.backIcon, {color: theme.colors.text}]}>{'‹'}</Text>
         </TouchableOpacity>
-
-          <Text style={[styles.headerTitle, {color: theme.colors.text}]} numberOfLines={1}>
+        <Text style={[styles.headerTitle, {color: theme.colors.text}]} numberOfLines={1}>
           {title}
         </Text>
-
         <View style={{width: SPACING.XXL}} />
       </View>
 

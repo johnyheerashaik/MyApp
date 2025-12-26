@@ -24,4 +24,13 @@ export const ACCESSIBILITY_STRINGS = {
   SIGN_IN_HINT: 'Sign in to your account',
   SIGN_UP_LABEL: 'Sign Up',
   SIGN_UP_HINT: 'Navigate to the sign up screen',
+    // Collections
+    MOVIE_CARD_LABEL: 'Movie card',
+    MOVIE_CARD_HINT: 'Tap to view movie details',
+    ADD_FAVORITE_LABEL: 'Add to favorites',
+    ADD_FAVORITE_HINT: 'Adds this movie to your favorites',
+    REMOVE_FAVORITE_LABEL: 'Remove from favorites',
+    REMOVE_FAVORITE_HINT: 'Removes this movie from your favorites',
+    BACK_BUTTON_LABEL: 'Back',
+    BACK_BUTTON_HINT: 'Go back to the previous screen',
 };

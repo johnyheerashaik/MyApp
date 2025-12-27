@@ -16,7 +16,7 @@ import {
   logScreenView,
 } from './src/services/analytics';
 import { initializePerformanceMonitoring } from './src/services/performance';
-import { getCrashlytics } from '@react-native-firebase/crashlytics';
+import { getCrashlytics, log } from '@react-native-firebase/crashlytics';
 
 function AppContent() {
   const user = useAppSelector(s => s.auth.user);
@@ -27,9 +27,8 @@ function AppContent() {
         if (__DEV__) {
           try {
             const crashlytics = getCrashlytics();
-            // This will log to the console if Crashlytics is enabled
             console.log('[DEV] Crashlytics enabled:', !!crashlytics);
-            crashlytics.log('[DEV] Crashlytics test log');
+            log(crashlytics, '[DEV] Crashlytics test log');
           } catch (e) {
             console.warn('[DEV] Crashlytics not available:', e);
           }

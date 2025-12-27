@@ -105,7 +105,7 @@ export default function FavoritesSection({ favorites, onPressMovie, onRemoveFavo
             horizontal
             data={sortedFavorites}
             keyExtractor={(item, index) =>
-              item?.id != null ? String(item.id) : `favorite-${index}`
+              item?.id == null ? `favorite-${index}` : String(item.id)
             }
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={{ paddingRight: SPACING.XL, paddingBottom: SPACING.SM }}

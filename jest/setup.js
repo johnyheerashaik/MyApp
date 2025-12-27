@@ -1,6 +1,6 @@
 import 'react-native-gesture-handler/jestSetup';
 
-global.__reanimatedWorkletInit = () => { };
+globalThis.__reanimatedWorkletInit = () => { };
 
 
 jest.mock('@react-native-async-storage/async-storage', () => ({

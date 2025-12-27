@@ -8,13 +8,12 @@ import {
   Platform,
 } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useAppSelector } from '../store/rtkHooks';
 import { STRINGS } from '../common/strings';
 import { ACCESSIBILITY_STRINGS } from '../common/accessibilityStrings';
 import { AuthStackParamList } from '../navigation/types';
 import { logUserLogin } from '../services/analytics';
 import styles from './styles';
-import { useAppDispatch } from '../store/rtkHooks';
+import { useAppDispatch, useAppSelector } from '../store/rtkHooks';
 import { signInThunk } from '../store/auth/authSlice';
 
 type RenderInputProps = {

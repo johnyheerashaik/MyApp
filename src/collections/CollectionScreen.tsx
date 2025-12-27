@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import {
   Text,
   FlatList,
@@ -88,10 +88,38 @@ export default function CollectionScreen({ navigation, route }: Props) {
     );
   };
 
+  let content = null;
+  if (loading) {
+    content = (
+      <View style={styles.center}>
+        <ActivityIndicator size="large" color={theme.colors.primary} />
+      </View>
+    );
+  } else if (Array.isArray(movies) && movies.length === 0) {
+    content = (
+      <View style={styles.center}>
+        <Text style={[styles.emptyText, { color: theme.colors.mutedText }]}>{STRINGS.NO_MOVIES_FOUND}</Text>
+      </View>
+    );
+  } else {
+    content = (
+      <FlatList
+        data={Array.isArray(movies) ? movies : []}
+        renderItem={renderMovie}
+        keyExtractor={item => String(item.id)}
+        numColumns={2}
+        contentContainerStyle={styles.list}
+        columnWrapperStyle={styles.row}
+        showsVerticalScrollIndicator={false}
+      />
+    );
+  }
+
   return (
     <SafeAreaView
       edges={['top', 'left', 'right']}
-      style={[styles.screen, { backgroundColor: theme.colors.background }]}>
+      style={[styles.screen, { backgroundColor: theme.colors.background }]}
+    >
       <View style={styles.header}>
         <TouchableOpacity
           style={[styles.backButton, { backgroundColor: theme.colors.card }]}
@@ -107,26 +135,7 @@ export default function CollectionScreen({ navigation, route }: Props) {
         </Text>
         <View style={{ width: SPACING.XXL }} />
       </View>
-
-      {loading ? (
-        <View style={styles.center}>
-          <ActivityIndicator size="large" color={theme.colors.primary} />
-        </View>
-      ) : Array.isArray(movies) && movies.length === 0 ? (
-        <View style={styles.center}>
-          <Text style={[styles.emptyText, { color: theme.colors.mutedText }]}>{STRINGS.NO_MOVIES_FOUND}</Text>
-        </View>
-      ) : (
-        <FlatList
-          data={Array.isArray(movies) ? movies : []}
-          renderItem={renderMovie}
-          keyExtractor={item => String(item.id)}
-          numColumns={2}
-          contentContainerStyle={styles.list}
-          columnWrapperStyle={styles.row}
-          showsVerticalScrollIndicator={false}
-        />
-      )}
+      {content}
     </SafeAreaView>
   );
 }

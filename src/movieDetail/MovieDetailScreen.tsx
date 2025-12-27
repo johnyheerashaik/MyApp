@@ -69,7 +69,7 @@ const renderTopRow = (movie: MovieDetails, colors: any) => {
   return (
     <View style={styles.topRow}>
       {hasPoster && (
-        <Image source={{ uri: movie.poster! }} style={styles.poster} />
+        <Image source={{ uri: movie.poster ?? '' }} style={styles.poster} />
       )}
 
       <View style={styles.info}>
@@ -126,7 +126,7 @@ const renderCastSection = (movie: MovieDetails, colors: any) => {
           <View key={member.id} style={styles.castRow}>
             {hasProfileImage && (
               <Image
-                source={{ uri: member.profilePath! }}
+                source={{ uri: member.profilePath ?? '' }}
                 style={styles.castAvatar}
               />
             )}
@@ -204,7 +204,7 @@ const MovieDetailScreen = ({ route, navigation }: MovieDetailsScreenProps) => {
     try {
       toggleReminder(movieId, nextState);
     } catch (e) {
-      logError(e as any, STRINGS.REMINDER_ERROR);
+      logError(e instanceof Error ? e : new Error(String(e)), STRINGS.REMINDER_ERROR);
       Alert.alert(STRINGS.ERROR, STRINGS.REMINDER_ERROR);
     } finally {
       setTogglingReminder(false);
@@ -262,7 +262,7 @@ const MovieDetailScreen = ({ route, navigation }: MovieDetailsScreenProps) => {
 
         {hasTrailer && (
           <TrailerPlayer
-            trailerKey={trailerKey!}
+            trailerKey={trailerKey ?? ''}
             textColor={theme.colors.text}
           />
         )}

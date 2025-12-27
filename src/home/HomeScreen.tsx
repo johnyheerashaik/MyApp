@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { signOutThunk } from '../store/auth/authSlice';
-import { useFavorites, useFavoritesActions } from '../store/favorites/hooks';
+import { useFavoritesActions } from '../store/favorites/hooks';
 import HomeHeader from '../header/HomeHeader';
 import FavoritesSection from '../favorites/FavoritesSection';
 import FloatingCompanion from '../floatingCompanion/FloatingCompanion';
@@ -21,7 +21,7 @@ type Props = {
 const HomeScreen: React.FC<Props> = ({ navigation }) => {
   const { user } = useAuth();
   const dispatch = useAppDispatch();
-  const signOut = () => void dispatch(signOutThunk() as any);
+  const signOut = () => dispatch(signOutThunk() as any);
   const theme = useAppSelector(selectTheme);
   const favorites = useAppSelector(selectFavorites);
   const { addFavorite, removeFavorite } = useFavoritesActions();

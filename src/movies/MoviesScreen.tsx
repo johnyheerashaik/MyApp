@@ -152,7 +152,7 @@ const MovieRow = ({
                   }>
                   {hasPoster && (
                     <Image
-                      source={{ uri: item.poster! }}
+                      source={{ uri: item.poster ?? undefined }}
                       style={styles.poster}
                     />
                   )}
@@ -196,11 +196,10 @@ const MovieRow = ({
 };
 
 
-export default function MoviesScreen({ navigation }: { navigation: any }) {
+export default function MoviesScreen({ navigation }: Readonly<{ navigation: any }>) {
   const theme = useAppSelector(selectTheme);
   const [searchQuery, setSearchQuery] = useState('');
 
-  // ✅ Hooks ONLY at top level
   const moviesActions = useMoviesActions();
 
   const fetchMoviesMap = useMemo(() => {

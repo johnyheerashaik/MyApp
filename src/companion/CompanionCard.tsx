@@ -1,12 +1,12 @@
-import React, {useCallback, useMemo, useState} from 'react';
-import {View, Text} from 'react-native';
-import {useTheme} from '../theme/ThemeContext';
-import {Movie} from '../services/movieApi';
-import {APP_STRINGS} from '../constants';
+import React, { useCallback, useMemo, useState } from 'react';
+import { View, Text } from 'react-native';
+import { useAppSelector } from '../store/rtkHooks';
+import { Movie } from '../store/movies/types';
+import { APP_STRINGS } from '../constants';
 import styles from './styles';
 
-import type {Message} from './types/types';
-import {QUICK_ACTIONS} from './constants';
+import type { Message } from './types/types';
+import { QUICK_ACTIONS } from './constants';
 
 import ChatList from './components/ChatList';
 import QuickActionsGrid from './components/QuickActionsGrid';
@@ -14,11 +14,11 @@ import InputRow from './components/InputRow';
 
 import TypingBubble from '../common/components/TypingBubble';
 
-import {useVoiceInput} from './hooks/useVoiceInput';
-import {useExtractAndSearchMovies} from './hooks/useExtractAndSearchMovies';
-import {useCompanionChat} from './hooks/useCopmanionChat';
+import { useVoiceInput } from './hooks/useVoiceInput';
+import { useExtractAndSearchMovies } from './hooks/useExtractAndSearchMovies';
+import { useCompanionChat } from './hooks/useCopmanionChat';
 
-import {useThreeDots} from '../common/hooks/useThreeDots';
+import { useThreeDots } from '../common/hooks/useThreeDots';
 
 type Props = {
   userName?: string | null;
@@ -37,14 +37,14 @@ export default function CompanionCard({
   setMessages,
   onAddToFavorites,
 }: Props) {
-  const theme = useTheme();
+  const theme = useAppSelector(state => state.theme);
   const [input, setInput] = useState('');
 
   const favoritesIds = useMemo(() => new Set(favorites.map(f => f.id)), [favorites]);
 
   const extractAndSearchMovies = useExtractAndSearchMovies(favorites);
 
-  const {isLoading, sendMessage} = useCompanionChat({
+  const { isLoading, sendMessage } = useCompanionChat({
     favorites,
     userName,
     userId,
@@ -68,7 +68,7 @@ export default function CompanionCard({
     sendMessage(text);
   }, [input, sendMessage]);
 
-  const {isRecording, voiceError, startVoice, stopVoice} = useVoiceInput({
+  const { isRecording, voiceError, startVoice, stopVoice } = useVoiceInput({
     onFinalText: (text: string) => {
       setInput('');
       sendMessage(text);
@@ -92,8 +92,8 @@ export default function CompanionCard({
     theme.mode === 'dark' ? 'rgba(30, 41, 59, 0.95)' : theme.colors.card;
 
   return (
-    <View style={[styles.container, {backgroundColor: cardBg}]}>
-      <Text style={[styles.headerText, {color: theme.colors.text}]}>
+    <View style={[styles.container, { backgroundColor: cardBg }]}>
+      <Text style={[styles.headerText, { color: theme.colors.text }]}>
         {userName ? APP_STRINGS.HEY_USER(userName) : APP_STRINGS.HEY_THERE}
       </Text>
 

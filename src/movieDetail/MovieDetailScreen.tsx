@@ -1,3 +1,5 @@
+import { getMovieTrailer } from '../services/movieApi';
+
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import {
   ActivityIndicator,
@@ -11,12 +13,14 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 
-import { useTheme } from '../theme/ThemeContext';
-import { getMovieDetails, getMovieTrailer, MovieDetails } from '../services/movieApi';
+import { useAppSelector } from '../store/rtkHooks';
+import { selectTheme } from '../store/theme/selectors';
+import type { MovieDetails } from '../store/movies/types';
+import { useMoviesActions, useMoviesSelectors } from '../store/movies/hooks';
 import { STRINGS } from '../common/strings';
 import styles from './styles';
 import type { RootStackParamList } from '../navigation/types';
-import { useFavorites } from '../favorites/FavoritesContext';
+import { useReminder } from '../store/reminder/hooks';
 import TrailerPlayer from './TrailerPlayer';
 import StreamingProviders from '../streaming/StreamingProviders';
 import { logMovieView, logError } from '../services/analytics';
@@ -142,43 +146,48 @@ const renderCastSection = (movie: MovieDetails, colors: any) => {
   );
 };
 
-export default function MovieDetailsScreen({ route, navigation }: MovieDetailsScreenProps) {
+const MovieDetailScreen = ({ route, navigation }: MovieDetailsScreenProps) => {
   const { movieId } = route.params;
-  const theme = useTheme();
-  const { isReminderEnabled, toggleReminder } = useFavorites();
-
-  const [movie, setMovie] = useState<MovieDetails | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const theme = useAppSelector(selectTheme);
+  const { movieDetails, loading, error } = useMoviesSelectors();
+  // Ensure movieDetails is typed as Record<number, MovieDetails>
+  const typedMovieDetails = movieDetails as Record<number, MovieDetails>;
+  const { isReminderEnabled, toggleReminder } = useReminder();
+  const { fetchDetails } = useMoviesActions();
   const [togglingReminder, setTogglingReminder] = useState(false);
   const [trailerKey, setTrailerKey] = useState<string | null>(null);
 
-  const reminderOn = isReminderEnabled(movieId);
-
   useEffect(() => {
     const load = async () => {
-      try {
-        const [details, trailer] = await trackOperation(
-          'load_movie_details',
-          () =>
-            Promise.all([
-              getMovieDetails(movieId),
-              getMovieTrailer(movieId),
-            ]),
-        );
+      await trackOperation('load_movie_details', async () => {
+        fetchDetails(movieId);
+      });
+    };
+    load();
+  }, [movieId, fetchDetails]);
 
-        setMovie(details);
-        setTrailerKey(trailer);
-        logMovieView(movieId.toString(), details.title);
-      } catch (e: any) {
-        setError(e?.message || STRINGS.FAILED_TO_LOAD);
-      } finally {
-        setLoading(false);
+  useEffect(() => {
+    const movie = typedMovieDetails[movieId];
+    if (movie) {
+      logMovieView(movieId.toString(), movie.title);
+    }
+  }, [movieId, typedMovieDetails]);
+
+  const movie = typedMovieDetails[movieId] || null;
+
+  useEffect(() => {
+    let isMounted = true;
+    const fetchTrailer = async () => {
+      if (movie) {
+        const key = await getMovieTrailer(movie.id);
+        if (isMounted) setTrailerKey(key);
       }
     };
+    fetchTrailer();
+    return () => { isMounted = false; };
+  }, [movie]);
 
-    load();
-  }, [movieId]);
+  const reminderOn = isReminderEnabled(movieId);
 
   const handleToggleReminder = useCallback(async () => {
     if (!movie?.releaseDate) {
@@ -193,7 +202,7 @@ export default function MovieDetailsScreen({ route, navigation }: MovieDetailsSc
     setTogglingReminder(true);
 
     try {
-      await toggleReminder(movieId, nextState);
+      toggleReminder(movieId, nextState);
     } catch (e) {
       logError(e as any, STRINGS.REMINDER_ERROR);
       Alert.alert(STRINGS.ERROR, STRINGS.REMINDER_ERROR);
@@ -208,7 +217,7 @@ export default function MovieDetailsScreen({ route, navigation }: MovieDetailsSc
   }, [togglingReminder, reminderOn]);
 
   if (loading) return renderLoadingState(theme.colors);
-  if (error || !movie) return renderErrorState(theme.colors, error);
+  if (error || !movie) return renderErrorState(theme.colors, typeof error === 'string' ? error : '');
 
   const hasTrailer = Boolean(trailerKey);
 
@@ -264,3 +273,5 @@ export default function MovieDetailsScreen({ route, navigation }: MovieDetailsSc
     </SafeAreaView>
   );
 }
+
+export default MovieDetailScreen;

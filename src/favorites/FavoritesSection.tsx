@@ -1,4 +1,4 @@
-import React, {useState, useMemo} from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -7,11 +7,11 @@ import {
   Image,
   ScrollView,
 } from 'react-native';
-import {useTheme} from '../theme/ThemeContext';
-import {Movie} from '../services/movieApi';
+import { useAppSelector } from '../store/rtkHooks';
+import { Movie } from '../store/movies/types';
 import { STRINGS } from '../common/strings';
 import styles from './styles';
-import {SPACING, BORDER_RADIUS, FONT_SIZE, FONT_WEIGHT} from '../constants';
+import { SPACING, BORDER_RADIUS, FONT_SIZE, FONT_WEIGHT } from '../constants';
 
 type SortOption = 'rating' | 'year' | 'title';
 
@@ -21,13 +21,13 @@ type Props = {
   onRemoveFavorite?: (movieId: number) => void;
 };
 
-export default function FavoritesSection({favorites, onPressMovie, onRemoveFavorite}: Props) {
-  const theme = useTheme();
+export default function FavoritesSection({ favorites, onPressMovie, onRemoveFavorite }: Props) {
+  const theme = useAppSelector(state => state.theme);
   const [sortBy, setSortBy] = useState<SortOption>('rating');
 
   const sortedFavorites = useMemo(() => {
     const sorted = [...favorites];
-    
+
     switch (sortBy) {
       case 'rating':
         return sorted.sort((a, b) => b.rating - a.rating);
@@ -47,48 +47,48 @@ export default function FavoritesSection({favorites, onPressMovie, onRemoveFavor
   return (
     <View style={styles.favoritesSection}>
       <View style={styles.headerRow}>
-        <Text style={[styles.sectionTitle, {color: theme.colors.text}]}>
+        <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>
           {STRINGS.YOUR_FAVORITES}
         </Text>
         {favorites.length > 0 && (
-          <Text style={[styles.countBadge, {color: theme.colors.mutedText}]}>
+          <Text style={[styles.countBadge, { color: theme.colors.mutedText }]}>
             {favorites.length}
           </Text>
         )}
       </View>
 
       {favorites.length > 0 && (
-        <ScrollView 
-          horizontal 
+        <ScrollView
+          horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.sortButtons}>
           <TouchableOpacity
             style={[
               styles.sortButton,
-              {backgroundColor: sortBy === 'rating' ? theme.colors.primary : theme.colors.card},
+              { backgroundColor: sortBy === 'rating' ? theme.colors.primary : theme.colors.card },
             ]}
             onPress={() => setSortBy('rating')}>
-            <Text style={[styles.sortButtonText, {color: sortBy === 'rating' ? theme.colors.white : theme.colors.text}]}> 
+            <Text style={[styles.sortButtonText, { color: sortBy === 'rating' ? theme.colors.white : theme.colors.text }]}>
               {STRINGS.RATING_LABEL}
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[
               styles.sortButton,
-              {backgroundColor: sortBy === 'year' ? theme.colors.primary : theme.colors.card},
+              { backgroundColor: sortBy === 'year' ? theme.colors.primary : theme.colors.card },
             ]}
             onPress={() => setSortBy('year')}>
-            <Text style={[styles.sortButtonText, {color: sortBy === 'year' ? theme.colors.white : theme.colors.text}]}> 
+            <Text style={[styles.sortButtonText, { color: sortBy === 'year' ? theme.colors.white : theme.colors.text }]}>
               {STRINGS.YEAR_LABEL}
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[
               styles.sortButton,
-              {backgroundColor: sortBy === 'title' ? theme.colors.primary : theme.colors.card},
+              { backgroundColor: sortBy === 'title' ? theme.colors.primary : theme.colors.card },
             ]}
             onPress={() => setSortBy('title')}>
-            <Text style={[styles.sortButtonText, {color: sortBy === 'title' ? theme.colors.white : theme.colors.text}]}> 
+            <Text style={[styles.sortButtonText, { color: sortBy === 'title' ? theme.colors.white : theme.colors.text }]}>
               {STRINGS.TITLE_LABEL}
             </Text>
           </TouchableOpacity>
@@ -96,11 +96,11 @@ export default function FavoritesSection({favorites, onPressMovie, onRemoveFavor
       )}
 
       {favorites.length === 0 ? (
-        <Text style={[styles.emptyText, {color: theme.colors.mutedText}]}>
+        <Text style={[styles.emptyText, { color: theme.colors.mutedText }]}>
           {STRINGS.NO_MOVIES_ADDED}
         </Text>
       ) : (
-        <View style={{minHeight: SPACING.XXXL, paddingBottom: SPACING.BASE}}>
+        <View style={{ minHeight: SPACING.XXXL, paddingBottom: SPACING.BASE }}>
           <FlatList
             horizontal
             data={sortedFavorites}
@@ -108,46 +108,46 @@ export default function FavoritesSection({favorites, onPressMovie, onRemoveFavor
               item?.id != null ? String(item.id) : `favorite-${index}`
             }
             showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{paddingRight: SPACING.XL, paddingBottom: SPACING.SM}}
-          renderItem={({item}) => (
-            <View style={styles.favoriteItem}>
-              <TouchableOpacity
-                onPress={() => onPressMovie(item.id)}>
-                {item.poster && (
-                  <Image
-                    source={{uri: item.poster}}
-                    style={styles.favoritePoster}
-                  />
-                )}
-
-                {item.reminderEnabled && (
-                  <View style={[styles.reminderBadge, {backgroundColor: theme.colors.primary}]}>
-                    <Text style={styles.reminderBadgeText}>🔔</Text>
-                  </View>
-                )}
-
-                <Text
-                  numberOfLines={1}
-                  style={[
-                    styles.favoriteTitle,
-                    {color: theme.colors.text},
-                  ]}>
-                  {item.title}
-                </Text>
-              </TouchableOpacity>
-
-              {onRemoveFavorite && (
+            contentContainerStyle={{ paddingRight: SPACING.XL, paddingBottom: SPACING.SM }}
+            renderItem={({ item }) => (
+              <View style={styles.favoriteItem}>
                 <TouchableOpacity
-                  style={[styles.removeButton, {
-                    backgroundColor: theme.colors.danger,
-                  }]}
-                  onPress={() => onRemoveFavorite(item.id)}>
-                  <Text style={styles.removeButtonText}>✕</Text>
+                  onPress={() => onPressMovie(item.id)}>
+                  {item.poster && (
+                    <Image
+                      source={{ uri: item.poster }}
+                      style={styles.favoritePoster}
+                    />
+                  )}
+
+                  {item.reminderEnabled && (
+                    <View style={[styles.reminderBadge, { backgroundColor: theme.colors.primary }]}>
+                      <Text style={styles.reminderBadgeText}>🔔</Text>
+                    </View>
+                  )}
+
+                  <Text
+                    numberOfLines={1}
+                    style={[
+                      styles.favoriteTitle,
+                      { color: theme.colors.text },
+                    ]}>
+                    {item.title}
+                  </Text>
                 </TouchableOpacity>
-              )}
-            </View>
-          )}
-        />
+
+                {onRemoveFavorite && (
+                  <TouchableOpacity
+                    style={[styles.removeButton, {
+                      backgroundColor: theme.colors.danger,
+                    }]}
+                    onPress={() => onRemoveFavorite(item.id)}>
+                    <Text style={styles.removeButtonText}>✕</Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+            )}
+          />
         </View>
       )}
     </View>

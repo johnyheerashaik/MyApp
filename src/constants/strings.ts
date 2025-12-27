@@ -1,7 +1,7 @@
 
 export const APP_STRINGS = {
   APP_NAME: 'MyApp',
-  
+
   WELCOME: 'Welcome',
   SIGN_IN_TO_CONTINUE: 'Sign in to continue',
   EMAIL: 'Email',
@@ -10,13 +10,13 @@ export const APP_STRINGS = {
   SIGNING_IN: 'Signing in…',
   LOGIN_FAILED: 'Login failed',
   LOGOUT: 'Logout',
-  
+
   YOUR_FAVORITES: 'Your Favourites',
   NO_MOVIES_ADDED: "You haven't added any movies yet.",
   RATING_LABEL: '⭐ Rating',
   YEAR_LABEL: '📅 Year',
   TITLE_LABEL: '🔤 Title',
-  
+
   MOVIES: 'Movies',
   SEARCH_MOVIES: 'Search movies...',
   POPULAR: 'Popular',
@@ -24,22 +24,22 @@ export const APP_STRINGS = {
   UPCOMING: 'Upcoming',
   TOP_RATED: 'Top Rated',
   FAILED_TO_LOAD_MOVIES: 'Failed to load movies',
-  
+
   OVERVIEW: 'Overview',
   NO_OVERVIEW_AVAILABLE: 'No overview available.',
   CAST: 'Cast',
   MINUTES: 'min',
   AS: 'as',
-  
+
   HEY_USER: (name: string) => `Hey ${name} 👋`,
   HEY_THERE: 'Hey there 👋',
   ASK_ABOUT_MOVIES: 'Ask about movies or favourites...',
   ASK: 'Ask',
   SOMETHING_WENT_WRONG: 'Something went wrong. Please try again.',
-  
+
   NO_DATA: 'No data',
   ERROR: 'Error',
-  
+
   DARK_MODE: 'Dark Mode',
   LIGHT_MODE: 'Light Mode',
 } as const;

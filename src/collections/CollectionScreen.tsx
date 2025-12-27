@@ -8,13 +8,16 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useTheme } from '../theme/ThemeContext';
-import { useFavorites } from '../favorites/FavoritesContext';
+import { useAppSelector } from '../store/rtkHooks';
+import { selectTheme } from '../store/theme/selectors';
+import { selectCurrentCollectionMovies, selectCurrentCollectionLoading, selectCurrentCollectionError } from '../store/movies/selectors';
+import { useFavorites } from '../store/favorites/hooks';
 import styles from './styles';
 import { DARK_THEME_COLORS } from '../constants/colors';
 import { SPACING } from '../constants/spacing';
 import { logError, logCollectionView } from '../services/analytics';
-import { getMoviesByCollection, getMoviesByKeyword, Movie } from '../services/movieApi';
+import type { Movie } from '../store/movies/types';
+import { useMoviesActions } from '../store/movies/hooks';
 import { STRINGS } from '../common/strings';
 import { ACCESSIBILITY_STRINGS } from '../common/accessibilityStrings';
 
@@ -24,35 +27,28 @@ type Props = {
 };
 
 export default function CollectionScreen({ navigation, route }: Props) {
-  const theme = useTheme();
-  const { isFavorite, toggleFavorite } = useFavorites();
+  const theme = useAppSelector(selectTheme);
+  const { isFavorite } = useFavorites();
   const { title, collectionId, keywordId } = route.params;
-
-  const [movies, setMovies] = useState<Movie[]>([]);
-  const [loading, setLoading] = useState(true);
+  const movies = useAppSelector(selectCurrentCollectionMovies);
+  const loading = useAppSelector(selectCurrentCollectionLoading);
+  const error = useAppSelector(selectCurrentCollectionError);
+  const { fetchByCollection, fetchByKeyword } = useMoviesActions();
 
   useEffect(() => {
-    loadCollection();
-    logCollectionView(title || 'unknown');
-  }, [collectionId, keywordId]);
-
-
-  const loadCollection = async () => {
-    setLoading(true);
-    try {
-      if (collectionId) {
-        const results = await getMoviesByCollection(collectionId);
-        setMovies(results);
-      } else if (keywordId) {
-        const results = await getMoviesByKeyword(keywordId);
-        setMovies(results);
-      }
-    } catch (error) {
-      logError(error as any, 'Failed to load collection');
-    } finally {
-      setLoading(false);
+    if (error) {
+      logError(new Error(error), 'CollectionScreen error');
     }
-  };
+  }, [error]);
+
+  useEffect(() => {
+    if (collectionId) {
+      fetchByCollection(collectionId);
+    } else if (keywordId) {
+      fetchByKeyword(keywordId);
+    }
+    logCollectionView(title || 'unknown');
+  }, [collectionId, keywordId, fetchByCollection, fetchByKeyword, title]);
 
   const renderMovie = ({ item }: { item: Movie }) => {
     const favorite = isFavorite(item.id);
@@ -75,7 +71,6 @@ export default function CollectionScreen({ navigation, route }: Props) {
         </View>
         <TouchableOpacity
           style={[styles.favoriteButton, { backgroundColor: DARK_THEME_COLORS.overlay }]}
-          onPress={() => toggleFavorite(item)}
           accessibilityRole="button"
           accessibilityLabel={favorite ? ACCESSIBILITY_STRINGS.REMOVE_FAVORITE_LABEL : ACCESSIBILITY_STRINGS.ADD_FAVORITE_LABEL}
           accessibilityHint={favorite ? ACCESSIBILITY_STRINGS.REMOVE_FAVORITE_HINT : ACCESSIBILITY_STRINGS.ADD_FAVORITE_HINT}
@@ -117,13 +112,13 @@ export default function CollectionScreen({ navigation, route }: Props) {
         <View style={styles.center}>
           <ActivityIndicator size="large" color={theme.colors.primary} />
         </View>
-      ) : movies.length === 0 ? (
+      ) : Array.isArray(movies) && movies.length === 0 ? (
         <View style={styles.center}>
           <Text style={[styles.emptyText, { color: theme.colors.mutedText }]}>{STRINGS.NO_MOVIES_FOUND}</Text>
         </View>
       ) : (
         <FlatList
-          data={movies}
+          data={Array.isArray(movies) ? movies : []}
           renderItem={renderMovie}
           keyExtractor={item => String(item.id)}
           numColumns={2}

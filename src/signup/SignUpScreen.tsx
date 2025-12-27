@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { AuthStackParamList } from '../navigation/types';
-import { useTheme } from '../theme/ThemeContext';
+import { useAppSelector } from '../store/rtkHooks';
 import { STRINGS } from '../common/strings';
 import { ACCESSIBILITY_STRINGS } from '../common/accessibilityStrings';
 import { logUserSignup, logError } from '../services/analytics';
@@ -38,7 +38,7 @@ export default function SignUpScreen({ navigation }: Props) {
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [touched, setTouched] = useState<{ [key: string]: boolean }>({});
-  const theme = useTheme();
+  const theme = useAppSelector(state => state.theme);
 
 
 
@@ -286,7 +286,7 @@ export default function SignUpScreen({ navigation }: Props) {
             {loading ? (
               <ActivityIndicator color={theme.colors.white} accessibilityLabel={ACCESSIBILITY_STRINGS.LOADING_INDICATOR} />
             ) : (
-              <Text style={[styles.buttonText, {color: theme.colors.white}]}>{STRINGS.CREATE_ACCOUNT}</Text>
+              <Text style={[styles.buttonText, { color: theme.colors.white }]}>{STRINGS.CREATE_ACCOUNT}</Text>
             )}
           </TouchableOpacity>
 

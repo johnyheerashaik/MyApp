@@ -1,18 +1,6 @@
-import {tmdbFetch} from './tmdbClient';
-
-
-export type Movie = {
-  id: number;
-  title: string;
-  year: string;
-  releaseDate?: string; 
-  rating: number;
-  poster: string | null;
-  genres?: string[]; 
-  overview?: string;
-  reminderEnabled?: boolean;
-  reminderSent?: boolean;
-};
+import { tmdbFetch } from './tmdbClient';
+import { trackOperation } from './performance';
+import type { Movie } from '../store/movies/types';
 
 const mapMovieData = (m: any): Movie => ({
   id: m.id,
@@ -29,49 +17,46 @@ const mapMovieData = (m: any): Movie => ({
 
 export const fetchMoviesFromEndpoint = async (
   endpoint: string,
-): Promise<Movie[]> => {
-
-  const response = await tmdbFetch(`${endpoint}?language=en-US`);
-  const data = response.data;
-
-  return (data.results || []).map(mapMovieData);
-};
+): Promise<Movie[]> =>
+  trackOperation('fetchMoviesFromEndpoint', async () => {
+    const response = await tmdbFetch(`${endpoint}?language=en-US`);
+    const data = response.data;
+    return (data.results || []).map(mapMovieData);
+  });
 
 export const getPopularMovies = () => fetchMoviesFromEndpoint('/movie/popular');
 export const getNowPlayingMovies = () =>
-  fetchMoviesFromEndpoint('/movie/now-playing');
+  fetchMoviesFromEndpoint('/movie/now_playing');
 export const getUpcomingMovies = () =>
   fetchMoviesFromEndpoint('/movie/upcoming');
 export const getTopRatedMovies = () =>
-  fetchMoviesFromEndpoint('/movie/top-rated');
+  fetchMoviesFromEndpoint('/movie/top_rated');
 
-
-export const searchMovies = async (query: string): Promise<Movie[]> => {
-  if (!query.trim()) {
-    return [];
-  }
-  
-  const response = await tmdbFetch(
-    `/search/movie?query=${encodeURIComponent(query)}&language=en-US&page=1&include_adult=false`,
-  );
-  const data = response.data;
-
-  return (data.results || []).slice(0, 5).map(mapMovieData);
-};
-
-export const getMoviesByCollection = async (collectionId: number): Promise<Movie[]> => {
-  try {
+export const searchMovies = async (query: string): Promise<Movie[]> =>
+  trackOperation('searchMovies', async () => {
+    if (!query.trim()) {
+      return [];
+    }
     const response = await tmdbFetch(
-      `/collection/${collectionId}?language=en-US`,
+      `/search/movie?query=${encodeURIComponent(query)}&language=en-US&page=1&include_adult=false`,
     );
     const data = response.data;
+    return (data.results || []).slice(0, 5).map(mapMovieData);
+  });
 
-    return (data.parts || []).map(mapMovieData);
-  } catch (error) {
-    console.error('Failed to fetch collection:', error);
-    return [];
-  }
-};
+export const getMoviesByCollection = async (collectionId: number): Promise<Movie[]> =>
+  trackOperation('getMoviesByCollection', async () => {
+    try {
+      const response = await tmdbFetch(
+        `/collection/${collectionId}?language=en-US`,
+      );
+      const data = response.data;
+      return (data.parts || []).map(mapMovieData);
+    } catch (error) {
+      console.error('Failed to fetch collection:', error);
+      return [];
+    }
+  });
 
 export const getMoviesByKeyword = async (keywordId: number): Promise<Movie[]> => {
   try {
@@ -105,26 +90,7 @@ export const getAllMoviesData = async (): Promise<{
 };
 
 
-export type CastMember = {
-  id: number;
-  name: string;
-  character: string;
-  profilePath: string | null;
-};
-
-export type MovieDetails = {
-  id: number;
-  title: string;
-  overview: string;
-  year: string;
-  releaseDate?: string; // Full date YYYY-MM-DD
-  rating: number;
-  runtime: number | null;
-  genres: string[];
-  poster: string | null;
-  backdrop: string | null;
-  cast: CastMember[];
-};
+import type { CastMember, MovieDetails } from '../store/movies/types';
 
 export const getMovieDetails = async (
   movieId: number,
@@ -164,15 +130,15 @@ export const getMovieTrailer = async (movieId: number): Promise<string | null> =
   try {
     const response = await tmdbFetch(`/movie/${movieId}/videos?language=en-US`);
     const videos = response.data.results || [];
-    
-    const trailer = videos.find((v: any) => 
+
+    const trailer = videos.find((v: any) =>
       v.type === 'Trailer' && v.site === 'YouTube'
     );
-    
+
     if (trailer) {
       return trailer.key;
     }
-    
+
     return null;
   } catch (error) {
     console.error('Failed to fetch trailer:', error);
@@ -198,13 +164,13 @@ export const getMovieWatchProviders = async (movieId: number): Promise<WatchProv
   try {
     const response = await tmdbFetch(`/movie/${movieId}/watch/providers`);
     const data = response.data;
-    
+
     const usProviders = data.results?.US;
-    
+
     if (!usProviders) {
       return null;
     }
-    
+
     return {
       flatrate: usProviders.flatrate || [],
       rent: usProviders.rent || [],

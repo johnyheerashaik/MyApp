@@ -1,10 +1,10 @@
-import React, {useState} from 'react';
-import {View, TouchableOpacity, Text} from 'react-native';
-import {Movie} from '../services/movieApi';
+import React, { useState } from 'react';
+import { View, TouchableOpacity, Text } from 'react-native';
+import { Movie } from '../store/movies/types';
 import CompanionCard from '../companion/CompanionCard';
 import type { Message } from '../companion/types/types';
 import styles from './styles';
-import {useTheme} from '../theme/ThemeContext';
+import { useAppSelector } from '../store/rtkHooks';
 
 type Props = {
   visible: boolean;
@@ -26,18 +26,18 @@ export default function FloatingCompanion({
   onAddToFavorites,
 }: Props) {
   const [messages, setMessages] = useState<Message[]>([]);
-  const theme = useTheme();
+  const theme = useAppSelector(state => state.theme);
 
   return (
     <>
-      <TouchableOpacity style={[styles.aiFab, {backgroundColor: theme.colors.primary}]} onPress={onOpen}>
+      <TouchableOpacity style={[styles.aiFab, { backgroundColor: theme.colors.primary }]} onPress={onOpen}>
         <Text style={styles.aiFabText}>🤖</Text>
       </TouchableOpacity>
 
       {visible && (
         <View style={styles.aiPopupOverlay} pointerEvents="box-none">
           <TouchableOpacity
-            style={[styles.aiBackdrop, {backgroundColor: theme.colors.overlay}]}
+            style={[styles.aiBackdrop, { backgroundColor: theme.colors.overlay }]}
             activeOpacity={1}
             onPress={onClose}
           />
@@ -45,9 +45,9 @@ export default function FloatingCompanion({
           <View style={styles.aiPopupCard}>
             <TouchableOpacity
               onPress={onClose}
-              style={[styles.aiCloseButton, {backgroundColor: theme.colors.overlay}]}
+              style={[styles.aiCloseButton, { backgroundColor: theme.colors.overlay }]}
             >
-              <Text style={[styles.aiCloseText, {color: theme.colors.text}]}>✕</Text>
+              <Text style={[styles.aiCloseText, { color: theme.colors.text }]}>✕</Text>
             </TouchableOpacity>
 
             <CompanionCard

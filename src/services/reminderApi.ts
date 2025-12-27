@@ -1,16 +1,17 @@
 
 import { Platform } from 'react-native';
 import { apiCall } from './api';
+import { trackOperation } from './performance';
 const API_URL =
   Platform.OS === 'android'
     ? 'http://10.0.2.2:5001/api'
     : 'http://localhost:5001/api';
 
-export const toggleReminder = async (
-  token: string,
+token: string,
   movieId: number,
-  reminderEnabled: boolean,
-): Promise<void> => {
+    reminderEnabled: boolean,
+): Promise<void> =>
+trackOperation('toggleReminder', async () => {
   const response = await apiCall<any>({
     url: `${API_URL}/reminders/${movieId}`,
     method: 'PATCH',
@@ -24,9 +25,9 @@ export const toggleReminder = async (
   if (!data.success) {
     throw new Error(data.message || 'Failed to toggle reminder');
   }
-};
+});
 
-export const getReminders = async (token: string): Promise<any[]> => {
+return trackOperation('getReminders', async () => {
   const response = await apiCall<any>({
     url: `${API_URL}/reminders`,
     method: 'GET',
@@ -40,7 +41,7 @@ export const getReminders = async (token: string): Promise<any[]> => {
     return data.reminders;
   }
   throw new Error(data.message || 'Failed to get reminders');
-};
+});
 
 export const updatePushToken = async (
   token: string,

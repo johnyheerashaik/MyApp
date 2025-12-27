@@ -6,6 +6,8 @@ export type AuthUser = {
 };
 
 export type AuthState = {
+  error: any;
+  loading: any;
   user: AuthUser | null;
   initializing: boolean;
 };
@@ -18,7 +20,7 @@ export enum AuthActionTypes {
 }
 
 export type AuthAction =
-  | {type: AuthActionTypes.INIT; payload: AuthUser | null}
-  | {type: AuthActionTypes.SET_INITIALIZING; payload: boolean}
-  | {type: AuthActionTypes.SIGN_IN; payload: AuthUser}
-  | {type: AuthActionTypes.SIGN_OUT};
+  | { type: AuthActionTypes.INIT; payload: AuthUser | null }
+  | { type: AuthActionTypes.SET_INITIALIZING; payload: boolean }
+  | { type: AuthActionTypes.SIGN_IN; payload: AuthUser }
+  | { type: AuthActionTypes.SIGN_OUT };

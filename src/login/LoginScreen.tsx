@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -7,14 +7,15 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
-import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {useAuth} from '../auth/AuthContext';
-import {useTheme} from '../theme/ThemeContext';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useAppSelector } from '../store/rtkHooks';
 import { STRINGS } from '../common/strings';
 import { ACCESSIBILITY_STRINGS } from '../common/accessibilityStrings';
-import {AuthStackParamList} from '../navigation/types';
-import {logUserLogin} from '../services/analytics';
+import { AuthStackParamList } from '../navigation/types';
+import { logUserLogin } from '../services/analytics';
 import styles from './styles';
+import { useAppDispatch } from '../store/rtkHooks';
+import { signInThunk } from '../store/auth/authSlice';
 
 type RenderInputProps = {
   colors: {
@@ -60,7 +61,7 @@ function renderInput({
     <TextInput
       style={[
         styles.input,
-        {borderColor: colors.mutedText, color: colors.text},
+        { borderColor: colors.mutedText, color: colors.text },
       ]}
       placeholder={placeholder}
       placeholderTextColor={colors.mutedText}
@@ -90,7 +91,7 @@ function renderErrorMessage(error: string, colors: ThemeColors) {
   if (!error) return null;
 
   return (
-    <Text style={[styles.error, {color: colors.danger}]}>
+    <Text style={[styles.error, { color: colors.danger }]}>
       {error}
     </Text>
   );
@@ -105,7 +106,7 @@ function renderSubmitButton(
     <TouchableOpacity
       style={[
         styles.button,
-        {backgroundColor: colors.primary},
+        { backgroundColor: colors.primary },
       ]}
       onPress={onPress}
       disabled={submitting}
@@ -130,9 +131,9 @@ interface LoginScreenProps {
   navigation: LoginScreenNavigationProp;
 }
 
-export default function LoginScreen({navigation}: LoginScreenProps) {
-  const {signIn} = useAuth();
-  const theme = useTheme();
+export default function LoginScreen({ navigation }: LoginScreenProps) {
+  const dispatch = useAppDispatch();
+  const theme = useAppSelector(state => state.theme);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -140,17 +141,16 @@ export default function LoginScreen({navigation}: LoginScreenProps) {
   const [error, setError] = useState('');
 
   const handleLogin = async () => {
-    if (submitting) {
-      return;
-    }
+    if (submitting) return;
+
     setError('');
     setSubmitting(true);
 
     try {
-      await signIn(email.trim(), password);
+      await dispatch(signInThunk({ email, password })).unwrap();
       logUserLogin('email');
     } catch (e: any) {
-      setError(e?.message || STRINGS.LOGIN_FAILED);
+      setError(e?.message || String(e) || STRINGS.LOGIN_FAILED);
     } finally {
       setSubmitting(false);
     }
@@ -160,14 +160,14 @@ export default function LoginScreen({navigation}: LoginScreenProps) {
     <KeyboardAvoidingView
       style={[
         styles.container,
-        {backgroundColor: theme.colors.background},
+        { backgroundColor: theme.colors.background },
       ]}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <View style={[styles.card, {backgroundColor: theme.colors.card}]}>
-        <Text style={[styles.title, {color: theme.colors.text}]}> 
+      <View style={[styles.card, { backgroundColor: theme.colors.card }]}>
+        <Text style={[styles.title, { color: theme.colors.text }]}>
           {STRINGS.WELCOME}
         </Text>
-        <Text style={[styles.subtitle, {color: theme.colors.mutedText}]}> 
+        <Text style={[styles.subtitle, { color: theme.colors.mutedText }]}>
           {STRINGS.SIGN_IN_TO_CONTINUE}
         </Text>
 
@@ -192,7 +192,7 @@ export default function LoginScreen({navigation}: LoginScreenProps) {
         {renderSubmitButton(theme.colors, submitting, handleLogin)}
 
         <View style={styles.signUpRow}>
-          <Text style={{color: theme.colors.mutedText}}>
+          <Text style={{ color: theme.colors.mutedText }}>
             {STRINGS.DONT_HAVE_ACCOUNT}{' '}
           </Text>
           <TouchableOpacity
@@ -202,7 +202,7 @@ export default function LoginScreen({navigation}: LoginScreenProps) {
             accessibilityHint={ACCESSIBILITY_STRINGS.SIGN_UP_HINT}
             importantForAccessibility="yes"
           >
-            <Text style={{color: theme.colors.primary, fontWeight: 'bold'}}>
+            <Text style={{ color: theme.colors.primary, fontWeight: 'bold' }}>
               {STRINGS.SIGN_UP}
             </Text>
           </TouchableOpacity>

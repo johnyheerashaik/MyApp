@@ -1,8 +1,9 @@
-import {Movie} from '../../services/movieApi';
+import { Movie } from '../movies/types';
 
 export type FavoritesState = {
   favorites: Movie[];
   loading: boolean;
+  error?: string | null;
 };
 
 export enum FavoritesActionTypes {
@@ -13,7 +14,7 @@ export enum FavoritesActionTypes {
 }
 
 export type FavoritesAction =
-  | {type: FavoritesActionTypes.INIT; payload: Movie[]}
-  | {type: FavoritesActionTypes.ADD_FAVORITE; payload: Movie}
-  | {type: FavoritesActionTypes.REMOVE_FAVORITE; payload: number}
-  | {type: FavoritesActionTypes.TOGGLE_FAVORITE; payload: Movie};
+  | { type: FavoritesActionTypes.INIT; payload: Movie[] }
+  | { type: FavoritesActionTypes.ADD_FAVORITE; payload: Movie }
+  | { type: FavoritesActionTypes.REMOVE_FAVORITE; payload: number }
+  | { type: FavoritesActionTypes.TOGGLE_FAVORITE; payload: Movie };

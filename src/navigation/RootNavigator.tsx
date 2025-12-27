@@ -1,9 +1,10 @@
-import React, {memo, useMemo} from 'react';
-import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import {View, ActivityIndicator, Text} from 'react-native';
-
-import type {AuthStackParamList, AppStackParamList} from '../navigation/types';
+import React, { memo, useEffect, useMemo } from 'react';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { View, ActivityIndicator, Text } from 'react-native';
+import { useAppDispatch, useAppSelector } from '../store/rtkHooks';
+import { bootstrapAuth } from '../store/auth/authSlice';
+import type { AuthStackParamList, AppStackParamList } from '../navigation/types';
 
 import LoginScreen from '../login/LoginScreen';
 import SignUpScreen from '../signup/SignUpScreen';
@@ -13,10 +14,11 @@ import TheatresScreen from '../theatres/TheatresScreen';
 import CollectionScreen from '../collections/CollectionScreen';
 import MovieDetailsScreen from '../movieDetail/MovieDetailScreen';
 
-import {useAuth} from '../auth/AuthContext';
-import {useTheme} from '../theme/ThemeContext';
-import {ICON_SIZE} from '../constants';
-import {isFeatureEnabled} from '../config/featureToggles';
+
+import { ICON_SIZE } from '../constants';
+import { isFeatureEnabled } from '../config/featureToggles';
+import type { ThemeState } from '../store/theme/themeSlice';
+
 
 const AuthStack = createNativeStackNavigator<AuthStackParamList>();
 const AppStack = createNativeStackNavigator<AppStackParamList>();
@@ -29,23 +31,25 @@ const TabEmojiIcon = memo(function TabEmojiIcon({
   emoji: string;
   color: string;
 }) {
-  return <Text style={{fontSize: ICON_SIZE.MD, color}}>{emoji}</Text>;
+  return <Text style={{ fontSize: ICON_SIZE.MD, color }}>{emoji}</Text>;
 });
 
 function AuthNavigator() {
   return (
-    <AuthStack.Navigator screenOptions={{headerShown: false}}>
+    <AuthStack.Navigator screenOptions={{ headerShown: false }}>
       <AuthStack.Screen name="Login" component={LoginScreen} />
       <AuthStack.Screen name="SignUp" component={SignUpScreen} />
     </AuthStack.Navigator>
   );
 }
 
+
+
 type TabNavigatorProps = {
-  theme: ReturnType<typeof useTheme>;
+  theme: ThemeState;
 };
 
-function TabNavigator({theme}: TabNavigatorProps) {
+function TabNavigator({ theme }: TabNavigatorProps) {
   const tabScreens = useMemo(() => {
     const screens: Array<{
       name: string;
@@ -53,8 +57,8 @@ function TabNavigator({theme}: TabNavigatorProps) {
       label: string;
       emoji: string;
     }> = [
-      {name: 'HomeTab', component: HomeScreen, label: 'Home', emoji: '🏠'},
-    ];
+        { name: 'HomeTab', component: HomeScreen, label: 'Home', emoji: '🏠' },
+      ];
 
     if (isFeatureEnabled('ENABLE_MOVIES')) {
       screens.push({
@@ -95,7 +99,7 @@ function TabNavigator({theme}: TabNavigatorProps) {
           component={s.component}
           options={{
             tabBarLabel: s.label,
-            tabBarIcon: ({color}) => <TabEmojiIcon emoji={s.emoji} color={color} />,
+            tabBarIcon: ({ color }) => <TabEmojiIcon emoji={s.emoji} color={color} />,
           }}
         />
       ))}
@@ -103,11 +107,12 @@ function TabNavigator({theme}: TabNavigatorProps) {
   );
 }
 
+
 type AppNavigatorProps = {
-  theme: ReturnType<typeof useTheme>;
+  theme: ThemeState;
 };
 
-function AppNavigator({theme}: AppNavigatorProps) {
+function AppNavigator({ theme }: AppNavigatorProps) {
   const TabNavigatorWithTheme = useMemo(() => {
     const Comp = () => <TabNavigator theme={theme} />;
     Comp.displayName = 'TabNavigatorWithTheme';
@@ -115,7 +120,7 @@ function AppNavigator({theme}: AppNavigatorProps) {
   }, [theme]);
 
   return (
-    <AppStack.Navigator screenOptions={{headerShown: false}}>
+    <AppStack.Navigator screenOptions={{ headerShown: false }}>
       <AppStack.Screen name="Home" component={TabNavigatorWithTheme} />
       <AppStack.Screen name="MovieDetails" component={MovieDetailsScreen} />
       <AppStack.Screen name="Collection" component={CollectionScreen} />
@@ -124,8 +129,15 @@ function AppNavigator({theme}: AppNavigatorProps) {
 }
 
 export default function RootNavigator() {
-  const {user, initializing} = useAuth();
-  const theme = useTheme();
+  const theme = useAppSelector(state => state.theme);
+  const dispatch = useAppDispatch();
+
+  const user = useAppSelector(s => s.auth.user);
+  const initializing = useAppSelector(s => s.auth.initializing);
+
+  useEffect(() => {
+    void dispatch(bootstrapAuth() as any);
+  }, [dispatch]);
 
   if (initializing) {
     return (

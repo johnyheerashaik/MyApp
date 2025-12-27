@@ -1,53 +1,54 @@
 import { registerGlobalErrorHandler } from './src/utils/globalErrorHandler';
 registerGlobalErrorHandler();
-import React, {useEffect} from 'react';
-import {NavigationContainer} from '@react-navigation/native';
-import {SafeAreaProvider} from 'react-native-safe-area-context';
-import {Provider as ReduxProvider} from 'react-redux';
+
+import React, { useEffect } from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { Provider as ReduxProvider } from 'react-redux';
 
 import RootNavigator from './src/navigation/RootNavigator';
-import configureAppStore from './src/store';
-import {AuthProvider, useAuth} from './src/auth/AuthContext';
-import {ThemeProvider} from './src/theme/ThemeContext';
-import {FavoritesProvider} from './src/favorites/FavoritesContext';
-import {initializePushNotifications} from './src/services/pushNotifications';
-import * as reminderApi from './src/services/reminderApi';
-import {initializeFirebaseServices, setUserId, logScreenView} from './src/services/analytics';
-import {initializePerformanceMonitoring} from './src/services/performance';
+import store from './src/store';
 
-const store = configureAppStore();
+import { useAppSelector } from './src/store/rtkHooks';
+import {
+  initializeFirebaseServices,
+  setUserId,
+  logScreenView,
+} from './src/services/analytics';
+import { initializePerformanceMonitoring } from './src/services/performance';
+import { getCrashlytics } from '@react-native-firebase/crashlytics';
 
 function AppContent() {
-  const {user} = useAuth();
+  const user = useAppSelector(s => s.auth.user);
+
   useEffect(() => {
-    Promise.all([
-      initializeFirebaseServices(),
-      initializePerformanceMonitoring()
-    ])
-      .catch((error) => {
+    Promise.all([initializeFirebaseServices(), initializePerformanceMonitoring()])
+      .then(() => {
+        if (__DEV__) {
+          try {
+            const crashlytics = getCrashlytics();
+            // This will log to the console if Crashlytics is enabled
+            console.log('[DEV] Crashlytics enabled:', !!crashlytics);
+            crashlytics.log('[DEV] Crashlytics test log');
+          } catch (e) {
+            console.warn('[DEV] Crashlytics not available:', e);
+          }
+        }
+      })
+      .catch(error => {
         console.error('Firebase initialization failed:', error);
       });
   }, []);
 
   useEffect(() => {
-    if (user?.token) {
-      if (user.id) {
-        setUserId(user.id);
-      }
-
-      // Initialize push notifications
-      // initializePushNotifications(async (fcmToken) => {
-      //   try {
-      //     await reminderApi.updatePushToken(user.token, fcmToken);
-      //   } catch (error) {
-      //     console.error('Failed to register push token:', error);
-      //   }
-      // });
+    if (user?.token && user.id) {
+      setUserId(user.id);
     }
-  }, [user?.token]);
+  }, [user?.token, user?.id]);
 
   const routeNameRef = React.useRef<string | undefined>(undefined);
   const navigationRef = React.useRef<any>(null);
+
   return (
     <NavigationContainer
       ref={navigationRef}
@@ -63,8 +64,7 @@ function AppContent() {
         }
 
         routeNameRef.current = currentRouteName;
-      }}
-    >
+      }}>
       <RootNavigator />
     </NavigationContainer>
   );
@@ -74,13 +74,7 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <ReduxProvider store={store}>
-        <AuthProvider>
-          <ThemeProvider>
-            <FavoritesProvider>
-              <AppContent />
-            </FavoritesProvider>
-          </ThemeProvider>
-        </AuthProvider>
+        <AppContent />
       </ReduxProvider>
     </SafeAreaProvider>
   );

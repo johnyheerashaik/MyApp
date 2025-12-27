@@ -5,7 +5,7 @@ import {
   TouchableOpacity,
   Switch,
 } from 'react-native';
-import {useTheme} from '../theme/ThemeContext';
+import { useAppSelector } from '../store/rtkHooks';
 import styles from './styles';
 
 type Props = {
@@ -31,7 +31,7 @@ export default function ProfileMenu({
   onPressSignIn,
   onPressSignOut,
 }: Props) {
-  const theme = useTheme();
+  const theme = useAppSelector(state => state.theme);
 
   if (!visible) {
     return null;
@@ -42,25 +42,25 @@ export default function ProfileMenu({
       activeOpacity={1}
       onPress={onClose}
       style={styles.menuOverlay}>
-      <View style={[styles.menuCard, {backgroundColor: theme.colors.card}]}>
+      <View style={[styles.menuCard, { backgroundColor: theme.colors.card }]}>
         <View style={styles.menuUserRow}>
           <View
             style={[
               styles.menuAvatar,
-              {backgroundColor: theme.colors.primary},
+              { backgroundColor: theme.colors.primary },
             ]}>
             <Text style={styles.menuAvatarText}>{initials}</Text>
           </View>
           <View>
             <Text
-              style={[styles.menuUserName, {color: theme.colors.text}]}>
+              style={[styles.menuUserName, { color: theme.colors.text }]}>
               {userName ?? 'Guest'}
             </Text>
             {!!email && (
               <Text
                 style={[
                   styles.menuUserEmail,
-                  {color: theme.colors.mutedText},
+                  { color: theme.colors.mutedText },
                 ]}>
                 {email}
               </Text>
@@ -75,7 +75,7 @@ export default function ProfileMenu({
           <Text
             style={[
               styles.menuItemText,
-              {color: theme.colors.text},
+              { color: theme.colors.text },
             ]}>
             Dark mode
           </Text>
@@ -83,7 +83,7 @@ export default function ProfileMenu({
             value={isDarkMode}
             onValueChange={onToggleTheme}
             thumbColor={theme.colors.white}
-            trackColor={{false: theme.colors.mutedText, true: theme.colors.success}}
+            trackColor={{ false: theme.colors.mutedText, true: theme.colors.success }}
           />
         </View>
 
@@ -95,7 +95,7 @@ export default function ProfileMenu({
             <Text
               style={[
                 styles.menuItemText,
-                {color: theme.colors.text},
+                { color: theme.colors.text },
               ]}>
               Sign out
             </Text>
@@ -107,7 +107,7 @@ export default function ProfileMenu({
             <Text
               style={[
                 styles.menuItemText,
-                {color: theme.colors.text},
+                { color: theme.colors.text },
               ]}>
               Sign in
             </Text>

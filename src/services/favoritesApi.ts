@@ -1,6 +1,6 @@
 
-import { Movie } from './movieApi';
-import {apiCall} from './api';
+import { Movie } from '../store/movies/types';
+import { apiCall } from './api';
 
 import { Platform } from 'react-native';
 const API_URL =

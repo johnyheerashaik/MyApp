@@ -1,25 +1,39 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useAuth } from '../auth/AuthContext';
-import { useTheme } from '../theme/ThemeContext';
-import { useFavorites } from '../favorites/FavoritesContext';
+import { signOutThunk } from '../store/auth/authSlice';
+import { useFavorites, useFavoritesActions } from '../store/favorites/hooks';
 import HomeHeader from '../header/HomeHeader';
 import FavoritesSection from '../favorites/FavoritesSection';
 import FloatingCompanion from '../floatingCompanion/FloatingCompanion';
 import ProfileMenu from '../profile/ProfileMenu';
 import styles from './styles';
+import { useAppDispatch, useAppSelector } from '../store/rtkHooks';
+import { selectTheme } from '../store/theme/selectors';
+import { selectFavorites } from '../store/favorites/selectors';
+import { useAuth } from '../store/auth/hooks';
+import { fetchFavorites } from '../store/favorites/favoritesSlice';
+import { toggleTheme } from '../store/theme/themeSlice';
 
 type Props = {
   navigation: any;
 };
 
-export default function HomeScreen({ navigation }: Props) {
-  const { user, signOut } = useAuth();
-  const theme = useTheme();
-  const { favorites, addFavorite, removeFavorite } = useFavorites();
+const HomeScreen: React.FC<Props> = ({ navigation }) => {
+  const { user } = useAuth();
+  const dispatch = useAppDispatch();
+  const signOut = () => void dispatch(signOutThunk() as any);
+  const theme = useAppSelector(selectTheme);
+  const favorites = useAppSelector(selectFavorites);
+  const { addFavorite, removeFavorite } = useFavoritesActions();
 
   const [showMenu, setShowMenu] = useState(false);
   const [showCompanion, setShowCompanion] = useState(false);
+
+  useEffect(() => {
+    if (user?.token) {
+      dispatch(fetchFavorites(user.token) as any);
+    }
+  }, [user?.token, dispatch]);;
 
   const handleLogout = () => {
     setShowMenu(false);
@@ -34,7 +48,7 @@ export default function HomeScreen({ navigation }: Props) {
   const initials = user?.name
     ? user.name
       .split(' ')
-      .map(part => part[0])
+      .map((part: string) => part[0])
       .join('')
       .toUpperCase()
     : 'G';
@@ -44,7 +58,7 @@ export default function HomeScreen({ navigation }: Props) {
   return (
     <SafeAreaView
       edges={['top', 'left', 'right']}
-      style={[styles.screen, { backgroundColor: theme.colors.background }]}> 
+      style={[styles.screen, { backgroundColor: theme.colors.background }]}>
       <HomeHeader
         userName={user?.name}
         initials={initials}
@@ -75,11 +89,13 @@ export default function HomeScreen({ navigation }: Props) {
         userName={user?.name ?? null}
         email={user?.email ?? null}
         isDarkMode={isDarkMode}
-        onToggleTheme={theme.toggleTheme}
+        onToggleTheme={toggleTheme}
         onClose={() => setShowMenu(false)}
         onPressSignIn={handleLogin}
         onPressSignOut={handleLogout}
       />
     </SafeAreaView>
   );
-}
+};
+
+export default HomeScreen;

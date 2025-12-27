@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -11,23 +11,28 @@ import {
   RefreshControl,
   TouchableOpacity,
   TextInput,
+  Keyboard,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Geolocation from '@react-native-community/geolocation';
 
-import { useTheme } from '../theme/ThemeContext';
-import { fetchNearbyTheaters, geocodeZipCode, Theater } from '../services/theatersApi';
+import { useAppSelector } from '../store/rtkHooks';
+import { selectTheme } from '../store/theme/selectors';
+import { selectTheaters, selectTheatersLoading, selectTheatersError } from '../store/theatres/selectors';
+import { Theater } from '../services/theatersApi';
+import { useTheatresActions } from '../store/theatres/hooks';
 import { isFeatureEnabled } from '../config/featureToggles';
 import styles from './styles';
 import { STRINGS } from '../common/strings';
 import { logError, logTheaterSearch, logTheaterDirections } from '../services/analytics';
 
 export default function TheatresScreen() {
-  const theme = useTheme();
-
-  const [theaters, setTheaters] = useState<Theater[]>([]);
-  const [loading, setLoading] = useState(false);
+  const theme = useAppSelector(selectTheme);
+  const theaters = useAppSelector(selectTheaters);
+  const loading = useAppSelector(selectTheatersLoading);
+  const { fetchByCoords, fetchByZip } = useTheatresActions();
   const [zipCode, setZipCode] = useState('');
+  const zipInputRef = useRef<TextInput>(null);
 
   const openInMaps = useCallback(async (theater: Theater) => {
     try {
@@ -53,36 +58,24 @@ export default function TheatresScreen() {
     }
   }, []);
 
-  const fetchByCoords = useCallback(async (latitude: number, longitude: number, source: 'gps' | 'zipcode') => {
-    setLoading(true);
-    try {
-      const results = await fetchNearbyTheaters(latitude, longitude);
-      setTheaters(results);
-      logTheaterSearch(source, results.length);
-    } catch (error: any) {
-      logError(error, 'Failed to fetch theaters');
-      Alert.alert(STRINGS.ERROR, error?.message || STRINGS.FAILED_TO_FIND_THEATERS);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const fetchByCoordsLocal = useCallback((latitude: number, longitude: number, source: 'gps' | 'zipcode') => {
+    fetchByCoords(latitude, longitude);
+    logTheaterSearch(source, theaters.length);
+  }, [fetchByCoords, theaters.length]);
 
   const getUserLocation = useCallback(() => {
-    setLoading(true);
-
     Geolocation.getCurrentPosition(
       position => {
         const { latitude, longitude } = position.coords;
-        fetchByCoords(latitude, longitude, 'gps');
+        fetchByCoordsLocal(latitude, longitude, 'gps');
       },
       error => {
-        setLoading(false);
         logError(error as any, 'Location error');
         Alert.alert(STRINGS.LOCATION_ERROR, `${STRINGS.UNABLE_TO_GET_LOCATION}${error.message}`);
       },
       { enableHighAccuracy: true, timeout: 30000, maximumAge: 0 },
     );
-  }, [fetchByCoords]);
+  }, [fetchByCoordsLocal]);
 
   const requestLocationPermission = useCallback(async () => {
     if (Platform.OS !== 'android') {
@@ -113,25 +106,27 @@ export default function TheatresScreen() {
     }
   }, [getUserLocation]);
 
-  const searchByZipCode = useCallback(async () => {
+  const handleSearch = useCallback(() => {
     const zip = zipCode.trim();
-
     if (zip.length !== 5) {
       Alert.alert(STRINGS.INVALID_ZIP_CODE, STRINGS.ENTER_VALID_ZIP);
       return;
     }
+    fetchByZip(zip);
+    logTheaterSearch('zipcode', theaters.length);
+    Keyboard.dismiss();
+    zipInputRef.current?.blur();
+  }, [zipCode, fetchByZip, theaters.length]);
 
-    setLoading(true);
-    try {
-      const { lat, lng } = await geocodeZipCode(zip);
-      await fetchByCoords(lat, lng, 'zipcode');
-    } catch (error: any) {
-      logError(error, 'Failed to find theaters by zip');
-      Alert.alert(STRINGS.ERROR, error?.message || STRINGS.FAILED_TO_FIND_THEATERS);
-    } finally {
-      setLoading(false);
+  const searchByZipCode = useCallback(() => {
+    const zip = zipCode.trim();
+    if (zip.length !== 5) {
+      Alert.alert(STRINGS.INVALID_ZIP_CODE, STRINGS.ENTER_VALID_ZIP);
+      return;
     }
-  }, [zipCode, fetchByCoords]);
+    fetchByZip(zip);
+    logTheaterSearch('zipcode', theaters.length);
+  }, [zipCode, fetchByZip, theaters.length]);
 
   const handleRefresh = useCallback(() => {
     const zip = zipCode.trim();
@@ -202,6 +197,7 @@ export default function TheatresScreen() {
       </TouchableOpacity>
       <View style={styles.zipContainer}>
         <TextInput
+          ref={zipInputRef}
           style={[
             styles.zipInput,
             {
@@ -218,21 +214,20 @@ export default function TheatresScreen() {
           keyboardType="numeric"
           maxLength={5}
           returnKeyType="search"
-          onSubmitEditing={searchByZipCode}
+          onSubmitEditing={handleSearch}
         />
         <TouchableOpacity
           style={[styles.zipButton, { backgroundColor: theme.colors.primary }]}
-          onPress={searchByZipCode}>
+          onPress={handleSearch}>
           <Text style={styles.zipButtonText}>{STRINGS.SEARCH}</Text>
         </TouchableOpacity>
       </View>
     </View>
   );
-
   const renderLoader = () => (
     <View style={styles.center}>
       <ActivityIndicator size="large" color={theme.colors.primary} />
-      <Text style={[styles.loadingText, { color: theme.colors.mutedText }]}>
+      <Text style={[styles.emptyText, { color: theme.colors.primary }]}>
         {STRINGS.FINDING_THEATERS}
       </Text>
     </View>

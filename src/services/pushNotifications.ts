@@ -6,7 +6,7 @@ import {
   isDeviceRegisteredForRemoteMessages,
   registerDeviceForRemoteMessages,
 } from '@react-native-firebase/messaging';
-import {Platform, PermissionsAndroid, Alert} from 'react-native';
+import { Platform, PermissionsAndroid, Alert } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
 
 export async function requestNotificationPermission(): Promise<boolean> {
@@ -44,9 +44,8 @@ export async function requestNotificationPermission(): Promise<boolean> {
 export async function getFCMToken(): Promise<string | null> {
   try {
     const messaging = getMessaging();
-    
+
     const token = await getToken(messaging);
-    // Only one log per function
     console.log('getFCMToken called');
     return token;
   } catch (error) {
@@ -57,7 +56,7 @@ export async function getFCMToken(): Promise<string | null> {
 
 export function setupNotificationListeners() {
   const messaging = getMessaging();
-  
+
   const unsubscribeForeground = onMessage(messaging, async remoteMessage => {
     if (remoteMessage.notification) {
       Alert.alert(

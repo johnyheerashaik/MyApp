@@ -2,26 +2,18 @@ import { Movie } from '../store/movies/types';
 import { apiCall } from './api';
 import { trackOperation } from './performance';
 
-import { Platform } from 'react-native';
-let BASE_URL = 'https://your-production-backend-url.com';
-
-if (__DEV__) {
-  if (Platform.OS === 'android') {
-    BASE_URL = 'http://10.0.2.2:4000';
-  } else {
-    BASE_URL = 'http://localhost:4000';
-  }
-}
+import { getCompanionBaseUrl } from './companionBaseUrl';
 
 export async function askCompanion(
   question: string,
   favorites: Movie[],
   userName: string,
   userId?: string,
+  baseUrl: string = getCompanionBaseUrl(),
 ): Promise<string> {
   return trackOperation('ai_companion_chat', async () => {
     const response = await apiCall<any>({
-      url: `${BASE_URL}/companion`,
+      url: `${baseUrl}/companion`,
       method: 'POST',
       data: {
         question,
@@ -41,7 +33,7 @@ export async function askCompanion(
   });
 }
 
-export async function getMovieDataForAI(): Promise<{
+export async function getMovieDataForAI(baseUrl: string = getCompanionBaseUrl()): Promise<{
   popular: Movie[];
   nowPlaying: Movie[];
   upcoming: Movie[];
@@ -49,7 +41,7 @@ export async function getMovieDataForAI(): Promise<{
 }> {
   return trackOperation('getMovieDataForAI', async () => {
     const response = await apiCall<any>({
-      url: `${BASE_URL}/movies/all`,
+      url: `${baseUrl}/movies/all`,
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

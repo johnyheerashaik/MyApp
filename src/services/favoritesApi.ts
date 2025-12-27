@@ -2,15 +2,12 @@
 import { Movie } from '../store/movies/types';
 import { apiCall } from './api';
 
-import { Platform } from 'react-native';
-const API_URL =
-  Platform.OS === 'android'
-    ? 'http://10.0.2.2:5001/api/favorites'
-    : 'http://localhost:5001/api/favorites';
 
-export const getFavorites = async (token: string): Promise<Movie[]> => {
+import { getFavoritesBaseUrl } from './baseUrl';
+
+export const getFavorites = async (token: string, baseUrl: string = getFavoritesBaseUrl()): Promise<Movie[]> => {
   const response = await apiCall<any>({
-    url: API_URL,
+    url: baseUrl,
     method: 'GET',
     headers: {
       Authorization: `Bearer ${token}`,
@@ -34,9 +31,9 @@ export const getFavorites = async (token: string): Promise<Movie[]> => {
   throw new Error(data.message || 'Failed to fetch favorites');
 };
 
-export const addFavorite = async (token: string, movie: Movie): Promise<void> => {
+export const addFavorite = async (token: string, movie: Movie, baseUrl: string = getFavoritesBaseUrl()): Promise<void> => {
   const response = await apiCall<any>({
-    url: API_URL,
+    url: baseUrl,
     method: 'POST',
     headers: {
       Authorization: `Bearer ${token}`,
@@ -57,9 +54,9 @@ export const addFavorite = async (token: string, movie: Movie): Promise<void> =>
   }
 };
 
-export const removeFavorite = async (token: string, movieId: number): Promise<void> => {
+export const removeFavorite = async (token: string, movieId: number, baseUrl: string = getFavoritesBaseUrl()): Promise<void> => {
   const response = await apiCall<any>({
-    url: `${API_URL}/${movieId}`,
+    url: `${baseUrl}/${movieId}`,
     method: 'DELETE',
     headers: {
       Authorization: `Bearer ${token}`,

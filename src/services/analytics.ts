@@ -9,7 +9,6 @@ export const initializeFirebaseServices = async () => {
     await setAnalyticsCollectionEnabled(analytics, true);
     await setCrashlyticsCollectionEnabled(crashlytics, true);
 
-    // Log Crashlytics state for diagnostics
     console.log('[Crashlytics] Initialized:', !!crashlytics);
     console.log('[Crashlytics] setCrashlyticsCollectionEnabled is always available');
 
@@ -34,7 +33,7 @@ export const logScreenView = async (screenName: string, screenClass?: string) =>
   }
 };
 
-export const logEvent = async (eventName: string, params?: {[key: string]: any}) => {
+export const logEvent = async (eventName: string, params?: { [key: string]: any }) => {
   try {
     const analytics = getAnalytics();
     await firebaseLogEvent(analytics, eventName, params);
@@ -86,11 +85,11 @@ export const testCrash = () => {
 };
 
 export const logUserLogin = (method: string) => {
-  logEvent('login', {method});
+  logEvent('login', { method });
 };
 
 export const logUserSignup = (method: string) => {
-  logEvent('sign_up', {method});
+  logEvent('sign_up', { method });
 };
 
 export const logUserLogout = () => {

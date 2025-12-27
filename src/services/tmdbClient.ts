@@ -1,16 +1,16 @@
 import Config from 'react-native-config';
-import {apiCall} from './api';
+import { apiCall } from './api';
 
-const BASE_URL = 'https://api.themoviedb.org/3';
+import { getTmdbBaseUrl } from './tmdbBaseUrl';
 const TMDB_TOKEN = Config.TMDB_API_TOKEN || '';
 
 if (!TMDB_TOKEN) {
   console.warn('⚠️ TMDB_API_TOKEN not configured. Check your .env file.');
 }
 
-export const tmdbFetch = async (endpoint: string) => {
+export const tmdbFetch = async (endpoint: string, baseUrl: string = getTmdbBaseUrl()) => {
   const data = await apiCall<any>({
-    url: `${BASE_URL}${endpoint}`,
+    url: `${baseUrl}${endpoint}`,
     method: 'GET',
     headers: {
       Authorization: `Bearer ${TMDB_TOKEN}`,

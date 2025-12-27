@@ -1,11 +1,8 @@
-import { Platform } from 'react-native';
-import {sanitizeEmail} from '../utils/sanitization';
-import {apiCall} from './api';
+import { getAuthBaseUrl } from './authBaseUrl';
+import { sanitizeEmail } from '../utils/sanitization';
+import { apiCall } from './api';
 
-const API_URL =
-  Platform.OS === 'android'
-    ? 'http://10.0.2.2:5001/api/auth'
-    : 'http://localhost:5001/api/auth';
+
 
 export interface RegisterData {
   firstName: string;
@@ -34,22 +31,22 @@ export interface AuthResponse {
 }
 
 
-export const registerApi = async (data: RegisterData): Promise<AuthResponse> => {
+export const registerApi = async (data: RegisterData, baseUrl: string = getAuthBaseUrl()): Promise<AuthResponse> => {
   const sanitizedData = {
     ...data,
     email: sanitizeEmail(data.email),
   };
   const response = await apiCall<AuthResponse>({
-    url: `${API_URL}/register`,
+    url: `${baseUrl}/register`,
     method: 'POST',
     data: sanitizedData,
   });
   return response.data;
 };
 
-export const loginApi = async (email: string, password: string) => {
+export const loginApi = async (email: string, password: string, baseUrl: string = getAuthBaseUrl()) => {
   const response = await apiCall<AuthResponse>({
-    url: `${API_URL}/login`,
+    url: `${baseUrl}/login`,
     method: 'POST',
     data: { email, password },
   });

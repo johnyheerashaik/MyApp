@@ -1,34 +1,8 @@
-// Mock @react-native-firebase/perf
-jest.mock('@react-native-firebase/perf', () => () => ({
-    newTrace: jest.fn(() => ({
-        start: jest.fn(),
-        stop: jest.fn(),
-        incrementMetric: jest.fn(),
-        putAttribute: jest.fn(),
-        putMetric: jest.fn(),
-    })),
-    startTrace: jest.fn(),
-    getTrace: jest.fn(),
-    httpMetric: jest.fn(() => ({
-        start: jest.fn(),
-        stop: jest.fn(),
-        setHttpResponseCode: jest.fn(),
-        setRequestPayloadSize: jest.fn(),
-        setResponseContentType: jest.fn(),
-        setResponsePayloadSize: jest.fn(),
-        setUrl: jest.fn(),
-        setHttpMethod: jest.fn(),
-    })),
-}));
+import 'react-native-gesture-handler/jestSetup';
 
-// Mock RNFBAppModule (for @react-native-firebase/app internals)
-jest.mock('react-native', () => {
-    const RN = jest.requireActual('react-native');
-    RN.NativeModules = RN.NativeModules || {};
-    RN.NativeModules.RNFBAppModule = {};
-    return RN;
-});
-// Mock @react-native-async-storage/async-storage
+global.__reanimatedWorkletInit = () => { };
+
+
 jest.mock('@react-native-async-storage/async-storage', () => ({
     setItem: jest.fn(),
     getItem: jest.fn(),
@@ -36,36 +10,47 @@ jest.mock('@react-native-async-storage/async-storage', () => ({
     clear: jest.fn(),
     getAllKeys: jest.fn(),
 }));
-// jest/setup.js
-// Mock @react-native-firebase modules for Jest
-global.__reanimatedWorkletInit = () => { };
 
-jest.mock('@react-native-firebase/analytics', () => () => ({
-    logEvent: jest.fn(),
-    setUserId: jest.fn(),
-    setUserProperties: jest.fn(),
+
+jest.mock('@react-native-firebase/analytics', () => {
+    const mockAnalyticsInstance = {};
+    return {
+        __esModule: true,
+        getAnalytics: jest.fn(() => mockAnalyticsInstance),
+        logEvent: jest.fn(),
+        setUserProperty: jest.fn(),
+        setUserId: jest.fn(),
+        setAnalyticsCollectionEnabled: jest.fn(),
+        logScreenView: jest.fn(), // optional
+    };
+});
+
+jest.mock('@react-native-firebase/crashlytics', () => {
+    const mockCrashlyticsInstance = {};
+    return {
+        __esModule: true,
+        getCrashlytics: jest.fn(() => mockCrashlyticsInstance),
+        log: jest.fn(),
+        recordError: jest.fn(),
+        crash: jest.fn(),
+        setUserId: jest.fn(),
+        setCrashlyticsCollectionEnabled: jest.fn(),
+    };
+});
+
+
+jest.mock('@react-native-firebase/app', () => ({
+    __esModule: true,
 }));
 
-jest.mock('@react-native-firebase/crashlytics', () => () => ({
-    log: jest.fn(),
-    recordError: jest.fn(),
-    setUserId: jest.fn(),
-    setAttribute: jest.fn(),
-    setAttributes: jest.fn(),
-    setUserName: jest.fn(),
-    setUserEmail: jest.fn(),
-    crash: jest.fn(),
+jest.mock('@react-native-firebase/perf', () => ({
+    __esModule: true,
 }));
 
-jest.mock('@react-native-firebase/app', () => () => ({
-    utils: jest.fn(),
-}));
 
-// Mock AsyncStorage if used
-global.localStorage = {
-    getItem: jest.fn(),
-    setItem: jest.fn(),
-    removeItem: jest.fn(),
-};
-
-// Add more mocks as needed for other native modules
+jest.mock('react-native', () => {
+    const RN = jest.requireActual('react-native');
+    RN.NativeModules = RN.NativeModules || {};
+    RN.NativeModules.RNFBAppModule = RN.NativeModules.RNFBAppModule || {};
+    return RN;
+});

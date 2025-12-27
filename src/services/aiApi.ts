@@ -2,7 +2,7 @@ export const askAi = async (
   prompt: string,
   userName?: string | null,
 ): Promise<string> => {
-  await new Promise<void>(resolve => setTimeout(resolve, 700));
+  await new Promise<void>(resolve => setTimeout(resolve, 500));
 
   const trimmed = prompt.trim();
 

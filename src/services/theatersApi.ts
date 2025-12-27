@@ -1,11 +1,6 @@
-import { Platform } from 'react-native';
+import { getTheatersBaseUrl } from './theatersBaseUrl';
 import { apiCall } from './api';
 import { trackOperation } from './performance';
-
-const BACKEND_URL =
-  Platform.OS === 'android'
-    ? 'http://10.0.2.2:4000'
-    : 'http://localhost:4000';
 
 export type Theater = {
   id: string;
@@ -30,10 +25,10 @@ const calculateDistance = (lat1: number, lng1: number, lat2: number, lng2: numbe
   return R * c;
 };
 
-export const fetchNearbyTheaters = async (lat: number, lng: number): Promise<Theater[]> => {
+export const fetchNearbyTheaters = async (lat: number, lng: number, baseUrl: string = getTheatersBaseUrl()): Promise<Theater[]> => {
   return trackOperation('fetchNearbyTheaters', async () => {
     const radius = 32186.9;
-    const url = `${BACKEND_URL}/theaters/nearby?latitude=${lat}&longitude=${lng}&radius=${radius}`;
+    const url = `${baseUrl}/theaters/nearby?latitude=${lat}&longitude=${lng}&radius=${radius}`;
     const response = await apiCall<any>({
       url,
       method: 'GET',
@@ -66,9 +61,9 @@ export const fetchNearbyTheaters = async (lat: number, lng: number): Promise<The
   });
 };
 
-export const geocodeZipCode = async (zip: string): Promise<{ lat: number; lng: number }> => {
+export const geocodeZipCode = async (zip: string, baseUrl: string = getTheatersBaseUrl()): Promise<{ lat: number; lng: number }> => {
   return trackOperation('geocodeZipCode', async () => {
-    const url = `${BACKEND_URL}/geocode/zipcode?zip=${zip}`;
+    const url = `${baseUrl}/geocode/zipcode?zip=${zip}`;
     const response = await apiCall<any>({
       url,
       method: 'GET',

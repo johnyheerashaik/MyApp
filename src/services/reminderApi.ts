@@ -1,54 +1,57 @@
 
-import { Platform } from 'react-native';
+import { getReminderBaseUrl } from './reminderBaseUrl';
 import { apiCall } from './api';
 import { trackOperation } from './performance';
-const API_URL =
-  Platform.OS === 'android'
-    ? 'http://10.0.2.2:5001/api'
-    : 'http://localhost:5001/api';
 
-token: string,
+export const toggleReminder = (
+  token: string,
   movieId: number,
-    reminderEnabled: boolean,
+  reminderEnabled: boolean,
+  baseUrl: string = getReminderBaseUrl()
 ): Promise<void> =>
-trackOperation('toggleReminder', async () => {
-  const response = await apiCall<any>({
-    url: `${API_URL}/reminders/${movieId}`,
-    method: 'PATCH',
-    headers: {
-      Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    },
-    data: { reminderEnabled },
+  trackOperation('toggleReminder', async () => {
+    const response = await apiCall<any>({
+      url: `${baseUrl}/reminders/${movieId}`,
+      method: 'PATCH',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      data: { reminderEnabled },
+    });
+    const data = response.data;
+    if (!data.success) {
+      throw new Error(data.message || 'Failed to toggle reminder');
+    }
   });
-  const data = response.data;
-  if (!data.success) {
-    throw new Error(data.message || 'Failed to toggle reminder');
-  }
-});
 
-return trackOperation('getReminders', async () => {
-  const response = await apiCall<any>({
-    url: `${API_URL}/reminders`,
-    method: 'GET',
-    headers: {
-      Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    },
+export const getReminders = (
+  token: string,
+  baseUrl: string = getReminderBaseUrl()
+): Promise<any[]> =>
+  trackOperation('getReminders', async () => {
+    const response = await apiCall<any>({
+      url: `${baseUrl}/reminders`,
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+    const data = response.data;
+    if (data.success) {
+      return data.reminders;
+    }
+    throw new Error(data.message || 'Failed to get reminders');
   });
-  const data = response.data;
-  if (data.success) {
-    return data.reminders;
-  }
-  throw new Error(data.message || 'Failed to get reminders');
-});
 
 export const updatePushToken = async (
   token: string,
   pushToken: string,
+  baseUrl: string = getReminderBaseUrl()
 ): Promise<void> => {
   const response = await apiCall<any>({
-    url: `${API_URL}/users/push-token`,
+    url: `${baseUrl}/users/push-token`,
     method: 'PUT',
     headers: {
       Authorization: `Bearer ${token}`,
@@ -62,7 +65,6 @@ export const updatePushToken = async (
   }
 };
 
-// Removed duplicate getReminders code block
 
 export const updateNotificationPreferences = async (
   token: string,
@@ -70,9 +72,10 @@ export const updateNotificationPreferences = async (
     releaseReminders?: boolean;
     reminderTime?: string;
   },
+  baseUrl: string = getReminderBaseUrl()
 ): Promise<void> => {
   const response = await apiCall<any>({
-    url: `${API_URL}/users/notification-preferences`,
+    url: `${baseUrl}/users/notification-preferences`,
     method: 'PUT',
     headers: {
       Authorization: `Bearer ${token}`,

@@ -2,6 +2,12 @@ import 'react-native-gesture-handler/jestSetup';
 
 globalThis.__reanimatedWorkletInit = () => { };
 
+jest.mock('@react-native-community/geolocation', () => ({
+    getCurrentPosition: jest.fn(),
+    watchPosition: jest.fn(),
+    clearWatch: jest.fn(),
+    stopObserving: jest.fn(),
+}));
 
 jest.mock('@react-native-async-storage/async-storage', () => ({
     setItem: jest.fn(),
@@ -48,9 +54,28 @@ jest.mock('@react-native-firebase/perf', () => ({
 }));
 
 
-jest.mock('react-native', () => {
-    const RN = jest.requireActual('react-native');
-    RN.NativeModules = RN.NativeModules || {};
-    RN.NativeModules.RNFBAppModule = RN.NativeModules.RNFBAppModule || {};
-    return RN;
-});
+jest.mock('react-native', () => ({
+    Platform: {
+        OS: 'ios',
+        select: jest.fn((obj) => obj.ios),
+    },
+
+    Alert: { alert: jest.fn() },
+
+    Linking: {
+        openSettings: jest.fn(),
+        canOpenURL: jest.fn().mockResolvedValue(true),
+        openURL: jest.fn(),
+    },
+
+    PermissionsAndroid: {
+        request: jest.fn(),
+        PERMISSIONS: { ACCESS_FINE_LOCATION: 'ACCESS_FINE_LOCATION' },
+        RESULTS: { GRANTED: 'granted' },
+    },
+
+    NativeModules: {
+        RNFBAppModule: {},
+    },
+    Keyboard: { dismiss: jest.fn() },
+}));

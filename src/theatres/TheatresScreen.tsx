@@ -1,141 +1,42 @@
-import React, { useCallback, useRef, useState } from 'react';
-import {
-  View,
-  Text,
-  FlatList,
-  ActivityIndicator,
-  Alert,
-  Linking,
-  PermissionsAndroid,
-  Platform,
-  RefreshControl,
-  TouchableOpacity,
-  TextInput,
-  Keyboard,
-} from 'react-native';
+import React, { useCallback } from 'react';
+import { View, Text, FlatList, ActivityIndicator, RefreshControl, TouchableOpacity, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Geolocation from '@react-native-community/geolocation';
 
-import { useAppSelector } from '../store/rtkHooks';
+import { useTheatres, useTheatresActions } from '../store/theatres/hooks';
 import { selectTheme } from '../store/theme/selectors';
-import { selectTheaters, selectTheatersLoading, selectTheatersError } from '../store/theatres/selectors';
-import { Theater } from '../services/theatersApi';
-import { useTheatresActions } from '../store/theatres/hooks';
+import { useAppSelector } from '../store/rtkHooks';
+
 import { isFeatureEnabled } from '../config/featureToggles';
 import styles from './styles';
 import { STRINGS } from '../common/strings';
-import { logError, logTheaterSearch, logTheaterDirections } from '../services/analytics';
+import type { Theater } from '../services/theatersApi';
+
+import { useOpenInMaps } from './hooks/useOpenInMaps';
+import { useLocationFetch } from './hooks/useLocationFetch';
+import { useTheatreSearch } from './hooks/useTheatreSearch';
 
 export default function TheatresScreen() {
   const theme = useAppSelector(selectTheme);
-  const theaters = useAppSelector(selectTheaters);
-  const loading = useAppSelector(selectTheatersLoading);
+
+  const { theaters, loading } = useTheatres();
   const { fetchByCoords, fetchByZip } = useTheatresActions();
-  const [zipCode, setZipCode] = useState('');
-  const zipInputRef = useRef<TextInput>(null);
 
-  const openInMaps = useCallback(async (theater: Theater) => {
-    try {
-      logTheaterDirections(theater.name);
+  const openInMaps = useOpenInMaps();
 
-      const url = Platform.select({
-        ios: `maps://app?daddr=${theater.latitude},${theater.longitude}`,
-        android: `google.navigation:q=${theater.latitude},${theater.longitude}`,
-      });
+  const { requestLocationPermission } = useLocationFetch({
+    fetchByCoords,
+    getTheaterCount: () => theaters.length,
+  });
 
-      if (!url) return;
+  const { zipCode, setZipCode, zipInputRef, handleSearch, handleRefresh } =
+    useTheatreSearch({
+      fetchByZip,
+      requestLocationPermission,
+      getTheaterCount: () => theaters.length,
+    });
 
-      const canOpen = await Linking.canOpenURL(url);
-      if (!canOpen) {
-        Alert.alert(STRINGS.ERROR, STRINGS.UNABLE_TO_OPEN_MAPS);
-        return;
-      }
-
-      Linking.openURL(url);
-    } catch (e: any) {
-      logError(e, 'Open maps failed');
-      Alert.alert(STRINGS.ERROR, STRINGS.UNABLE_TO_OPEN_MAPS);
-    }
-  }, []);
-
-  const fetchByCoordsLocal = useCallback((latitude: number, longitude: number, source: 'gps' | 'zipcode') => {
-    fetchByCoords(latitude, longitude);
-    logTheaterSearch(source, theaters.length);
-  }, [fetchByCoords, theaters.length]);
-
-  const getUserLocation = useCallback(() => {
-    Geolocation.getCurrentPosition(
-      position => {
-        const { latitude, longitude } = position.coords;
-        fetchByCoordsLocal(latitude, longitude, 'gps');
-      },
-      error => {
-        logError(error as any, 'Location error');
-        Alert.alert(STRINGS.LOCATION_ERROR, `${STRINGS.UNABLE_TO_GET_LOCATION}${error.message}`);
-      },
-      { enableHighAccuracy: true, timeout: 30000, maximumAge: 0 },
-    );
-  }, [fetchByCoordsLocal]);
-
-  const requestLocationPermission = useCallback(async () => {
-    if (Platform.OS !== 'android') {
-      getUserLocation();
-      return;
-    }
-
-    try {
-      const granted = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-        {
-          title: STRINGS.LOCATION_PERMISSION_TITLE,
-          message: STRINGS.LOCATION_PERMISSION_MESSAGE,
-          buttonNeutral: STRINGS.LOCATION_PERMISSION_NEUTRAL,
-          buttonNegative: STRINGS.LOCATION_PERMISSION_NEGATIVE,
-          buttonPositive: STRINGS.LOCATION_PERMISSION_POSITIVE,
-        },
-      );
-
-      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-        getUserLocation();
-      } else {
-        Alert.alert(STRINGS.PERMISSION_DENIED, STRINGS.LOCATION_PERMISSION_REQUIRED);
-      }
-    } catch (err: any) {
-      logError(err, 'Permission request failed');
-      Alert.alert(STRINGS.ERROR, STRINGS.SOMETHING_WENT_WRONG);
-    }
-  }, [getUserLocation]);
-
-  const handleSearch = useCallback(() => {
-    const zip = zipCode.trim();
-    if (zip.length !== 5) {
-      Alert.alert(STRINGS.INVALID_ZIP_CODE, STRINGS.ENTER_VALID_ZIP);
-      return;
-    }
-    fetchByZip(zip);
-    logTheaterSearch('zipcode', theaters.length);
-    Keyboard.dismiss();
-    zipInputRef.current?.blur();
-  }, [zipCode, fetchByZip, theaters.length]);
-
-  const searchByZipCode = useCallback(() => {
-    const zip = zipCode.trim();
-    if (zip.length !== 5) {
-      Alert.alert(STRINGS.INVALID_ZIP_CODE, STRINGS.ENTER_VALID_ZIP);
-      return;
-    }
-    fetchByZip(zip);
-    logTheaterSearch('zipcode', theaters.length);
-  }, [zipCode, fetchByZip, theaters.length]);
-
-  const handleRefresh = useCallback(() => {
-    const zip = zipCode.trim();
-    if (zip.length === 5) {
-      searchByZipCode();
-    } else {
-      requestLocationPermission();
-    }
-  }, [zipCode, searchByZipCode, requestLocationPermission]);
+  const isShowInitialLoader = useCallback(() => loading && theaters.length === 0, [loading, theaters.length]);
+  const isShowEmptyState = useCallback(() => !loading && theaters.length === 0, [loading, theaters.length]);
 
   const renderTheater = useCallback(
     ({ item }: { item: Theater }) => (
@@ -144,45 +45,25 @@ export default function TheatresScreen() {
         onPress={() => openInMaps(item)}>
         <View style={styles.theaterInfo}>
           <Text style={[styles.theaterName, { color: theme.colors.text }]}>{item.name}</Text>
-
-          <Text style={[styles.theaterAddress, { color: theme.colors.mutedText }]}>
-            {item.address}
-          </Text>
-
+          <Text style={[styles.theaterAddress, { color: theme.colors.mutedText }]}>{item.address}</Text>
           <Text style={[styles.theaterDistance, { color: theme.colors.primary }]}>
             {item.distance.toFixed(1)} {STRINGS.MILES_AWAY}
           </Text>
         </View>
-
-        <Text style={[styles.directionsIcon, { color: theme.colors.primary }]}>
-          {STRINGS.ARROW}
-        </Text>
+        <Text style={[styles.directionsIcon, { color: theme.colors.primary }]}>{STRINGS.ARROW}</Text>
       </TouchableOpacity>
     ),
     [openInMaps, theme.colors.card, theme.colors.mutedText, theme.colors.primary, theme.colors.text],
   );
 
-
-  const isShowInitialLoader = useCallback(() => {
-    return loading && theaters.length === 0;
-  }, [loading, theaters]);
-
-  const isShowEmptyState = useCallback(() => {
-    return !loading && theaters.length === 0;
-  }, [loading, theaters]);
-
   if (!isFeatureEnabled('ENABLE_THEATERS')) {
     return (
-      <SafeAreaView
-        edges={['top', 'left', 'right']}
-        style={[styles.container, { backgroundColor: theme.colors.background }]}>
+      <SafeAreaView edges={['top', 'left', 'right']} style={[styles.container, { backgroundColor: theme.colors.background }]}>
         <View style={styles.header}>
           <Text style={[styles.title, { color: theme.colors.text }]}>{STRINGS.THEATERS}</Text>
         </View>
         <View style={styles.center}>
-          <Text style={[styles.emptyText, { color: theme.colors.mutedText }]}>
-            {STRINGS.FEATURE_DISABLED}
-          </Text>
+          <Text style={[styles.emptyText, { color: theme.colors.mutedText }]}>{STRINGS.FEATURE_DISABLED}</Text>
         </View>
       </SafeAreaView>
     );
@@ -195,6 +76,7 @@ export default function TheatresScreen() {
         onPress={requestLocationPermission}>
         <Text style={styles.locationButtonText}>{STRINGS.USE_MY_LOCATION}</Text>
       </TouchableOpacity>
+
       <View style={styles.zipContainer}>
         <TextInput
           ref={zipInputRef}
@@ -216,20 +98,17 @@ export default function TheatresScreen() {
           returnKeyType="search"
           onSubmitEditing={handleSearch}
         />
-        <TouchableOpacity
-          style={[styles.zipButton, { backgroundColor: theme.colors.primary }]}
-          onPress={handleSearch}>
+        <TouchableOpacity style={[styles.zipButton, { backgroundColor: theme.colors.primary }]} onPress={handleSearch}>
           <Text style={styles.zipButtonText}>{STRINGS.SEARCH}</Text>
         </TouchableOpacity>
       </View>
     </View>
   );
+
   const renderLoader = () => (
     <View style={styles.center}>
       <ActivityIndicator size="large" color={theme.colors.primary} />
-      <Text style={[styles.emptyText, { color: theme.colors.primary }]}>
-        {STRINGS.FINDING_THEATERS}
-      </Text>
+      <Text style={[styles.emptyText, { color: theme.colors.primary }]}>{STRINGS.FINDING_THEATERS}</Text>
     </View>
   );
 
@@ -238,17 +117,12 @@ export default function TheatresScreen() {
       data={theaters}
       renderItem={renderTheater}
       keyExtractor={item => item.id}
-      contentContainerStyle={[
-        styles.list,
-        isShowEmptyState() ? { flex: 1 } : null,
-      ]}
+      contentContainerStyle={[styles.list, isShowEmptyState() ? { flex: 1 } : null]}
       showsVerticalScrollIndicator={false}
       ListEmptyComponent={
         isShowEmptyState() ? (
           <View style={styles.center}>
-            <Text style={[styles.emptyText, { color: theme.colors.mutedText }]}>
-              {STRINGS.NO_THEATERS_FOUND}
-            </Text>
+            <Text style={[styles.emptyText, { color: theme.colors.mutedText }]}>{STRINGS.NO_THEATERS_FOUND}</Text>
           </View>
         ) : null
       }
@@ -264,13 +138,9 @@ export default function TheatresScreen() {
   );
 
   return (
-    <SafeAreaView
-      edges={['top', 'left', 'right']}
-      style={[styles.container, { backgroundColor: theme.colors.background }]}>
+    <SafeAreaView edges={['top', 'left', 'right']} style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <View style={styles.header}>
-        <Text style={[styles.title, { color: theme.colors.text }]}>
-          {STRINGS.NEARBY_THEATERS}
-        </Text>
+        <Text style={[styles.title, { color: theme.colors.text }]}>{STRINGS.NEARBY_THEATERS}</Text>
       </View>
       {renderSearchSection()}
       {isShowInitialLoader() ? renderLoader() : renderTheaterList()}

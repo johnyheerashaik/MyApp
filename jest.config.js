@@ -1,7 +1,6 @@
 /**
  * @type {import('jest').Config}
  */
-
 const config = {
   preset: 'react-native',
   testEnvironment: 'node',
@@ -18,6 +17,17 @@ const config = {
   moduleNameMapper: {
     '\\.(png|jpg|jpeg|gif|svg)$': '<rootDir>/jest/__mocks__/fileMock.js',
   },
+
+  // ✅ add these
+  collectCoverage: true,
+  coverageDirectory: 'coverage',
+  coverageReporters: ['lcov', 'text', 'cobertura'],
+  collectCoverageFrom: [
+    'src/**/*.{ts,tsx,js,jsx}',
+    '!src/**/__tests__/**',
+    '!src/**/*.test.{ts,tsx,js,jsx}',
+    '!src/**/*.spec.{ts,tsx,js,jsx}',
+  ],
 };
 
 export default config;

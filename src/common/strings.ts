@@ -79,6 +79,7 @@ export const STRINGS = {
     ARROW: '→',
     TRAILER: 'Trailer',
     OPEN_IN_YOUTUBE: 'Open in YouTube →',
+    OPEN_SETTINGS: 'Open Settings',
 
     // Collection Screen
     NO_MOVIES_FOUND: 'No movies found in this collection',

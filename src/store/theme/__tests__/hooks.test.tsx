@@ -14,7 +14,8 @@ jest.mock('../themeSlice', () => ({
     loadTheme: jest.fn((mode: any) => ({ type: 'theme/loadTheme', payload: mode })),
 }));
 
-const themeReducer = (state = { mode: 'dark' }) => state;
+const defaultThemeState = { mode: 'dark' };
+const themeReducer = (state = defaultThemeState) => state;
 
 const makeStore = (preloadedTheme?: any) =>
     configureStore({

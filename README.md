@@ -86,6 +86,42 @@ Backend:
 
 ---
 
+## System Architecture Overview
+
+```
++---------------------+         +------------------------+
+|  Google/Apple SSO   |         |   Movie Data APIs      |
+|    (SSO Provider)   |         |   (External/Backend)   |
++----------+----------+         +-----------+------------+
+           |                                ^
+           v                                |
++---------------------+         +-----------+------------+
+|      Firebase       |<------->| movie-companion-backend |
+|   (Auth & SSO)      |         |   (movie data, etc.)    |
++----------+----------+         +-----------+------------+
+           |                                ^
+           v                                |
++---------------------+         +-----------+------------+
+|    Mobile App       |<------->|      auth-server        |
+|   (React Native)    |  REST   |  (Node.js/Express)      |
+|                     |  APIs   | (Token validation,      |
++----------+----------+         |  user, favorites,       |
+           |                    |  reminders, etc.)       |
+           +------------------->|                        |
+                                +------------------------+
+```
+
+- **Mobile App**: React Native client, authenticates via Firebase SSO, communicates with backend via REST APIs.
+- **Firebase**: Handles authentication (Google/Apple SSO), issues tokens.
+- **auth-server**: Node.js/Express backend, validates tokens, manages user data, favorites, reminders.
+- **movie-companion-backend**: Provides movie data, interacts with external movie APIs.
+- **Movie Data APIs**: External sources for movie information.
+
+**Data Flow:**
+- User logs in via SSO (Google/Apple) → Firebase issues token → App uses token for API calls → auth-server validates token and serves data → movie-companion-backend fetches movie info as needed.
+
+<img src="image-2.png" width="250" alt="Architecture">
+
 ## 🚀 Running the App
 
 Install:

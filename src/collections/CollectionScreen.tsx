@@ -26,7 +26,7 @@ type Props = {
   route: any;
 };
 
-export default function CollectionScreen({ navigation, route }: Props) {
+const CollectionScreen = ({ navigation, route }: Props) => {
   const theme = useAppSelector(selectTheme);
   const { isFavorite } = useFavorites();
   const { title, collectionId, keywordId } = route.params;
@@ -139,3 +139,5 @@ export default function CollectionScreen({ navigation, route }: Props) {
     </SafeAreaView>
   );
 }
+
+export default CollectionScreen;

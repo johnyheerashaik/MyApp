@@ -6,7 +6,7 @@ import { logError, logTheaterSearch } from '../../services/analytics';
 
 type Params = {
     fetchByCoords: (latitude: number, longitude: number) => void;
-    getTheaterCount: () => number;
+    getTheaterCount?: () => number;
 };
 
 export const useLocationFetch = ({ fetchByCoords, getTheaterCount }: Params) => {
@@ -15,7 +15,9 @@ export const useLocationFetch = ({ fetchByCoords, getTheaterCount }: Params) => 
             position => {
                 const { latitude, longitude } = position.coords;
                 fetchByCoords(latitude, longitude);
-                logTheaterSearch('gps', getTheaterCount());
+                if (getTheaterCount) {
+                    logTheaterSearch('gps', getTheaterCount());
+                }
             },
             error => {
                 if (error.code === 1) {

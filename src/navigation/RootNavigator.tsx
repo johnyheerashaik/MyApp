@@ -13,6 +13,7 @@ import MoviesScreen from '../movies/MoviesScreen';
 import TheatresScreen from '../theatres/TheatresScreen';
 import CollectionScreen from '../collections/CollectionScreen';
 import MovieDetailsScreen from '../movieDetail/MovieDetailScreen';
+import LocationScreen from '../location/LocationScreen';
 
 
 import { ICON_SIZE } from '../constants';
@@ -58,6 +59,7 @@ function TabNavigator({ theme }: TabNavigatorProps) {
       emoji: string;
     }> = [
         { name: 'HomeTab', component: HomeScreen, label: 'Home', emoji: '🏠' },
+        { name: 'LocationTab', component: LocationScreen, label: 'Location', emoji: '📍' },
       ];
 
     if (isFeatureEnabled('ENABLE_MOVIES')) {

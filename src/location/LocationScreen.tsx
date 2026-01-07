@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import MapView, { Marker, Region } from 'react-native-maps';
 import { useLocationFetch } from '../theatres/hooks/useLocationFetch';
-import Icon from 'react-native-vector-icons/FontAwesome';
+import Icon from 'react-native-vector-icons/Ionicons';
 
 
 type LatLng = { latitude: number; longitude: number };
@@ -84,24 +84,24 @@ const LocationScreen = () => {
                     </MapView>
 
                     <TouchableOpacity style={styles.sharePill} onPress={handleShare} activeOpacity={0.8}>
-                        <Icon name="share-square-o" size={18} color="#1A73E8" />
+                        <Icon name="share-social-outline" size={20} color="#1A73E8" />
                         <Text style={styles.shareText}>Share</Text>
                     </TouchableOpacity>
 
                     <View style={styles.controlsRight}>
                         <TouchableOpacity style={[styles.fab, styles.shadow]} onPress={recenter} activeOpacity={0.8}>
-                            <Icon name="my-location" size={22} color="#1A73E8" />
+                            <Icon name="locate" size={24} color="#1A73E8" />
                         </TouchableOpacity>
 
                         <View style={[styles.zoomCard, styles.shadow]}>
                             <TouchableOpacity style={styles.zoomBtn} onPress={zoomIn} activeOpacity={0.8}>
-                                <Icon name="plus-circle" size={22} color="#1F1F1F" />
+                                <Icon name="add-circle-outline" size={24} color="#1F1F1F" />
                             </TouchableOpacity>
 
                             <View style={styles.divider} />
 
                             <TouchableOpacity style={styles.zoomBtn} onPress={zoomOut} activeOpacity={0.8}>
-                                <Icon name="minus" size={22} color="#1F1F1F" />
+                                <Icon name="remove-circle-outline" size={24} color="#1F1F1F" />
                             </TouchableOpacity>
                         </View>
                     </View>

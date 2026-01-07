@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   Switch,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAppSelector } from '../store/rtkHooks';
 import FeedbackForm from '../feedback/FeedbackForm';
 import styles from './styles';
@@ -34,6 +35,7 @@ export default function ProfileMenu({
 }: Props) {
   const theme = useAppSelector(state => state.theme);
   const [feedbackVisible, setFeedbackVisible] = useState(false);
+  const insets = useSafeAreaInsets();
 
   if (!visible) {
     return null;
@@ -44,8 +46,11 @@ export default function ProfileMenu({
       <TouchableOpacity
         activeOpacity={1}
         onPress={onClose}
-        style={styles.menuOverlay}>
-        <View style={[styles.menuCard, { backgroundColor: theme.colors.card }]}>
+        style={[styles.menuOverlay, { paddingTop: insets.top + 16 }]}>
+        <TouchableOpacity
+          activeOpacity={1}
+          onPress={() => { }}
+          style={[styles.menuCard, { backgroundColor: theme.colors.card }]}>
           <View style={styles.menuUserRow}>
             <View
               style={[
@@ -126,7 +131,7 @@ export default function ProfileMenu({
               </Text>
             </TouchableOpacity>
           )}
-        </View>
+        </TouchableOpacity>
       </TouchableOpacity>
 
       <FeedbackForm

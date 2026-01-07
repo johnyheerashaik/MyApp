@@ -5,11 +5,12 @@ import React, { useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Provider as ReduxProvider } from 'react-redux';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import RootNavigator from './src/navigation/RootNavigator';
 import store from './src/store';
 
-import { useAppSelector } from './src/store/rtkHooks';
+import { useAppSelector, useAppDispatch } from './src/store/rtkHooks';
 import {
   initializeFirebaseServices,
   setUserId,
@@ -18,6 +19,7 @@ import {
 import { initializePerformanceMonitoring } from './src/services/performance';
 import { getCrashlytics, log } from '@react-native-firebase/crashlytics';
 import * as Sentry from '@sentry/react-native';
+import { loadTheme } from './src/store/theme/themeSlice';
 
 Sentry.init({
   dsn: 'https://ea053072099318827a0f37ec63d88913@o4510671135244288.ingest.us.sentry.io/4510671136423936',
@@ -36,6 +38,19 @@ Sentry.init({
 
 function AppContent() {
   const user = useAppSelector(s => s.auth.user);
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    AsyncStorage.getItem('theme')
+      .then((savedTheme) => {
+        if (savedTheme === 'light' || savedTheme === 'dark') {
+          dispatch(loadTheme(savedTheme));
+        }
+      })
+      .catch((error) => {
+        console.warn('Failed to load theme:', error);
+      });
+  }, [dispatch]);
 
   useEffect(() => {
     Promise.all([

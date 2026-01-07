@@ -55,6 +55,10 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
 
   const isDarkMode = theme.mode === 'dark';
 
+  const handleToggleTheme = () => {
+    dispatch(toggleTheme());
+  };
+
   return (
     <SafeAreaView
       edges={['top', 'left', 'right']}
@@ -89,7 +93,7 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
         userName={user?.name ?? null}
         email={user?.email ?? null}
         isDarkMode={isDarkMode}
-        onToggleTheme={toggleTheme}
+        onToggleTheme={handleToggleTheme}
         onClose={() => setShowMenu(false)}
         onPressSignIn={handleLogin}
         onPressSignOut={handleLogout}

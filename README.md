@@ -157,10 +157,12 @@ cd ios && pod install && cd ..
 ### Feedback
 <img src="screenshots/feedback.png" width="250" alt="Feedback">
 
+### My Location
+<img src="screenshots/my-location.png" width="250" alt="Feedback">
+
 ### Backend (MongoDB)
 <img src="screenshots/backend-3-users-db.png" width="750" alt="Users">
 <img src="screenshots/backend-2-favorites.png" width="750" alt="Favorites">
-
 
 
 

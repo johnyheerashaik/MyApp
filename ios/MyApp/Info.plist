@@ -33,9 +33,17 @@
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>
-		<false/>
+		<true/>
 		<key>NSAllowsLocalNetworking</key>
 		<true/>
+		<key>NSExceptionDomains</key>
+		<dict>
+			<key>localhost</key>
+			<dict>
+				<key>NSExceptionAllowsInsecureHTTPLoads</key>
+				<true/>
+			</dict>
+		</dict>
 	</dict>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>This app needs your location to find nearby theaters and show location-based recommendations.</string>
@@ -77,6 +85,10 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	<key>UIAppFonts</key>
+	<array>
+		<string>Ionicons.ttf</string>
+	</array>
 	<key>firebase_analytics_collection_enabled</key>
 	<true/>
 	<key>firebase_performance_collection_enabled</key>

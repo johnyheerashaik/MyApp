@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import {
   View,
   Text,
@@ -15,66 +15,6 @@ import { logUserLogin } from '../services/analytics';
 import styles from './styles';
 import { useAppDispatch, useAppSelector } from '../store/rtkHooks';
 import { signInThunk } from '../store/auth/authSlice';
-
-type RenderInputProps = {
-  colors: {
-    background: string;
-    text: string;
-    mutedText: string;
-    primary: string;
-    card: string;
-    inputBackground: string;
-    danger: string;
-  };
-  placeholder: string;
-  value: string;
-  onChangeText: (text: string) => void;
-  secureTextEntry?: boolean;
-  keyboardType?: 'email-address' | 'default';
-};
-
-function renderInput({
-  colors,
-  placeholder,
-  value,
-  onChangeText,
-  secureTextEntry,
-  keyboardType = 'default',
-}: RenderInputProps) {
-  let accessibilityLabel = '';
-  let accessibilityHint = '';
-  switch (placeholder) {
-    case STRINGS.EMAIL:
-      accessibilityLabel = ACCESSIBILITY_STRINGS.EMAIL_LABEL;
-      accessibilityHint = ACCESSIBILITY_STRINGS.EMAIL_HINT;
-      break;
-    case STRINGS.PASSWORD:
-      accessibilityLabel = ACCESSIBILITY_STRINGS.PASSWORD_LABEL;
-      accessibilityHint = ACCESSIBILITY_STRINGS.PASSWORD_HINT;
-      break;
-    default:
-      accessibilityLabel = placeholder;
-      accessibilityHint = `Enter your ${placeholder.toLowerCase()}`;
-  }
-  return (
-    <TextInput
-      style={[
-        styles.input,
-        { borderColor: colors.mutedText, color: colors.text },
-      ]}
-      placeholder={placeholder}
-      placeholderTextColor={colors.mutedText}
-      autoCapitalize="none"
-      keyboardType={keyboardType}
-      secureTextEntry={secureTextEntry}
-      value={value}
-      onChangeText={onChangeText}
-      accessibilityLabel={accessibilityLabel}
-      accessibilityHint={accessibilityHint}
-      importantForAccessibility="yes"
-    />
-  );
-}
 
 type ThemeColors = {
   background: string;
@@ -132,14 +72,28 @@ interface LoginScreenProps {
 
 export default function LoginScreen({ navigation }: LoginScreenProps) {
   const dispatch = useAppDispatch();
-  const theme = useAppSelector(state => state.theme);
+  const themeColors = useAppSelector(state => state.theme.colors);
+  const themeMutedText = useAppSelector(state => state.theme.colors.mutedText);
+  const themeText = useAppSelector(state => state.theme.colors.text);
+  const themePrimary = useAppSelector(state => state.theme.colors.primary);
+  const themeCard = useAppSelector(state => state.theme.colors.card);
+  const themeBackground = useAppSelector(state => state.theme.colors.background);
+  const themeDanger = useAppSelector(state => state.theme.colors.danger);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
 
-  const handleLogin = async () => {
+  const handleEmailChange = useCallback((text: string) => {
+    setEmail(text);
+  }, []);
+
+  const handlePasswordChange = useCallback((text: string) => {
+    setPassword(text);
+  }, []);
+
+  const handleLogin = useCallback(async () => {
     if (submitting) return;
 
     setError('');
@@ -153,45 +107,60 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
     } finally {
       setSubmitting(false);
     }
-  };
+  }, [submitting, dispatch, email, password]);
+
+  const inputStyle = useMemo(() => [
+    styles.input,
+    { borderColor: themeMutedText, color: themeText },
+  ], [themeMutedText, themeText]);
 
   return (
     <KeyboardAvoidingView
       style={[
         styles.container,
-        { backgroundColor: theme.colors.background },
+        { backgroundColor: themeBackground },
       ]}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <View style={[styles.card, { backgroundColor: theme.colors.card }]}>
-        <Text style={[styles.title, { color: theme.colors.text }]}>
+      <View style={[styles.card, { backgroundColor: themeCard }]}>
+        <Text style={[styles.title, { color: themeText }]}>
           {STRINGS.WELCOME}
         </Text>
-        <Text style={[styles.subtitle, { color: theme.colors.mutedText }]}>
+        <Text style={[styles.subtitle, { color: themeMutedText }]}>
           {STRINGS.SIGN_IN_TO_CONTINUE}
         </Text>
 
-        {renderInput({
-          colors: theme.colors,
-          placeholder: STRINGS.EMAIL,
-          value: email,
-          onChangeText: setEmail,
-          keyboardType: 'email-address',
-        })}
+        <TextInput
+          style={inputStyle}
+          placeholder={STRINGS.EMAIL}
+          placeholderTextColor={themeMutedText}
+          autoCapitalize="none"
+          keyboardType="email-address"
+          value={email}
+          onChangeText={handleEmailChange}
+          accessibilityLabel={ACCESSIBILITY_STRINGS.EMAIL_LABEL}
+          accessibilityHint={ACCESSIBILITY_STRINGS.EMAIL_HINT}
+          importantForAccessibility="yes"
+        />
 
-        {renderInput({
-          colors: theme.colors,
-          placeholder: STRINGS.PASSWORD,
-          value: password,
-          onChangeText: setPassword,
-          secureTextEntry: true,
-        })}
+        <TextInput
+          style={inputStyle}
+          placeholder={STRINGS.PASSWORD}
+          placeholderTextColor={themeMutedText}
+          autoCapitalize="none"
+          secureTextEntry
+          value={password}
+          onChangeText={handlePasswordChange}
+          accessibilityLabel={ACCESSIBILITY_STRINGS.PASSWORD_LABEL}
+          accessibilityHint={ACCESSIBILITY_STRINGS.PASSWORD_HINT}
+          importantForAccessibility="yes"
+        />
 
-        {renderErrorMessage(error, theme.colors)}
+        {renderErrorMessage(error, { background: themeBackground, text: themeText, mutedText: themeMutedText, primary: themePrimary, card: themeCard, inputBackground: '', danger: themeDanger })}
 
-        {renderSubmitButton(theme.colors, submitting, handleLogin)}
+        {renderSubmitButton({ background: themeBackground, text: themeText, mutedText: themeMutedText, primary: themePrimary, card: themeCard, inputBackground: '', danger: themeDanger }, submitting, handleLogin)}
 
         <View style={styles.signUpRow}>
-          <Text style={{ color: theme.colors.mutedText }}>
+          <Text style={{ color: themeMutedText }}>
             {STRINGS.DONT_HAVE_ACCOUNT}{' '}
           </Text>
           <TouchableOpacity
@@ -201,7 +170,7 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
             accessibilityHint={ACCESSIBILITY_STRINGS.SIGN_UP_HINT}
             importantForAccessibility="yes"
           >
-            <Text style={{ color: theme.colors.primary, fontWeight: 'bold' }}>
+            <Text style={{ color: themePrimary, fontWeight: 'bold' }}>
               {STRINGS.SIGN_UP}
             </Text>
           </TouchableOpacity>

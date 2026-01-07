@@ -1,6 +1,7 @@
+import * as Sentry from '@sentry/react-native';
 import { tmdbFetch } from './tmdbClient';
 import { trackOperation } from './performance';
-import type { Movie } from '../store/movies/types';
+import type { Movie, MovieDetails } from '../store/movies/types';
 
 const mapMovieData = (m: any): Movie => ({
   id: m.id,
@@ -19,9 +20,14 @@ export const fetchMoviesFromEndpoint = async (
   endpoint: string,
 ): Promise<Movie[]> =>
   trackOperation('fetchMoviesFromEndpoint', async () => {
-    const response = await tmdbFetch(`${endpoint}?language=en-US`);
-    const data = response.data;
-    return (data.results || []).map(mapMovieData);
+    try {
+      const response = await tmdbFetch(`${endpoint}?language=en-US`);
+      const data = response.data;
+      return (data.results || []).map(mapMovieData);
+    } catch (error) {
+      Sentry.captureException(error);
+      throw error;
+    }
   });
 
 export const getPopularMovies = () => fetchMoviesFromEndpoint('/movie/popular');
@@ -34,14 +40,19 @@ export const getTopRatedMovies = () =>
 
 export const searchMovies = async (query: string): Promise<Movie[]> =>
   trackOperation('searchMovies', async () => {
-    if (!query.trim()) {
-      return [];
+    try {
+      if (!query.trim()) {
+        return [];
+      }
+      const response = await tmdbFetch(
+        `/search/movie?query=${encodeURIComponent(query)}&language=en-US&page=1&include_adult=false`,
+      );
+      const data = response.data;
+      return (data.results || []).slice(0, 5).map(mapMovieData);
+    } catch (error) {
+      Sentry.captureException(error);
+      throw error;
     }
-    const response = await tmdbFetch(
-      `/search/movie?query=${encodeURIComponent(query)}&language=en-US&page=1&include_adult=false`,
-    );
-    const data = response.data;
-    return (data.results || []).slice(0, 5).map(mapMovieData);
   });
 
 export const getMoviesByCollection = async (collectionId: number): Promise<Movie[]> =>
@@ -53,7 +64,7 @@ export const getMoviesByCollection = async (collectionId: number): Promise<Movie
       const data = response.data;
       return (data.parts || []).map(mapMovieData);
     } catch (error) {
-      console.error('Failed to fetch collection:', error);
+      Sentry.captureException(error);
       return [];
     }
   });
@@ -67,63 +78,48 @@ export const getMoviesByKeyword = async (keywordId: number): Promise<Movie[]> =>
 
     return (data.results || []).map(mapMovieData);
   } catch (error) {
-    console.error('Failed to fetch movies by keyword:', error);
+    Sentry.captureException(error);
     return [];
   }
 };
 
-
-export const getAllMoviesData = async (): Promise<{
-  popular: Movie[];
-  nowPlaying: Movie[];
-  upcoming: Movie[];
-  topRated: Movie[];
-}> => {
-  const [popular, nowPlaying, upcoming, topRated] = await Promise.all([
-    fetchMoviesFromEndpoint('/movie/popular'),
-    fetchMoviesFromEndpoint('/movie/now_playing'),
-    fetchMoviesFromEndpoint('/movie/upcoming'),
-    fetchMoviesFromEndpoint('/movie/top_rated'),
-  ]);
-
-  return { popular, nowPlaying, upcoming, topRated };
-};
-
-
-import type { CastMember, MovieDetails } from '../store/movies/types';
-
 export const getMovieDetails = async (
   movieId: number,
 ): Promise<MovieDetails> => {
-  const response = await tmdbFetch(
-    `/movie/${movieId}?append_to_response=credits&language=en-US`,
-  );
-  const data = response.data;
+  try {
+    const response = await tmdbFetch(
+      `/movie/${movieId}?append_to_response=credits&language=en-US`,
+    );
+    const data = response.data;
 
-  return {
-    id: data.id,
-    title: data.title,
-    overview: data.overview,
-    year: data.release_date?.split('-')[0] ?? 'N/A',
-    releaseDate: data.release_date || null,
-    rating: data.vote_average,
-    runtime: data.runtime ?? null,
-    genres: (data.genres || []).map((g: any) => g.name),
-    poster: data.poster_path
-      ? `https://image.tmdb.org/t/p/w500${data.poster_path}`
-      : null,
-    backdrop: data.backdrop_path
-      ? `https://image.tmdb.org/t/p/w780${data.backdrop_path}`
-      : null,
-    cast: (data.credits?.cast || []).slice(0, 10).map((c: any) => ({
-      id: c.id,
-      name: c.name,
-      character: c.character,
-      profilePath: c.profile_path
-        ? `https://image.tmdb.org/t/p/w185${c.profile_path}`
+    return {
+      id: data.id,
+      title: data.title,
+      overview: data.overview,
+      year: data.release_date?.split('-')[0] ?? 'N/A',
+      releaseDate: data.release_date || null,
+      rating: data.vote_average,
+      runtime: data.runtime ?? null,
+      genres: (data.genres || []).map((g: any) => g.name),
+      poster: data.poster_path
+        ? `https://image.tmdb.org/t/p/w500${data.poster_path}`
         : null,
-    })),
-  };
+      backdrop: data.backdrop_path
+        ? `https://image.tmdb.org/t/p/w780${data.backdrop_path}`
+        : null,
+      cast: (data.credits?.cast || []).slice(0, 10).map((c: any) => ({
+        id: c.id,
+        name: c.name,
+        character: c.character,
+        profilePath: c.profile_path
+          ? `https://image.tmdb.org/t/p/w185${c.profile_path}`
+          : null,
+      })),
+    };
+  } catch (error) {
+    Sentry.captureException(error);
+    throw error;
+  }
 };
 
 export const getMovieTrailer = async (movieId: number): Promise<string | null> => {
@@ -141,7 +137,7 @@ export const getMovieTrailer = async (movieId: number): Promise<string | null> =
 
     return null;
   } catch (error) {
-    console.error('Failed to fetch trailer:', error);
+    Sentry.captureException(error);
     return null;
   }
 };
@@ -178,7 +174,7 @@ export const getMovieWatchProviders = async (movieId: number): Promise<WatchProv
       link: usProviders.link || null,
     };
   } catch (error) {
-    console.error('Failed to fetch watch providers:', error);
+    Sentry.captureException(error);
     return null;
   }
 };

@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/react-native';
 import { getTheatersBaseUrl } from './theatersBaseUrl';
 import { apiCall } from './api';
 import { trackOperation } from './performance';
@@ -25,39 +26,50 @@ const calculateDistance = (lat1: number, lng1: number, lat2: number, lng2: numbe
   return R * c;
 };
 
-export const fetchNearbyTheaters = async (lat: number, lng: number, baseUrl: string = getTheatersBaseUrl()): Promise<Theater[]> => {
+export const fetchNearbyTheaters = async (
+  lat: number,
+  lng: number,
+  baseUrl: string = getTheatersBaseUrl()
+): Promise<Theater[]> => {
   return trackOperation('fetchNearbyTheaters', async () => {
-    const radius = 32186.9;
-    const url = `${baseUrl}/theaters/nearby?latitude=${lat}&longitude=${lng}&radius=${radius}`;
-    const response = await apiCall<any>({
-      url,
-      method: 'GET',
-    });
-    const data = response.data;
-    if (data.error) {
-      throw new Error(data.message || data.error);
+    try {
+      const radius = 32186.9;
+      const url = `${baseUrl}/theaters/nearby?latitude=${lat}&longitude=${lng}&radius=${radius}`;
+      const response = await apiCall<any>({
+        url,
+        method: 'GET',
+      });
+      const data = response.data;
+      if (data.error) {
+        throw new Error(data.message || data.error);
+      }
+      if (!data.results) {
+        throw new Error('No results found');
+      }
+      const theatersData: Theater[] = data.results.map((place: any) => {
+        const distance = calculateDistance(
+          lat,
+          lng,
+          place.geometry.location.lat,
+          place.geometry.location.lng
+        );
+        return {
+          id: place.place_id,
+          name: place.name,
+          address: place.vicinity,
+          distance,
+          latitude: place.geometry.location.lat,
+          longitude: place.geometry.location.lng,
+        };
+      });
+      const filtered = theatersData
+        .filter(t => t.distance <= 20)
+        .sort((a, b) => a.distance - b.distance);
+      return filtered;
+    } catch (error) {
+      Sentry.captureException(error);
+      throw error;
     }
-    if (!data.results) {
-      return [];
-    }
-    const theatersData: Theater[] = data.results.map((place: any) => {
-      const distance = calculateDistance(
-        lat,
-        lng,
-        place.geometry.location.lat,
-        place.geometry.location.lng
-      );
-      return {
-        id: place.place_id,
-        name: place.name,
-        address: place.vicinity,
-        distance,
-        latitude: place.geometry.location.lat,
-        longitude: place.geometry.location.lng,
-      };
-    });
-    const filtered = theatersData.filter(t => t.distance <= 20).sort((a, b) => a.distance - b.distance);
-    return filtered;
   });
 };
 

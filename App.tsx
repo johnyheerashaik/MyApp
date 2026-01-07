@@ -17,12 +17,31 @@ import {
 } from './src/services/analytics';
 import { initializePerformanceMonitoring } from './src/services/performance';
 import { getCrashlytics, log } from '@react-native-firebase/crashlytics';
+import * as Sentry from '@sentry/react-native';
+
+Sentry.init({
+  dsn: 'https://ea053072099318827a0f37ec63d88913@o4510671135244288.ingest.us.sentry.io/4510671136423936',
+  sendDefaultPii: true,
+  enableLogs: true,
+  replaysSessionSampleRate: 0.1,
+  replaysOnErrorSampleRate: 1,
+  integrations: [
+    Sentry.mobileReplayIntegration({
+      maskAllText: true,
+      maskAllImages: true,
+      maskAllVectors: true,
+    }),
+  ],
+});
 
 function AppContent() {
   const user = useAppSelector(s => s.auth.user);
 
   useEffect(() => {
-    Promise.all([initializeFirebaseServices(), initializePerformanceMonitoring()])
+    Promise.all([
+      initializeFirebaseServices(),
+      initializePerformanceMonitoring(),
+    ])
       .then(() => {
         if (__DEV__) {
           try {
@@ -63,13 +82,14 @@ function AppContent() {
         }
 
         routeNameRef.current = currentRouteName;
-      }}>
+      }}
+    >
       <RootNavigator />
     </NavigationContainer>
   );
 }
 
-export default function App() {
+export default Sentry.wrap(function App() {
   return (
     <SafeAreaProvider>
       <ReduxProvider store={store}>
@@ -77,4 +97,4 @@ export default function App() {
       </ReduxProvider>
     </SafeAreaProvider>
   );
-}
+});

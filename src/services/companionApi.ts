@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/react-native';
 import { Movie } from '../store/movies/types';
 import { apiCall } from './api';
 import { trackOperation } from './performance';
@@ -12,24 +13,29 @@ export async function askCompanion(
   baseUrl: string = getCompanionBaseUrl(),
 ): Promise<string> {
   return trackOperation('ai_companion_chat', async () => {
-    const response = await apiCall<any>({
-      url: `${baseUrl}/companion`,
-      method: 'POST',
-      data: {
-        question,
-        favorites,
-        userName,
-        userId: userId || 'guest',
-      },
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-    const data = response.data;
-    if (!data.answer) {
-      throw new Error('Companion API failed');
+    try {
+      const response = await apiCall<any>({
+        url: `${baseUrl}/companion`,
+        method: 'POST',
+        data: {
+          question,
+          favorites,
+          userName,
+          userId: userId || 'guest',
+        },
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      const data = response.data;
+      if (!data.answer) {
+        throw new Error('Companion API failed');
+      }
+      return data.answer as string;
+    } catch (error) {
+      Sentry.captureException(error);
+      throw error;
     }
-    return data.answer as string;
   });
 }
 
@@ -40,17 +46,22 @@ export async function getMovieDataForAI(baseUrl: string = getCompanionBaseUrl())
   topRated: Movie[];
 }> {
   return trackOperation('getMovieDataForAI', async () => {
-    const response = await apiCall<any>({
-      url: `${baseUrl}/movies/all`,
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-    const data = response.data;
-    if (!data) {
-      throw new Error('Failed to fetch movie data');
+    try {
+      const response = await apiCall<any>({
+        url: `${baseUrl}/movies/all`,
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      const data = response.data;
+      if (!data) {
+        throw new Error('Failed to fetch movie data');
+      }
+      return data;
+    } catch (error) {
+      Sentry.captureException(error);
+      throw error;
     }
-    return data;
   });
 }

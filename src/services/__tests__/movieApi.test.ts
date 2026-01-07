@@ -7,7 +7,6 @@ import {
     searchMovies,
     getMoviesByCollection,
     getMoviesByKeyword,
-    getAllMoviesData,
     getMovieDetails,
     getMovieTrailer,
     getMovieWatchProviders,
@@ -198,28 +197,6 @@ describe('movieApi', () => {
             const res = await getMoviesByKeyword(1);
             expect(res).toEqual([]);
             expect(console.error).toHaveBeenCalled();
-        });
-    });
-
-    describe('getAllMoviesData', () => {
-        it('calls 4 endpoints and returns all buckets', async () => {
-            mockTmdbFetch
-                .mockResolvedValueOnce({ data: { results: [makeMovie({ id: 1 })] } }) // popular
-                .mockResolvedValueOnce({ data: { results: [makeMovie({ id: 2 })] } }) // now playing
-                .mockResolvedValueOnce({ data: { results: [makeMovie({ id: 3 })] } }) // upcoming
-                .mockResolvedValueOnce({ data: { results: [makeMovie({ id: 4 })] } }); // top rated
-
-            const res = await getAllMoviesData();
-
-            expect(res.popular[0].id).toBe(1);
-            expect(res.nowPlaying[0].id).toBe(2);
-            expect(res.upcoming[0].id).toBe(3);
-            expect(res.topRated[0].id).toBe(4);
-
-            expect(mockTmdbFetch).toHaveBeenNthCalledWith(1, '/movie/popular?language=en-US');
-            expect(mockTmdbFetch).toHaveBeenNthCalledWith(2, '/movie/now_playing?language=en-US');
-            expect(mockTmdbFetch).toHaveBeenNthCalledWith(3, '/movie/upcoming?language=en-US');
-            expect(mockTmdbFetch).toHaveBeenNthCalledWith(4, '/movie/top_rated?language=en-US');
         });
     });
 

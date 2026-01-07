@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/react-native';
 import { getAuthBaseUrl } from './authBaseUrl';
 import { sanitizeEmail } from '../utils/sanitization';
 import { apiCall } from './api';
@@ -31,17 +32,25 @@ export interface AuthResponse {
 }
 
 
-export const registerApi = async (data: RegisterData, baseUrl: string = getAuthBaseUrl()): Promise<AuthResponse> => {
-  const sanitizedData = {
-    ...data,
-    email: sanitizeEmail(data.email),
-  };
-  const response = await apiCall<AuthResponse>({
-    url: `${baseUrl}/register`,
-    method: 'POST',
-    data: sanitizedData,
-  });
-  return response.data;
+export const registerApi = async (
+  data: RegisterData,
+  baseUrl: string = getAuthBaseUrl()
+): Promise<AuthResponse> => {
+  try {
+    const sanitizedData = {
+      ...data,
+      email: sanitizeEmail(data.email),
+    };
+    const response = await apiCall<AuthResponse>({
+      url: `${baseUrl}/register`,
+      method: 'POST',
+      data: sanitizedData,
+    });
+    return response.data;
+  } catch (error) {
+    Sentry.captureException(error);
+    throw error;
+  }
 };
 
 export const loginApi = async (email: string, password: string, baseUrl: string = getAuthBaseUrl()) => {
@@ -52,7 +61,9 @@ export const loginApi = async (email: string, password: string, baseUrl: string 
   });
   const result = response.data;
   if (!result.success) {
+    Sentry.captureException(new Error(result.message || 'Invalid email or password'));
     throw new Error(result.message || 'Invalid email or password');
+
   }
   return {
     token: result.token!,

@@ -42,6 +42,21 @@ export const APP_STRINGS = {
 
   DARK_MODE: 'Dark Mode',
   LIGHT_MODE: 'Light Mode',
+
+  // Feedback Form
+  FEEDBACK_TITLE: 'Report a Bug',
+  FEEDBACK_NAME_LABEL: 'Name',
+  FEEDBACK_EMAIL_LABEL: 'Email',
+  FEEDBACK_DESCRIPTION_LABEL: 'Description',
+  FEEDBACK_NAME_PLACEHOLDER: 'Your Name',
+  FEEDBACK_EMAIL_PLACEHOLDER: 'your.email@example.org',
+  FEEDBACK_DESCRIPTION_PLACEHOLDER: "What's the bug? What did you expect?",
+  FEEDBACK_SUBMIT_BUTTON: 'Submit',
+  FEEDBACK_CANCEL_BUTTON: 'Cancel',
+  FEEDBACK_SENDING: 'Sending...',
+  FEEDBACK_REQUIRED: '*',
+  FEEDBACK_SUCCESS_TITLE: '✓ Thank You!',
+  FEEDBACK_SUCCESS_MESSAGE: 'Your feedback has been submitted successfully.',
 } as const;
 
 export const MOVIE_ENDPOINTS = {

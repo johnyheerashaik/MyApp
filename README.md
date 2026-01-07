@@ -120,7 +120,7 @@ Backend:
 **Data Flow:**
 - User logs in via SSO (Google/Apple) → Firebase issues token → App uses token for API calls → auth-server validates token and serves data → movie-companion-backend fetches movie info as needed.
 
-<img src="image-2.png" width="250" alt="Architecture">
+<img src="screenshots/architecture.png" width="250" alt="Architecture">
 
 ## 🚀 Running the App
 
@@ -135,30 +135,31 @@ cd ios && pod install && cd ..
 ## 📸 Screenshots
 
 ### Authentication & Dashboard
-<img src="screenshots/image.png" width="250" alt="Location Access Dialog">  <img src="screenshots/image-1.png" width="250" alt="Login Page"> <img src="screenshots/image-4.png" width="250" alt="Favs Dashboard">
+<img src="screenshots/auth-1-location-access.png" width="250" alt="Location Access Dialog">  <img src="screenshots/auth-2-login-page.png" width="250" alt="Login Page"> <img src="screenshots/auth-3-favs-dashboard.png" width="250" alt="Favs Dashboard">
 
 ### AI Movie Companion
-<img src="screenshots/image-5.png" width="250" alt="Movie Companion Helper">  <img src="screenshots/image-6.png" width="250" alt="Movie Companion Prompt"> <img src="screenshots/image-7.png" width="250" alt="Movie Comp Recommendations">  
+<img src="screenshots/ai-1-companion-helper.png" width="250" alt="Movie Companion Helper">  <img src="screenshots/ai-2-companion-prompt.png" width="250" alt="Movie Companion Prompt"> <img src="screenshots/ai-3-recommendations.png" width="250" alt="Movie Comp Recommendations">  
 
-<img src="screenshots/image-8.png" width="250" alt="Movie Companion Fav">  <img src="screenshots/image-9.png" width="250" alt="Movie Companion Fav Added">  <img src="screenshots/image-10.png" width="250" alt="Movie List">
+<img src="screenshots/ai-4-companion-fav.png" width="250" alt="Movie Companion Fav">  <img src="screenshots/ai-5-fav-added.png" width="250" alt="Movie Companion Fav Added">  <img src="screenshots/ai-6-movie-list.png" width="250" alt="Movie List">
 
 ### Movie Details & Trailers
-<img src="screenshots/image-11.png" width="250" alt="Movie Detail Screen">  <img src="screenshots/image-12.png" width="250" alt="Trailer Linking">  <img src="screenshots/image-13.png" width="250" alt="Linking YT">
+<img src="screenshots/movie-1-detail-screen.png" width="250" alt="Movie Detail Screen">  <img src="screenshots/movie-2-trailer-linking.png" width="250" alt="Trailer Linking">  <img src="screenshots/movie-3-linking-yt.png" width="250" alt="Linking YT">
 
 ### Theatre Finder
-<img src="screenshots/image-14.png" width="250" alt="Theatres Tab Menu">  <img src="screenshots/image-15.png" width="250" alt="Zip Modal">  <img src="screenshots/image-16.png" width="250" alt="Nearest Theatres">
+<img src="screenshots/theatre-1-tab-menu.png" width="250" alt="Theatres Tab Menu">  <img src="screenshots/theatre-2-zip-modal.png" width="250" alt="Zip Modal">  <img src="screenshots/theatre-3-nearest-theatres.png" width="250" alt="Nearest Theatres">
 
 ### Additional Features
-<img src="screenshots/image-17.png" width="250" alt="Directions Matrix"> <img src="screenshots/image-18.png" width="250" alt="Fav Sorted By Year">  <img src="screenshots/image-19.png" width="250" alt="Favs Sorted By Title">
+<img src="screenshots/additional-1-directions-matrix.png" width="250" alt="Directions Matrix"> <img src="screenshots/additional-2-fav-sorted-year.png" width="250" alt="Fav Sorted By Year">  <img src="screenshots/additional-3-favs-sorted-title.png" width="250" alt="Favs Sorted By Title">
 
 ### Dark Mode & User Management
-<img src="image.png" width="250" alt="Dark Mode / Light Mode Toggle">  <img src="image-1.png" width="250" alt="Sign Up">  
+<img src="screenshots/darkmode-1-toggle.png" width="250" alt="Dark Mode / Light Mode Toggle">  <img src="screenshots/darkmode-2-signup.png" width="250" alt="Sign Up">  
 
+### Feedback
+<img src="screenshots/feedback.png" width="250" alt="Feedback">
 
 ### Backend (MongoDB)
-![alt text](image-5.png)
-<img src="image-3.png" width="750" alt="Users">
-<img src="screenshots/image-2.png" width="750" alt="Favorites">
+<img src="screenshots/backend-3-users-db.png" width="750" alt="Users">
+<img src="screenshots/backend-2-favorites.png" width="750" alt="Favorites">
 
 
 

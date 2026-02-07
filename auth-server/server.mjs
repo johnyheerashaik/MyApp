@@ -2,7 +2,6 @@ import 'dotenv/config';
 import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
-import { startNotificationScheduler } from './services/notificationScheduler.mjs';
 import authRoutes from './routes/authRoutes.mjs';
 import favoriteRoutes from './routes/favoriteRoutes.mjs';
 import reminderRoutes from './routes/reminderRoutes.mjs';
@@ -40,5 +39,4 @@ app.get('/health', (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`🚀 Auth server running on http://localhost:${PORT}`);
-  startNotificationScheduler();
 });

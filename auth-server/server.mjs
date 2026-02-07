@@ -5,7 +5,6 @@ import cors from 'cors';
 import authRoutes from './routes/authRoutes.mjs';
 import favoriteRoutes from './routes/favoriteRoutes.mjs';
 import reminderRoutes from './routes/reminderRoutes.mjs';
-import notificationRoutes from './routes/notificationRoutes.mjs';
 import userRoutes from './routes/userRoutes.mjs';
 
 const app = express();
@@ -30,7 +29,6 @@ try {
 app.use('/api/auth', authRoutes);
 app.use('/api/favorites', favoriteRoutes);
 app.use('/api/reminders', reminderRoutes);
-app.use('/api/test', notificationRoutes);
 app.use('/api/users', userRoutes);
 
 app.get('/health', (req, res) => {

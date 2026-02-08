@@ -3,7 +3,8 @@ import { logError } from './analytics';
 import { getPerformance, httpMetric, FirebasePerformanceTypes } from '@react-native-firebase/perf';
 import { getApp } from '@react-native-firebase/app';
 
-const defaultTimeout = 15000;
+// Increased timeout to 60s to handle Render free tier cold starts (can take 30-60s)
+const defaultTimeout = 60000;
 
 const api = axios.create({
     timeout: defaultTimeout,
@@ -28,9 +29,9 @@ api.interceptors.request.use(
             if (__DEV__) console.log('[API Perf] Could not start metric:', perfError);
         }
         if (__DEV__) {
-            const methodColor = '\x1b[36m'; 
-            const urlColor = '\x1b[33m';   
-            const dataColor = '\x1b[35m'; 
+            const methodColor = '\x1b[36m';
+            const urlColor = '\x1b[33m';
+            const dataColor = '\x1b[35m';
             const resetColor = '\x1b[0m';
             const method = config.method?.toUpperCase();
             const url = config.url;
@@ -80,7 +81,7 @@ api.interceptors.response.use(
     },
     async error => {
         if (__DEV__) {
-            const errorColor = '\x1b[31m'; 
+            const errorColor = '\x1b[31m';
             const urlColor = '\x1b[33m';
             const resetColor = '\x1b[0m';
             const url = error.config?.url || 'Unknown URL';

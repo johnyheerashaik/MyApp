@@ -86,6 +86,15 @@ Backend:
 
 ---
 
+## 🌐 Deployment
+
+Backend services are deployed on **Render**:
+- `auth-server` - User authentication, favorites, and reminders
+- `movie-companion-backend` - AI companion and movie data
+
+<img src="screenshots/renderDashboard.png" width="250" alt="Render Dashboard"> 
+---
+
 ## System Architecture Overview
 
 ```

@@ -26,6 +26,7 @@ export async function askCompanion(
         headers: {
           'Content-Type': 'application/json',
         },
+        timeout: 90000, // 90 seconds for OpenAI API calls
       });
       const data = response.data;
       if (!data.answer) {

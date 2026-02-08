@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
-import { Movie, searchMovies } from '../../services/movieApi';
+import { searchMovies } from '../../services/movieApi';
+import { Movie } from '../types/types'
 import { logError } from '../../services/analytics';
 
 export function useExtractAndSearchMovies(favorites: Movie[]) {
@@ -32,7 +33,7 @@ export function useExtractAndSearchMovies(favorites: Movie[]) {
           if (title && title.length > 2 && title.length < 100 && !title.includes('\n')) {
             let t = title.trim();
             t = t.split(' - ')[0].trim();
-            t = t.replaceAll(/[.,!?;:]+$/, '').trim();
+            t = t.replace(/[.,!?;:]+$/, '').trim();
             if (t.length > 3) potentialTitles.add(t);
           }
         });

@@ -1,10 +1,10 @@
-import {useCallback, useState} from 'react';
-import {Keyboard} from 'react-native';
-import {askCompanion} from '../../services/companionApi';
-import {Movie} from '../../services/movieApi';
-import {APP_STRINGS} from '../../constants';
-import type {Message as BaseMessage} from '../types/types';
-import {logAIChat, logAIRecommendation} from '../../services/analytics';
+import { useCallback, useState } from 'react';
+import { Keyboard } from 'react-native';
+import { askCompanion } from '../../services/companionApi';
+import { Movie } from '../types/types';
+import { APP_STRINGS } from '../../constants';
+import type { Message as BaseMessage } from '../types/types';
+import { logAIChat, logAIRecommendation } from '../../services/analytics';
 
 type Message = BaseMessage & {
   suggestedMovies?: Movie[];
@@ -46,13 +46,13 @@ export function useCompanionChat({
         const reply = await askCompanion(trimmed, favorites, userName ?? 'Guest', userId ?? undefined);
 
         const botId = `bot-${Date.now()}`;
-        const botMessage: Message = {id: botId, from: 'bot', text: reply};
+        const botMessage: Message = { id: botId, from: 'bot', text: reply };
         setMessages((prev) => [...prev, botMessage]);
 
         const suggestedMovies = await extractAndSearchMovies(reply);
         if (suggestedMovies.length > 0) {
           setMessages((prev) =>
-            prev.map((m) => (m.id === botId ? {...m, suggestedMovies} : m)),
+            prev.map((m) => (m.id === botId ? { ...m, suggestedMovies } : m)),
           );
         }
 
@@ -61,7 +61,7 @@ export function useCompanionChat({
       } catch (e) {
         setMessages((prev) => [
           ...prev,
-          {id: `error-${Date.now()}`, from: 'bot', text: APP_STRINGS.SOMETHING_WENT_WRONG},
+          { id: `error-${Date.now()}`, from: 'bot', text: APP_STRINGS.SOMETHING_WENT_WRONG },
         ]);
       } finally {
         setIsLoading(false);
@@ -70,5 +70,5 @@ export function useCompanionChat({
     [favorites, userName, userId, setMessages, extractAndSearchMovies],
   );
 
-  return {isLoading, sendMessage};
+  return { isLoading, sendMessage };
 }

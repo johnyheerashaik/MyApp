@@ -5,6 +5,8 @@ import {
     removeFavorite as removeFavoriteAction,
     toggleFavorite as toggleFavoriteAction,
     fetchFavorites,
+    addFavoriteAsync,
+    removeFavoriteAsync,
 } from './favoritesSlice';
 import type { Movie } from '../movies/types';
 
@@ -20,26 +22,45 @@ export const useFavorites = () => {
 
 export const useFavoritesActions = () => {
     const dispatch = useAppDispatch();
+    const token = useAppSelector((state) => state.auth.user?.token);
+    const favorites = useAppSelector((state) => state.favorites.favorites);
 
     const addFavorite = useCallback(
         (movie: Movie) => {
-            dispatch(addFavoriteAction(movie));
+            if (token) {
+                dispatch(addFavoriteAsync({ token, movie }));
+            } else {
+                dispatch(addFavoriteAction(movie));
+            }
         },
-        [dispatch]
+        [dispatch, token]
     );
 
     const removeFavorite = useCallback(
         (id: number) => {
-            dispatch(removeFavoriteAction(id));
+            if (token) {
+                dispatch(removeFavoriteAsync({ token, movieId: id }));
+            } else {
+                dispatch(removeFavoriteAction(id));
+            }
         },
-        [dispatch]
+        [dispatch, token]
     );
 
     const toggleFavorite = useCallback(
         (movie: Movie) => {
-            dispatch(toggleFavoriteAction(movie));
+            const isFavorite = favorites.some(m => m.id === movie.id);
+            if (token) {
+                if (isFavorite) {
+                    dispatch(removeFavoriteAsync({ token, movieId: movie.id }));
+                } else {
+                    dispatch(addFavoriteAsync({ token, movie }));
+                }
+            } else {
+                dispatch(toggleFavoriteAction(movie));
+            }
         },
-        [dispatch]
+        [dispatch, token, favorites]
     );
 
     const fetchAllFavorites = useCallback(

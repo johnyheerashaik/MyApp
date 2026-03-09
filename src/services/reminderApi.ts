@@ -1,6 +1,6 @@
 import * as Sentry from '@sentry/react-native';
 import { getReminderBaseUrl } from './reminderBaseUrl';
-import { apiCall } from './api';
+import { authApiCall } from './authApi';
 import { trackOperation } from './performance';
 
 export const toggleReminder = (
@@ -11,7 +11,7 @@ export const toggleReminder = (
 ): Promise<void> =>
   trackOperation('toggleReminder', async () => {
     try {
-      const response = await apiCall<any>({
+      const data = await authApiCall<any>({
         url: `${baseUrl}/reminders/${movieId}`,
         method: 'PATCH',
         headers: {
@@ -20,7 +20,6 @@ export const toggleReminder = (
         },
         data: { reminderEnabled },
       });
-      const data = response.data;
       if (!data.success) {
         throw new Error(data.message || 'Failed to toggle reminder');
       }
@@ -36,7 +35,7 @@ export const getReminders = (
 ): Promise<any[]> =>
   trackOperation('getReminders', async () => {
     try {
-      const response = await apiCall<any>({
+      const data = await authApiCall<any>({
         url: `${baseUrl}/reminders`,
         method: 'GET',
         headers: {
@@ -44,7 +43,6 @@ export const getReminders = (
           'Content-Type': 'application/json',
         },
       });
-      const data = response.data;
       if (data.success) {
         return data.reminders;
       }
@@ -61,7 +59,7 @@ export const updatePushToken = async (
   baseUrl: string = getReminderBaseUrl()
 ): Promise<void> => {
   try {
-    const response = await apiCall<any>({
+    const data = await authApiCall<any>({
       url: `${baseUrl}/users/push-token`,
       method: 'PUT',
       headers: {
@@ -70,7 +68,6 @@ export const updatePushToken = async (
       },
       data: { pushToken },
     });
-    const data = response.data;
     if (!data.success) {
       throw new Error(data.message || 'Failed to update push token');
     }
@@ -90,7 +87,7 @@ export const updateNotificationPreferences = async (
   baseUrl: string = getReminderBaseUrl()
 ): Promise<void> => {
   try {
-    const response = await apiCall<any>({
+    const response = await authApiCall<any>({
       url: `${baseUrl}/users/notification-preferences`,
       method: 'PUT',
       headers: {

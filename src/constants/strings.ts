@@ -11,7 +11,6 @@ export const APP_STRINGS = {
   LOGIN_FAILED: 'Login failed',
   LOGOUT: 'Logout',
 
-  YOUR_FAVORITES: 'Your Favourites',
   NO_MOVIES_ADDED: "You haven't added any movies yet.",
   RATING_LABEL: '⭐ Rating',
   YEAR_LABEL: '📅 Year',

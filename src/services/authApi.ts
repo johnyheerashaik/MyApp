@@ -2,6 +2,40 @@ import * as Sentry from '@sentry/react-native';
 import { getAuthBaseUrl } from './authBaseUrl';
 import { sanitizeEmail } from '../utils/sanitization';
 import { apiCall } from './api';
+import { AxiosError } from 'axios';
+
+let onAuthFailureCallback: (() => void) | null = null;
+
+export const setAuthFailureHandler = (callback: () => void) => {
+  onAuthFailureCallback = callback;
+};
+
+export const clearAuthFailureHandler = () => {
+  onAuthFailureCallback = null;
+};
+
+export async function authApiCall<T = any>(config: any): Promise<T> {
+  try {
+    const response = await apiCall<T>(config);
+    return response.data;
+  } catch (error) {
+    const axiosError = error as AxiosError<any>;
+    const status = axiosError.response?.status;
+
+    if (status === 401 || status === 403) {
+      const errorMessage = axiosError.response?.data?.message || '';
+      if (errorMessage.includes('token') || errorMessage.includes('expired') || errorMessage.includes('Invalid')) {
+        console.log('🔐 [AuthAPI] Token expired or invalid, logging out user automatically...');
+        if (onAuthFailureCallback) {
+          setTimeout(() => {
+            onAuthFailureCallback?.();
+          }, 100);
+        }
+      }
+    }
+    throw error;
+  }
+}
 
 
 

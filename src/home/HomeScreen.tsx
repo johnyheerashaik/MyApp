@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { ScrollView } from 'react-native';
 import { signOutThunk } from '../store/auth/authSlice';
 import { useFavoritesActions } from '../store/favorites/hooks';
 import HomeHeader from '../header/HomeHeader';
@@ -69,13 +70,17 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
         onPressAvatar={() => setShowMenu(true)}
       />
 
-      <FavoritesSection
-        favorites={favorites}
-        onPressMovie={movieId =>
-          navigation.navigate('MovieDetails', { movieId })
-        }
-        onRemoveFavorite={removeFavorite}
-      />
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ flexGrow: 1 }}>
+        <FavoritesSection
+          favorites={favorites}
+          onPressMovie={movieId =>
+            navigation.navigate('MovieDetails', { movieId })
+          }
+          onRemoveFavorite={removeFavorite}
+        />
+      </ScrollView>
 
       <FloatingCompanion
         visible={showCompanion}

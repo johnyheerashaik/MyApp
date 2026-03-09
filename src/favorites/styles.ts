@@ -1,6 +1,6 @@
 
-import {StyleSheet} from 'react-native';
-import {SPACING, BORDER_RADIUS, FONT_SIZE, FONT_WEIGHT} from '../constants';
+import { StyleSheet } from 'react-native';
+import { SPACING, BORDER_RADIUS, FONT_SIZE, FONT_WEIGHT } from '../constants';
 
 export default StyleSheet.create({
   favoritesSection: {
@@ -12,6 +12,18 @@ export default StyleSheet.create({
     alignItems: 'center',
     marginBottom: SPACING.SM,
     gap: SPACING.SM,
+  },
+  viewToggle: {
+    flexDirection: 'row',
+    marginLeft: 'auto',
+    gap: SPACING.XS,
+  },
+  viewToggleButton: {
+    width: 36,
+    height: 36,
+    borderRadius: BORDER_RADIUS.LG,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   sectionTitle: {
     fontSize: FONT_SIZE.XXL,
@@ -66,7 +78,7 @@ export default StyleSheet.create({
     shadowColor: '#000',
     shadowOpacity: 0.3,
     shadowRadius: 4,
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     elevation: 4,
   },
   removeButtonText: {
@@ -87,11 +99,74 @@ export default StyleSheet.create({
     shadowColor: '#000',
     shadowOpacity: 0.3,
     shadowRadius: 4,
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     elevation: 4,
     zIndex: 10,
   },
   reminderBadgeText: {
     fontSize: FONT_SIZE.BASE,
+  },
+  listItem: {
+    flexDirection: 'row',
+    marginBottom: SPACING.MD,
+    borderRadius: BORDER_RADIUS.LG,
+    overflow: 'hidden',
+    padding: SPACING.SM,
+    position: 'relative',
+  },
+  listPoster: {
+    width: 80,
+    height: 120,
+    borderRadius: BORDER_RADIUS.MD,
+  },
+  listInfo: {
+    flex: 1,
+    marginLeft: SPACING.MD,
+    justifyContent: 'flex-start',
+  },
+  listTitle: {
+    fontSize: FONT_SIZE.LG,
+    fontWeight: FONT_WEIGHT.BOLD,
+    marginBottom: SPACING.XS,
+  },
+  listMeta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.XS,
+    marginBottom: SPACING.XS,
+  },
+  listMetaText: {
+    fontSize: FONT_SIZE.SM,
+  },
+  listOverview: {
+    fontSize: FONT_SIZE.SM,
+    lineHeight: 18,
+  },
+  listReminderBadge: {
+    alignSelf: 'flex-start',
+    paddingHorizontal: SPACING.SM,
+    paddingVertical: SPACING.XS,
+    borderRadius: BORDER_RADIUS.MD,
+    marginTop: SPACING.XS,
+  },
+  listReminderText: {
+    color: '#ffffff',
+    fontSize: FONT_SIZE.XS,
+    fontWeight: FONT_WEIGHT.SEMI_BOLD,
+  },
+  listRemoveButton: {
+    position: 'absolute',
+    top: SPACING.SM,
+    right: SPACING.SM,
+    width: 28,
+    height: 28,
+    borderRadius: BORDER_RADIUS.XXL,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 4,
   },
 });

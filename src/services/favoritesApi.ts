@@ -1,13 +1,12 @@
 import * as Sentry from '@sentry/react-native';
 import { Movie } from '../store/movies/types';
-import { apiCall } from './api';
-
-
+import { authApiCall } from './authApi';
 import { getFavoritesBaseUrl } from './baseUrl';
 
 export const getFavorites = async (token: string, baseUrl: string = getFavoritesBaseUrl()): Promise<Movie[]> => {
   try {
-    const response = await apiCall<any>({
+
+    const data = await authApiCall<any>({
       url: baseUrl,
       method: 'GET',
       headers: {
@@ -15,9 +14,9 @@ export const getFavorites = async (token: string, baseUrl: string = getFavorites
         'Content-Type': 'application/json',
       },
     });
-    const data = response.data;
+
     if (data.success) {
-      return data.favorites.map((fav: any) => ({
+      const mapped = data.favorites.map((fav: any) => ({
         id: fav.movieId,
         title: fav.title,
         poster: fav.posterPath,
@@ -28,6 +27,7 @@ export const getFavorites = async (token: string, baseUrl: string = getFavorites
         reminderEnabled: fav.reminderEnabled || false,
         reminderSent: fav.reminderSent || false,
       }));
+      return mapped;
     }
     throw new Error(data.message || 'Failed to fetch favorites');
   } catch (error) {
@@ -38,7 +38,8 @@ export const getFavorites = async (token: string, baseUrl: string = getFavorites
 
 export const addFavorite = async (token: string, movie: Movie, baseUrl: string = getFavoritesBaseUrl()): Promise<void> => {
   try {
-    const response = await apiCall<any>({
+
+    const data = await authApiCall<any>({
       url: baseUrl,
       method: 'POST',
       headers: {
@@ -54,7 +55,7 @@ export const addFavorite = async (token: string, movie: Movie, baseUrl: string =
         overview: movie.overview || '',
       },
     });
-    const data = response.data;
+
     if (!data.success) {
       throw new Error(data.message || 'Failed to add favorite');
     }
@@ -66,7 +67,7 @@ export const addFavorite = async (token: string, movie: Movie, baseUrl: string =
 
 export const removeFavorite = async (token: string, movieId: number, baseUrl: string = getFavoritesBaseUrl()): Promise<void> => {
   try {
-    const response = await apiCall<any>({
+    const data = await authApiCall<any>({
       url: `${baseUrl}/${movieId}`,
       method: 'DELETE',
       headers: {
@@ -74,7 +75,6 @@ export const removeFavorite = async (token: string, movieId: number, baseUrl: st
         'Content-Type': 'application/json',
       },
     });
-    const data = response.data;
     if (!data.success) {
       throw new Error(data.message || 'Failed to remove favorite');
     }

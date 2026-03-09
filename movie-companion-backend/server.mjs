@@ -1,7 +1,9 @@
-import 'dotenv/config';
+import dotenv from 'dotenv';
 import express from 'express';
 import cors from 'cors';
 import OpenAI from 'openai';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 import { fetchAllMoviesFromTMDB, getGenreMap } from './helpers/tmdb.mjs';
 import { getUserSession, analyzeGenresFromFavorites, cleanOldSessions } from './helpers/userSession.mjs';
@@ -9,8 +11,24 @@ import { buildMovieContext } from './helpers/movieContext.mjs';
 import { generateSystemPrompt } from './prompts/systemPrompt.mjs';
 import { generateUserPrompt } from './prompts/userPrompt.mjs';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+dotenv.config({ path: path.join(__dirname, '.env') });
+dotenv.config({ path: path.join(__dirname, '..', '.env') });
+
 const app = express();
-const port = process.env.PORT || 4000;
+const getPortFromApiBaseUrl = () => {
+  if (!process.env.API_BASE_URL) return undefined;
+  try {
+    const apiBaseUrl = new URL(process.env.API_BASE_URL);
+    return apiBaseUrl.port ? Number(apiBaseUrl.port) : undefined;
+  } catch {
+    return undefined;
+  }
+};
+
+const port = Number(process.env.PORT || process.env.MOVIE_BACKEND_PORT || getPortFromApiBaseUrl() || 4000);
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -241,6 +259,14 @@ app.get('/geocode/zipcode', async (req, res) => {
 // ============================================
 // START SERVER
 // ============================================
-app.listen(port, () => {
+const server = app.listen(port, () => {
   console.log(`🎬 Movie Companion server listening on http://localhost:${port}`);
+});
+
+server.on('error', (err) => {
+  if (err.code === 'EADDRINUSE') {
+    console.error(`❌ Port ${port} is already in use. Update API_BASE_URL in root .env (or set PORT in movie-companion-backend/.env).`);
+    process.exit(1);
+  }
+  throw err;
 });

@@ -14,6 +14,7 @@ import styles from './styles';
 import { SPACING, BORDER_RADIUS, FONT_SIZE, FONT_WEIGHT } from '../constants';
 
 type SortOption = 'rating' | 'year' | 'title';
+type ViewMode = 'gallery' | 'list';
 
 type Props = {
   favorites: Movie[];
@@ -24,6 +25,7 @@ type Props = {
 export default function FavoritesSection({ favorites, onPressMovie, onRemoveFavorite }: Props) {
   const theme = useAppSelector(state => state.theme);
   const [sortBy, setSortBy] = useState<SortOption>('rating');
+  const [viewMode, setViewMode] = useState<ViewMode>('gallery');
 
   const sortedFavorites = useMemo(() => {
     const sorted = [...favorites];
@@ -51,9 +53,28 @@ export default function FavoritesSection({ favorites, onPressMovie, onRemoveFavo
           {STRINGS.YOUR_FAVORITES}
         </Text>
         {favorites.length > 0 && (
-          <Text style={[styles.countBadge, { color: theme.colors.mutedText }]}>
-            {favorites.length}
-          </Text>
+          <View style={styles.viewToggle}>
+            <TouchableOpacity
+              style={[
+                styles.viewToggleButton,
+                { backgroundColor: viewMode === 'gallery' ? theme.colors.primary : theme.colors.card },
+              ]}
+              onPress={() => setViewMode('gallery')}>
+              <Text style={{ color: viewMode === 'gallery' ? theme.colors.white : theme.colors.text, fontSize: 18 }}>
+                ⊞
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                styles.viewToggleButton,
+                { backgroundColor: viewMode === 'list' ? theme.colors.primary : theme.colors.card },
+              ]}
+              onPress={() => setViewMode('list')}>
+              <Text style={{ color: viewMode === 'list' ? theme.colors.white : theme.colors.text, fontSize: 18 }}>
+                ☰
+              </Text>
+            </TouchableOpacity>
+          </View>
         )}
       </View>
 
@@ -99,7 +120,7 @@ export default function FavoritesSection({ favorites, onPressMovie, onRemoveFavo
         <Text style={[styles.emptyText, { color: theme.colors.mutedText }]}>
           {STRINGS.NO_MOVIES_ADDED}
         </Text>
-      ) : (
+      ) : viewMode === 'gallery' ? (
         <View style={{ minHeight: SPACING.XXXL, paddingBottom: SPACING.BASE }}>
           <FlatList
             horizontal
@@ -148,6 +169,61 @@ export default function FavoritesSection({ favorites, onPressMovie, onRemoveFavo
               </View>
             )}
           />
+        </View>
+      ) : (
+        <View style={{ paddingBottom: SPACING.BASE }}>
+          {sortedFavorites.map((item, index) => (
+            <TouchableOpacity
+              key={item?.id == null ? `favorite-${index}` : String(item.id)}
+              style={[styles.listItem, { backgroundColor: theme.colors.card }]}
+              onPress={() => onPressMovie(item.id)}>
+              {item.poster && (
+                <Image
+                  source={{ uri: item.poster }}
+                  style={styles.listPoster}
+                />
+              )}
+              <View style={styles.listInfo}>
+                <Text
+                  numberOfLines={2}
+                  style={[styles.listTitle, { color: theme.colors.text }]}>
+                  {item.title}
+                </Text>
+                <View style={styles.listMeta}>
+                  <Text style={[styles.listMetaText, { color: theme.colors.mutedText }]}>
+                    {item.year}
+                  </Text>
+                  <Text style={[styles.listMetaText, { color: theme.colors.mutedText }]}>
+                    •
+                  </Text>
+                  <Text style={[styles.listMetaText, { color: theme.colors.mutedText }]}>
+                    ⭐ {item.rating.toFixed(1)}
+                  </Text>
+                </View>
+                {item.overview && (
+                  <Text
+                    numberOfLines={2}
+                    style={[styles.listOverview, { color: theme.colors.mutedText }]}>
+                    {item.overview}
+                  </Text>
+                )}
+                {item.reminderEnabled && (
+                  <View style={[styles.listReminderBadge, { backgroundColor: theme.colors.primary }]}>
+                    <Text style={styles.listReminderText}>🔔 Reminder Set</Text>
+                  </View>
+                )}
+              </View>
+              {onRemoveFavorite && (
+                <TouchableOpacity
+                  style={[styles.listRemoveButton, {
+                    backgroundColor: theme.colors.danger,
+                  }]}
+                  onPress={() => onRemoveFavorite(item.id)}>
+                  <Text style={styles.removeButtonText}>✕</Text>
+                </TouchableOpacity>
+              )}
+            </TouchableOpacity>
+          ))}
         </View>
       )}
     </View>

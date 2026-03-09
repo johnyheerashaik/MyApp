@@ -2,6 +2,7 @@ import { registerGlobalErrorHandler } from './src/utils/globalErrorHandler';
 registerGlobalErrorHandler();
 
 import React, { useEffect } from 'react';
+import { Alert } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Provider as ReduxProvider } from 'react-redux';
@@ -20,6 +21,8 @@ import { initializePerformanceMonitoring } from './src/services/performance';
 import { getCrashlytics, log } from '@react-native-firebase/crashlytics';
 import * as Sentry from '@sentry/react-native';
 import { loadTheme } from './src/store/theme/themeSlice';
+import { signOutThunk } from './src/store/auth/authSlice';
+import { setAuthFailureHandler, clearAuthFailureHandler } from './src/services/authApi';
 
 Sentry.init({
   dsn: 'https://ea053072099318827a0f37ec63d88913@o4510671135244288.ingest.us.sentry.io/4510671136423936',
@@ -39,6 +42,29 @@ Sentry.init({
 function AppContent() {
   const user = useAppSelector(s => s.auth.user);
   const dispatch = useAppDispatch();
+
+  // Set up automatic logout on token expiration
+  useEffect(() => {
+    const handleAuthFailure = () => {
+      console.log('🔐 [App] Auto-logout triggered due to expired/invalid token');
+
+      // Show user-friendly message
+      Alert.alert(
+        'Session Expired',
+        'Your session has expired. Please sign in again.',
+        [{ text: 'OK' }],
+        { cancelable: false }
+      );
+
+      dispatch(signOutThunk() as any);
+    };
+
+    setAuthFailureHandler(handleAuthFailure);
+
+    return () => {
+      clearAuthFailureHandler();
+    };
+  }, [dispatch]);
 
   useEffect(() => {
     AsyncStorage.getItem('theme')
